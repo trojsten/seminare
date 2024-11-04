@@ -1,0 +1,39 @@
+@import 'tippy.js/dist/tippy.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.btn {
+    @apply px-3 py-1.5 rounded text-white font-bold inline-flex gap-1.5 items-center;
+}
+
+.btn-primary {
+    @apply bg-blue-800 hover:bg-blue-900;
+}
+
+.btn-danger {
+    @apply bg-red-600 hover:bg-red-700;
+}
+
+.input {
+    @apply w-full rounded px-3 py-1.5 inline-flex;
+}
+
+.checkbox {
+    @apply rounded;
+}
+
+.input:disabled {
+    @apply cursor-not-allowed bg-gray-100;
+}
+
+.link {
+    @apply text-blue-600 hover:text-blue-900 hover:underline;
+}
+
+iconify-icon {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+}

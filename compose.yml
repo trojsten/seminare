@@ -1,0 +1,36 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+
+  web:
+    build:
+      context: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./:/app/
+    environment: &env
+      - DEBUG=True
+      - DATABASE_URL=psql://postgres:postgres@db/postgres
+    env_file:
+      - .env
+    depends_on:
+      - db
+    command: "/app/entrypoint.sh dev"
+
+  tailwind:
+    build:
+      context: .
+      target: cssbuild
+    volumes:
+      - ./:/app/
+    tty: true
+
+volumes:
+  postgres_data:
