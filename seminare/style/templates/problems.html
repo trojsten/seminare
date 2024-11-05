@@ -1,11 +1,12 @@
 {% extends "base.html" %}
-
+{% load tz %} 
+{% load custom_tags %}
 {% block body %}
     <h1 class="text-3xl font-bold mb-4">Aktuálne úlohy</h1>
 
     <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
         <div class="sm:col-span-3">
-            <h2 class="text-lg font-bold">1. kolo, 125. časť, 85. ročník KMS</h2>
+            <h2 class="text-lg font-bold">{{ problem_set.name }}</h2>
             <table class="w-full mb-4 text-sm">
                 <thead>
                 <tr class="border-b border-gray-400">
@@ -15,64 +16,18 @@
                 </tr>
                 </thead>
                 <tbody class="divide-y">
-                <tr class="bg-gray-50 text-gray-500">
-                    <td class="p-2 whitespace-nowrap">1.</td>
+                {% for problem in problems %}
+                    <tr {% if problem.category == 0 %}class="bg-gray-50 text-gray-500"{% elif submits|dict_key:problem.id != 0%}class="bg-green-50 text-green-600"{% endif %}>
+                    <td class="p-2 whitespace-nowrap">{{ forloop.counter }}</td>
                     <td class="p-2">
-                        <a href="#" class="link">Krásny marhuľový sorbet</a>
+                        <a href="{% url "detail" problem.id %}" class="link">{{ problem.name }}</a>
                     </td>
-                    <td class="p-2 whitespace-nowrap">0 / 20</td>
+                        {% with id=problem.id %}
+                    <td class="p-2 whitespace-nowrap">{{ submits|default:0|dict_key:problem.id }}  / {{ problem.max_score|floatformat:0 }}</td>
+                    {% endwith %}
                 </tr>
-                <tr>
-                    <td class="p-2 whitespace-nowrap">2.</td>
-                    <td class="p-2">
-                        <a href="#" class="link">Konečne milý svet</a>
-                    </td>
-                    <td class="p-2 whitespace-nowrap">0 / 20</td>
-                </tr>
-                <tr>
-                    <td class="p-2 whitespace-nowrap">3.</td>
-                    <td class="p-2">
-                        <a href="#" class="link">Konečne milý svet</a>
-                    </td>
-                    <td class="p-2 whitespace-nowrap">0 / 20</td>
-                </tr>
-                <tr>
-                    <td class="p-2 whitespace-nowrap">4.</td>
-                    <td class="p-2">
-                        <a href="#" class="link">Konečne milý svet</a>
-                    </td>
-                    <td class="p-2 whitespace-nowrap">0 / 20</td>
-                </tr>
-                <tr>
-                    <td class="p-2 whitespace-nowrap">5.</td>
-                    <td class="p-2">
-                        <a href="#" class="link">Konečne milý svet</a>
-                    </td>
-                    <td class="p-2 whitespace-nowrap">0 / 20</td>
-                </tr>
-                <tr>
-                    <td class="p-2 whitespace-nowrap">6.</td>
-                    <td class="p-2">
-                        <a href="#" class="link">Konečne milý svet</a>
-                    </td>
-                    <td class="p-2 whitespace-nowrap">0 / 20</td>
-                </tr>
-                <tr>
-                    <td class="p-2 whitespace-nowrap">7.</td>
-                    <td class="p-2">
-                        <a href="#" class="link">Konečne milý svet</a>
-                    </td>
-                    <td class="p-2 whitespace-nowrap">0 / 20</td>
-                </tr>
-                <tr class="bg-green-50 text-green-600">
-                    <td class="p-2 whitespace-nowrap">8.</td>
-                    <td class="p-2">
-                        <a href="#" class="link">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Error,
-                            quod.</a>
-                    </td>
-                    <td class="p-2 whitespace-nowrap">? / 20</td>
-                </tr>
-                </tbody>
+                {% endfor %}
+                
             </table>
 
             <div class="flex sm:items-center flex-col sm:flex-row flex-wrap gap-y-2 gap-x-4">
@@ -92,9 +47,8 @@
         </div>
         <div class="">
             <h2 class="text-lg font-bold">Termíny</h2>
-
-            <p>Niečo niečo: 24. december 2024 <span class="text-red-600">(o 4 dni)</span></p>
-            <p>Niečo niečo: 24. december 2024</p>
+            
+            <p>Koniec kola: {{ problem_set.deadline }} <span class="text-red-600">({{ problem_set.deadline|timeuntil }})</span></p>
         </div>
     </div>
 {% endblock %}
