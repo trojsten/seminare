@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block body %}
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="hidden md:block">
+            <p class="font-bold mb-4">1. kolo, 125. časť, 85. ročník KMS</p>
+
+            <div class="space-y-1">
+                <a href="#" class="py-2 px-3 block rounded hover:bg-gray-200 bg-gray-100 text-gray-500">1. Lorem ipsum dolor.</a>
+                <a href="#" class="py-2 px-3 block rounded hover:bg-gray-200">2. Lorem ipsum dolor.</a>
+                <a href="#" class="py-2 px-3 block rounded hover:bg-gray-200 font-bold">3. Lorem ipsum dolor.</a>
+                <a href="#" class="py-2 px-3 block rounded hover:bg-gray-200">4. Lorem ipsum dolor.</a>
+                <a href="#" class="py-2 px-3 block rounded hover:bg-gray-200 bg-green-100 text-green-600">5. Lorem ipsum dolor.</a>
+            </div>
+        </div>
+
+        <div class="prose mx-auto md:col-span-2 text-justify">
+            <h1>3. Konečne milý svet</h1>
+            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusantium architecto aspernatur at commodi
+                delectus dolores earum enim ex harum magnam modi molestias natus, necessitatibus non odit officia officiis
+                quae quaerat quasi quidem quis reiciendis saepe sed similique sit suscipit tempora tempore velit vero
+                voluptates. Ad assumenda deleniti enim explicabo, in inventore, laudantium natus nihil quo sint sit, vitae?
+                Consequuntur fugit in quidem quo quod totam ullam ut vel voluptates. Asperiores blanditiis commodi impedit
+                laborum libero modi non praesentium provident quam qui, ratione repudiandae sint sit tempore unde! Adipisci,
+                consectetur consequatur corporis culpa dolor doloribus eius eum ex exercitationem expedita explicabo non
+                placeat quod vel voluptatibus? Alias aliquam animi aut consectetur cum cumque dolores eaque earum eligendi
+                est eum expedita fugiat laudantium magni nam obcaecati optio provident, quae qui quod saepe sed voluptatum.
+                Accusamus aliquam animi aperiam dolor doloribus, enim fugit numquam obcaecati pariatur qui quis
+                reprehenderit? Eius, exercitationem, explicabo facilis fugiat fugit iste labore necessitatibus nemo nisi
+                nobis nostrum obcaecati quibusdam quidem quos ratione recusandae saepe, similique soluta vitae voluptatem.
+                Ab architecto aspernatur consequuntur debitis dolores doloribus eligendi eum explicabo fuga iste laudantium
+                maiores minima minus nam necessitatibus numquam obcaecati officiis perspiciatis, quibusdam similique unde,
+                vero vitae, voluptatem. Animi, consequuntur!</p>
+        </div>
+
+        <div class="max-w-prose">
+            <p class="font-bold mb-4">Odovzdávanie</p>
+            <div class="border rounded-md text-center p-4 bg-gray-100 text-gray-700">
+                <iconify-icon icon="mdi:upload" width="none" class="w-10 h-10"></iconify-icon>
+                <p class="-mt-2">Vyber alebo presuň tvoje riešenie sem</p>
+            </div>
+            <p class="font-bold mb-4">Odovzdané riešenie</p>
+            <div class="space-y-1">
+                <a href="#" class="py-2 px-3 block rounded hover:bg-gray-200">1. Lorem ipsum dolor.</a>
+                <a href="#" class="py-2 px-3 block rounded hover:bg-gray-200">2. Lorem ipsum dolor.</a>
+                <a href="#" class="py-2 px-3 block rounded hover:bg-gray-200">3. Lorem ipsum dolor.</a>
+                <a href="#" class="py-2 px-3 block rounded hover:bg-gray-200">4. Lorem ipsum dolor.</a>
+                <a href="#" class="py-2 px-3 block rounded hover:bg-gray-200">5. Lorem ipsum dolor.</a>
+            </div>
+        </div>
+    </div>
+{% endblock %}
