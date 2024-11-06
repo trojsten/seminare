@@ -1,5 +1,5 @@
 from django.db.models import Max
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 
 from seminare.problemy.models import Problem, ProblemSet, Submit
 
@@ -35,3 +35,9 @@ def problem_detail(request, id):
         "submits": submits,
     }
     return render(request, "problem_detail.html", context=context)
+
+
+def problem_submit(request, id):
+    Submit.objects.create(problem_id=id, user=request.user, score=0)
+
+    return redirect("detail", id=id)

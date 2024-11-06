@@ -7,4 +7,5 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("", views.problem_list, name="main"),
     path("problem/<id>/", views.problem_detail, name="detail"),
+    path("problem/<id>/submit/", views.problem_submit, name="submit"),
 ]
