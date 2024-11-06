@@ -17,13 +17,13 @@
                 </thead>
                 <tbody class="divide-y">
                 {% for problem in problems %}
-                    <tr {% if problem.category == 0 %}class="bg-gray-50 text-gray-500"{% elif submits|dict_key:problem.id != 0%}class="bg-green-50 text-green-600"{% endif %}>
+                    <tr {% if problem.category == 0 %}class="bg-gray-100 text-gray-500"{% elif submits|dict_key:problem.id is not None %}class="bg-green-100 text-green-600"{% endif %}>
                     <td class="p-2 whitespace-nowrap">{{ forloop.counter }}</td>
                     <td class="p-2">
                         <a href="{% url "detail" problem.id %}" class="link">{{ problem.name }}</a>
                     </td>
                         {% with id=problem.id %}
-                    <td class="p-2 whitespace-nowrap">{{ submits|default:0|dict_key:problem.id }}  / {{ problem.max_score|floatformat:0 }}</td>
+                    <td class="p-2 whitespace-nowrap">{{ submits|dict_key:problem.id|default_if_none:0|floatformat:"g" }}  / {{ problem.max_score|floatformat:"g" }}</td>
                     {% endwith %}
                 </tr>
                 {% endfor %}

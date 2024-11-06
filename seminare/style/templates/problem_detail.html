@@ -23,7 +23,7 @@
 
         <div class="max-w-prose">
             <p class="font-bold mb-4">Odovzdávanie</p>
-            <div class="border rounded-md text-center p-4 bg-gray-100 text-gray-700 cursor-pointer" onclick="document.getElementById('form').classList.remove('hidden')">
+            <div class="border rounded-md text-center p-4 bg-gray-100 text-gray-700 cursor-pointer" onclick="document.getElementById('filepicker').click(); document.getElementById('form').classList.remove('hidden')">
                 <iconify-icon icon="mdi:upload" width="none" class="w-10 h-10"></iconify-icon>
                 <p class="-mt-2">Vyber alebo presuň tvoje riešenie sem</p>
             </div>
@@ -31,11 +31,13 @@
             <form action="{% url 'submit' problem.id %}" id="form" class="hidden">
                 <div class="mt-2">
                     <span class="bg-gray-100 text-gray-700 border rounded-md px-2 py-1 text-sm inline-flex items-center">
-                        jozko_vajda.jpg
+                        Image.jpg
 
-                        <iconify-icon class="ml-1" icon="mdi:close"></iconify-icon>
+                        <iconify-icon class="ml-1" icon="mdi:close" onclick="document.getElementById('form').classList.add('hidden')"></iconify-icon>
                     </span>
                 </div>
+
+                <input type="file" accept="image/jpeg" class="hidden" id="filepicker">
 
                 <button class="bg-green-600 text-white py-2 px-3 font-bold rounded-md mt-2">
                     Odovzdať

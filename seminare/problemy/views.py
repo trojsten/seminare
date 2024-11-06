@@ -4,6 +4,10 @@ from django.shortcuts import redirect, render
 from seminare.problemy.models import Problem, ProblemSet, Submit
 
 
+def home(request):
+    return render(request, "home.html")
+
+
 def problem_list(request):
     problem_set = ProblemSet.objects.first()
     problems = Problem.objects.filter(problem_set=problem_set)
@@ -13,7 +17,7 @@ def problem_list(request):
         highest_submit = Submit.objects.filter(
             problem=problem, user=request.user
         ).aggregate(max_score=Max("score"))["max_score"]
-        submits[problem.id] = highest_submit or 0
+        submits[problem.id] = highest_submit
     context = {"problem_set": problem_set, "problems": problems, "submits": submits}
     return render(request, "problems.html", context=context)
 
