@@ -15,7 +15,7 @@ class Problem(models.Model):
     content = models.fields.TextField(blank=True)
     category = models.fields.IntegerField()
     max_score = models.fields.FloatField(default=20)
-    problem_set = models.ForeignKey(ProblemSet, on_delete=models.CASCADE)
+    problem_set = models.ForeignKey(ProblemSet, on_delete=models.CASCADE, related_name="problems")
 
     def __str__(self):
         return self.name

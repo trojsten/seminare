@@ -10,7 +10,7 @@ def home(request):
 
 def problem_list(request):
     problem_set = ProblemSet.objects.first()
-    problems = Problem.objects.filter(problem_set=problem_set)
+    problems = problem_set.problems.all()
     submits = dict()
 
     for problem in problems:
