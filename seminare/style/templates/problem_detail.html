@@ -16,13 +16,34 @@
             </div>
         </div>
 
-        <div class="prose mx-auto w-full md:col-span-2 text-justify">
-            <h1>{{ problem.name }}</h1>
-            <p>{{ problem.content }}</p>
+        <div class="mx-auto max-w-prose w-full md:col-span-2">
+            <a href="{% url 'main' %}" class="mb-2 inline-flex items-center text-blue-700 hover:text-blue-900 md:hidden">
+                <iconify-icon icon="mdi:arrow-left" class="mr-2"></iconify-icon> Späť
+            </a>
+
+            {% if problem_submits %}
+            <div class="border rounded-md border-green-300 p-4 bg-green-100 text-green-700 mb-4 flex items-center">
+                <iconify-icon icon="mdi:check-bold" class="mr-2 shrink-0"></iconify-icon>
+                Riešenie tejto úlohy si už nahral/a!
+            </div>
+            {% endif %}
+
+            <div class="prose">
+                <h1>{{ problem.name }}</h1>
+                <p>{{ problem.content }}</p>
+            </div>
         </div>
 
         <div class="max-w-prose">
             <p class="font-bold mb-4">Odovzdávanie</p>
+
+            {% if problem.category == 0 %}
+            <div class="border rounded-md border-orange-300 p-4 bg-orange-100 text-orange-700 mb-4 flex items-center">
+                <iconify-icon icon="mdi:warning" class="mr-2 shrink-0"></iconify-icon>
+                Za túto úlohu nedostávaš v svojej kategórií body.
+            </div>
+            {% endif %}
+
             <div class="border rounded-md text-center p-4 bg-gray-100 text-gray-700 cursor-pointer" onclick="document.getElementById('filepicker').click(); document.getElementById('form').classList.remove('hidden')">
                 <iconify-icon icon="mdi:upload" width="none" class="w-10 h-10"></iconify-icon>
                 <p class="-mt-2">Vyber alebo presuň tvoje riešenie sem</p>
