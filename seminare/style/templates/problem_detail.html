@@ -34,7 +34,7 @@
             </div>
         </div>
 
-        <div class="max-w-prose">
+        <div class="max-w-prose" id="odovzdavanie">
             <p class="font-bold mb-4">Odovzdávanie</p>
 
             {% if problem.category == 0 %}
@@ -77,4 +77,9 @@
             </div>
         </div>
     </div>
+		<div class="fixed bottom-2 right-2 w-fit m-auto">
+        <a href="#odovzdavanie">
+	        <button type="button" class="md:hidden inline-flex bg-blue-800 text-white rounded p-2"><iconify-icon icon="mdi:arrow-down" width="none" class="w-6 h-6"></iconify-icon>Prejsť na odovzdávanie</button>
+        </a>
+	  </div>
 {% endblock %}
