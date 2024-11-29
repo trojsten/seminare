@@ -9,6 +9,10 @@ def home(request):
     return render(request, "home.html")
 
 
+def rules(request):
+    return render(request, "rules.html")
+
+
 def problem_list(request):
     problem_set = ProblemSet.objects.first()
     problems = problem_set.problems.all()

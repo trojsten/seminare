@@ -10,5 +10,6 @@ urlpatterns = [
     path("problems/", views.problem_list, name="main"),
     path("problem/<id>/", views.problem_detail, name="detail"),
     path("problem/<id>/submit/", views.problem_submit, name="submit"),
+    path("rules", views.rules, name="rules"),
     path("__debug__/", include(debug_toolbar.urls)),
 ]
