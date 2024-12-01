@@ -1,8 +1,8 @@
-from django.contrib.auth.models import User
 from django.db.models import Max
 from django.shortcuts import redirect, render
 
 from seminare.problemy.models import Problem, ProblemSet, Submit
+from seminare.users.models import User
 
 
 def home(request):
@@ -15,7 +15,10 @@ def rules(request):
 
 def problem_list(request):
     problem_set = ProblemSet.objects.first()
-    problems = problem_set.problems.all()
+    if not problem_set.problems.exists():
+        problems = {}
+    else:
+        problems = problem_set.problems.all()
     user = User.objects.first()
     submits = dict()
 
