@@ -1,11 +1,18 @@
+import os
+import secrets
+
 from django.db import models
 
 from seminare.problems.models import Problem
 from seminare.users.models import Enrollment
 
 
-def submit_file_file(instance, filename):
-    return "didky"
+def submit_file_filepath(instance, filename):
+    _, ext = os.path.splitext(filename)
+    rnd_str = secrets.token_hex(8)
+    return "submits/{0}/{1}/{2}{3}".format(
+        instance.problem, instance.enrollemnt.user, rnd_str, ext
+    )
 
 
 class Submit(models.Model):
@@ -21,7 +28,7 @@ class Submit(models.Model):
     graded = models.BooleanField()
     protocol = models.TextField(blank=True)
     enrollment = models.ForeignKey(Enrollment, on_delete=models.CASCADE)
-    file = models.FileField(upload_to=submit_file_file)
+    file = models.FileField(upload_to=submit_file_filepath)
 
     class Meta:
         ordering = ["created_at", "score"]
