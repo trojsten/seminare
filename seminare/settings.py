@@ -23,7 +23,6 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     #
     "seminare.style",
-    "seminare.problemy",
     #
     "django_probes",
     "debug_toolbar",
