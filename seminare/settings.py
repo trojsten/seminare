@@ -23,6 +23,9 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     #
     "seminare.style",
+    "seminare.users",
+    "seminare.submits",
+    "seminare.problems",
     #
     "django_probes",
     "debug_toolbar",
@@ -109,3 +112,5 @@ if DEBUG:
 
     hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
     INTERNAL_IPS = [ip[: ip.rfind(".")] + ".1" for ip in ips] + ["127.0.0.1"]
+
+AUTH_USER_MODEL = "users.User"
