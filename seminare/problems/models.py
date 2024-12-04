@@ -26,14 +26,14 @@ class Problem(models.Model):
 
 
 class Text(models.Model):
-    class TextTypes(models.TextChoices):
+    class Type(models.TextChoices):
         PROBLEM_STATEMENT = "PS", "Problem statement"
         EXAMPLE_SOLUTION = "ES", "Example solution"
         SUSI_SMALL_HINT = "SSH", "Susi small hint"
         SUSI_LARGE_HINT = "SLH", "Susi large hint"
 
     text = models.TextField(blank=True)
-    type = models.CharField(choices=TextTypes)
+    type = models.CharField(choices=Type)
     problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
 
     class Meta:
