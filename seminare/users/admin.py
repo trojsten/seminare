@@ -20,4 +20,5 @@ class EnrollmentAdmin(admin.ModelAdmin):
 
 @admin.register(School)
 class SchoolAdmin(admin.ModelAdmin):
-    list_display = ["name", "short_name", "edu_id", "adress"]
+    search_fields = ["name", "edu_id", "address"]
+    list_display = ["name", "short_name", "edu_id", "address"]
