@@ -17,7 +17,9 @@ class BaseSubmit(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     score = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
-    scored_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    scored_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, blank=True, null=True
+    )
     comment = models.TextField(blank=True)
 
     class Meta:
@@ -30,7 +32,7 @@ class BaseSubmit(models.Model):
 
 class FileSubmit(BaseSubmit):
     file = models.FileField(upload_to=submit_file_filepath)
-    comment_file = models.FileField(upload_to=submit_file_filepath)
+    comment_file = models.FileField(upload_to=submit_file_filepath, blank=True)
 
 
 class JudgeSubmit(BaseSubmit):
