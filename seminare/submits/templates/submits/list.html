@@ -1,0 +1,24 @@
+{% if file_submits %}
+    <h2>File submits</h2>
+    <ul>
+        {% for submit in file_submits %}
+            <li><a href="{% url 'file_submit_detail' submit.id %}">{{ submit.created_at }}</a></li>
+        {% endfor %}
+    </ul>
+{% endif %}
+{% if text_submits %}
+    <h2>Text submits</h2>
+    <ul>
+        {% for submit in text_submits %}
+            <li><a href="{% url 'text_submit_detail' submit.id %}">{{ submit.created_at }}</a></li>
+        {% endfor %}
+    </ul>
+{% endif %}
+{% if judge_submits %}
+    <h2>Judge submits</h2>
+    <ul>
+        {% for submit in judge_submits %}
+            <li><a href="{% url 'judge_submit_detail' submit.id %}">{{ submit.created_at }}</a></li>
+        {% endfor %}
+    </ul>
+{% endif %}
