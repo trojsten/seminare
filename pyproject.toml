@@ -4,7 +4,7 @@ version = "0.1.0"
 description = ""
 authors = ["Adam Zahradník <adam@zahradnik.xyz>"]
 readme = "README.md"
-#package-mode = false
+package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.12"
@@ -14,7 +14,7 @@ django-environ = "^0.11.2"
 gunicorn = "^23.0.0"
 django-widget-tweaks = "^1.5.0"
 django-probes = "^1.7.0"
-psycopg = {extras = ["binary"], version = "^3.2.3"}
+psycopg = { extras = ["binary"], version = "^3.2.3" }
 markdown = "^3.7"
 
 

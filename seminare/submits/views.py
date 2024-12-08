@@ -1,7 +1,27 @@
-# Create your views here.
+from django.core.files import File
+from django.http import HttpRequest, HttpResponse
 from django.views.generic import DetailView, TemplateView
 
+from seminare.submits.forms import FileFieldForm
 from seminare.submits.models import FileSubmit, JudgeSubmit, TextSubmit
+from seminare.users.models import Enrollment
+
+
+def file_submit_create_view(request: HttpRequest, **kwargs):
+    if request.method == "POST":
+        form = FileFieldForm(request.POST, request.FILES)
+        if form.is_valid():
+            for file in form.cleaned_data["files"]:
+                file: File
+                file_submit = FileSubmit(
+                    file=file,
+                    problem_id=kwargs["problem"],
+                    enrollment=Enrollment.objects.filter(user=request.user).first(),
+                )
+                file_submit.save()
+                break
+        return HttpResponse(status=201)
+    return HttpResponse(status=405, content=f"Method {request.method} not allowed")
 
 
 class SubmitListView(TemplateView):
