@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load markdownify %}
+
+{% block title %}{{ problem.name }} {{ block.super }}{% endblock %}
+
+{% block root_body %}
+    <div class="flex">
+        <div class="shrink-0 w-80 divide-y">
+            <div class="w-full p-2 font-semibold text-lg">
+                1. kolo, 3. časť, 12. ročník KMS
+            </div>
+            {% for problem in problems %}
+            <a class="flex w-full p-2 hover:bg-gray-100" href="{% url "problem_detail" problem.problem_set_id problem.number %}">
+                {{ problem.number }}. {{ problem.name }}
+            </a>
+            {% endfor %}
+        </div>
+        <div class="grow p-4">
+            <div class="prose mx-auto">
+                <h1>{{ problem.name }}</h1>
+                {{ statement.text|markdownify }}
+            </div>
+        </div>
+    </div>
+{% endblock %}

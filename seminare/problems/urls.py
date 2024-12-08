@@ -1,8 +1,12 @@
 from django.urls import path
 
-from .views import ProblemSetDetailView, ProblemDetailView
+from seminare.problems.views import ProblemDetailView, ProblemSetDetailView
 
 urlpatterns = [
-    path("<int:pk>", ProblemDetailView.as_view(), name="problem_detail"),
     path("set/<int:pk>", ProblemSetDetailView.as_view(), name="problem_set_detail"),
+    path(
+        "sets/<int:problem_set_id>/problem/<int:number>/",
+        ProblemDetailView.as_view(),
+        name="problem_detail",
+    ),
 ]
