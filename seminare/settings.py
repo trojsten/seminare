@@ -21,11 +21,13 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.sites",
     #
     "seminare.style",
     "seminare.users",
     "seminare.submits",
     "seminare.problems",
+    "seminare.contests",
     #
     "django_probes",
     "debug_toolbar",

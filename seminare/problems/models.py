@@ -2,6 +2,7 @@ from django.db import models
 
 
 class ProblemSet(models.Model):
+    contest = models.ForeignKey("contests.Contest", on_delete=models.CASCADE)
     name = models.CharField(blank=True, max_length=256)
     start_date = models.DateField()
     end_date = models.DateField()
