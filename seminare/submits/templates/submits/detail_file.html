@@ -1,0 +1,27 @@
+<h2>File submit</h2>
+<table>
+    <tr>
+        <th>Time of upload</th>
+        <td>{{ submit.created_at }}</td>
+    </tr>
+    <tr>
+        <th>Score</th>
+        <td>{{ submit.score }}</td>
+    </tr>
+    <tr>
+        <th>Comment</th>
+        <td>{{ submit.comment }}</td>
+    </tr>
+    <tr>
+        <th>Scored by</th>
+        <td>{{ submit.scored_by }}</td>
+    </tr>
+</table>
+
+{% if submit.comment_file %}
+    <h3>Commented file</h3>
+<embed src="{{ submit.comment_file.url }}" type="application/pdf">
+{% else %}
+    <h3>Submitted file</h3>
+<embed src="{{ submit.file.url }}" type="application/pdf">
+{% endif %}
