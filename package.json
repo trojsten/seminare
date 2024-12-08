@@ -7,12 +7,13 @@
     "@tailwindcss/typography": "^0.5.15",
     "htmx.org": "^2.0.3",
     "iconify-icon": "^2.1.0",
+    "sass": "^1.82.0",
     "tailwindcss": "^3.4.14",
     "tippy.js": "^6.3.7"
   },
   "scripts": {
-    "build": "tailwindcss -i seminare/style/app.css -o seminare/style/static/app.min.css --minify && esbuild --bundle seminare/style/js/app.js --minify --outfile=seminare/style/static/app.min.js",
-    "watch": "concurrently \"tailwindcss -i seminare/style/app.css -o seminare/style/static/app.min.css --watch\" \"esbuild --bundle seminare/style/js/app.js --watch --outfile=seminare/style/static/app.min.js\""
+    "build": "sass seminare/style/css/app.scss:seminare/style/static/app.min.css && esbuild --bundle seminare/style/js/app.js --minify --outfile=seminare/style/static/app.min.js",
+    "watch": "concurrently \"sass seminare/style/css/app.scss:seminare/style/static/app.min.css --watch\" \"esbuild --bundle seminare/style/js/app.js --watch --outfile=seminare/style/static/app.min.js\""
   },
   "devDependencies": {
     "concurrently": "^8.2.2",

@@ -1,12 +1,22 @@
 .table {
     border-collapse: collapse;
 
+    .table__thead {
+        border-bottom: 2px solid var(--primary-dark);
+    }
+
     .table__th {
-        border: 2px solid var(--primary-dark);
+        padding: 0.5rem;
+        white-space: nowrap;
+        text-align: left;
     }
 
     .table__td {
-        border: 2px solid var(--primary-dark);
         padding: 0.5rem;
+        border-bottom: 1px solid lightgray;
+    }
+
+    :is(.table__th, .table__td).right {
+        text-align: right;
     }
 }

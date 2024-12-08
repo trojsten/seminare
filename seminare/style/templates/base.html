@@ -7,11 +7,11 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:ital,wght@0,200..900;1,200..900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'app.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:ital,wght@0,200..900;1,200..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'app.min.css' %}">
 
     <script src="{% static 'app.min.js' %}" defer></script>
-    <title>Semináre</title>
+    <title>{% block title %}| TODO{% endblock %}</title>
 </head>
 <body class="theme-math">
     <header class="navbar">
@@ -29,8 +29,10 @@
         </div>
     </header>
 
+    {% block root_body %}
     <main class="container">
         {% block body %}{% endblock %}
     </main>
+    {% endblock %}
 </body>
 </html>

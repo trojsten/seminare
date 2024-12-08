@@ -1,0 +1,28 @@
+{% load custom_tags %}
+<h1>{{ problem_set.name }}</h1>
+{% if progress <= 100 %}
+	<p>Koniec kola o: ({{ problem_set.end_date_time|timeuntil }})</p>
+	<progress max="100" value="{{ progress }}">{{ progress }}%</progress>
+{% endif %}
+<table class="table" style="width: 100%">
+	<thead class="table__thead">
+	<tr>
+		<th class="table__th">#</th>
+		<th class="table__th">Názov</th>
+		{% if submits %}
+			<th class="table__th">Body</th>
+		{% endif %}
+	</tr>
+	</thead>
+	<tbody>
+	{% for problem in problem_set.problems.all %}
+		<tr>
+			<td class="table__td">{{ problem.number }}</td>
+			<td class="table__td"><a href="{% url "problem_detail" problem.problem_set_id problem.pk %}">{{ problem.name }}</a></td>
+			{% if submits %}
+				<td class="table__td">{{ submits|dict_key:problem.id|default_if_none:0|floatformat:"g" }}</td>
+			{% endif %}
+		</tr>
+	{% endfor %}
+	</tbody>
+</table>

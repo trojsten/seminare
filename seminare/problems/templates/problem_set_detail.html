@@ -1,16 +1,5 @@
 {% extends "base.html" %}
+{% load custom_tags %}
 {% block body %}
-	<h1>{{ problem_set.name }}</h1>
-	<p>Koniec kola o {{ problem_set.end_date|timeuntil }}</p>
-	<progress max="100" value="{{ progress }}">{{ progress }}%</progress>
-	<table class="table" style="width: 100%">
-		<tbody>
-		{% for problem in problem_set.problems.all %}
-			<tr>
-				<td class="table__td">{{ problem.number }}</td>
-				<td class="table__td"><a href="{% url "problem_detail" problem.pk %}">{{ problem.name }}</a></td>
-			</tr>
-		{% endfor %}
-		</tbody>
-	</table>
+	{% include "base_problem_set_detail.html" %}
 {% endblock %}

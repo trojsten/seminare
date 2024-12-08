@@ -9,8 +9,8 @@ from seminare.problems import urls as problems_urls
 from seminare.submits import urls as submits_urls
 
 urlpatterns = [
-    path("problems/", include(problems_urls)),
     path("admin/", admin.site.urls),
+    path("", include("seminare.problems.urls")),
     path("__debug__/", include(debug_toolbar.urls)),
     path("test/", lambda request: render(request, "test.html")),
     path("submits/", include(submits_urls)),

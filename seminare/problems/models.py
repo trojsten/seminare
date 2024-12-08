@@ -1,3 +1,5 @@
+from datetime import datetime, time
+
 from django.db import models
 
 
@@ -13,11 +15,17 @@ class ProblemSet(models.Model):
     def __str__(self):
         return self.name
 
+    @property
+    def end_date_time(self):
+        return datetime.combine(self.end_date, time(hour=23, minute=59, second=59))
+
 
 class Problem(models.Model):
     name = models.CharField(blank=True, max_length=256)
     number = models.IntegerField(default=0)
-    problem_set = models.ForeignKey(ProblemSet, on_delete=models.CASCADE, related_name="problems")
+    problem_set = models.ForeignKey(
+        ProblemSet, on_delete=models.CASCADE, related_name="problems"
+    )
 
     class Meta:
         ordering = ["problem_set", "number"]
@@ -35,7 +43,9 @@ class Text(models.Model):
 
     text = models.TextField(blank=True)
     type = models.CharField(choices=Type, max_length=3)
-    problem = models.ForeignKey(Problem, on_delete=models.CASCADE, related_name="text_set")
+    problem = models.ForeignKey(
+        Problem, on_delete=models.CASCADE, related_name="text_set"
+    )
 
     class Meta:
         ordering = ["problem", "type"]
