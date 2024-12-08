@@ -1,11 +1,9 @@
-from django.utils import timezone
-
-from seminare.problems.models import ProblemSet
 from django.contrib.sites.shortcuts import get_current_site
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from django.views.generic import DetailView
 
-from seminare.problems.models import Problem, Text
+from seminare.problems.models import Problem, ProblemSet, Text
 
 
 class ProblemSetDetailView(DetailView):
