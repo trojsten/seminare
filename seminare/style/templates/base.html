@@ -4,16 +4,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="{% static 'app.min.css' %}?22">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:ital,wght@0,200..900;1,200..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'app.css' %}">
+
     <script src="{% static 'app.min.js' %}" defer></script>
     <title>Semináre</title>
 </head>
-<body>
-    <header class="bg-blue-800">
-        <div class="container mx-auto flex items-center justify-between p-4 text-white font-bold">
-            <a href="/" class="flex items-center gap-2">
+<body class="theme-math">
+    <header class="navbar">
+        <div class="navbar__container">
+            <a href="/" class="navbar__brand">
                 <img src="https://raw.githubusercontent.com/trojsten/brand/refs/heads/master/kms/logo/white.svg" alt="">
-                <span class="hidden sm:block">
+                <span class="navbar__brand_name">
                     Korešpondenčný Matematický Seminár
                 </span>
             </a>
@@ -23,7 +28,8 @@
 {#            </button>#}
         </div>
     </header>
-    <main class="container mx-auto px-4 py-4 sm:py-6">
+
+    <main class="container">
         {% block body %}{% endblock %}
     </main>
 </body>

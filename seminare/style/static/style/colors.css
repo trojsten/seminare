@@ -1,0 +1,6 @@
+.theme-math {
+    --primary-dark: oklch(51.72% 0.1589 269.14);
+    --primary: oklch(61.72% 0.1589 269.14);
+    --primary-light: oklch(71.72% 0.1589 269.14);
+    --primary-text: white;
+}
