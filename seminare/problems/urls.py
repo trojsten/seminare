@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import ProblemSetDetailView, ProblemDetailView
+from .views import ProblemDetailView, ProblemSetDetailView
 
 urlpatterns = [
     path("<int:pk>", ProblemDetailView.as_view(), name="problem_detail"),

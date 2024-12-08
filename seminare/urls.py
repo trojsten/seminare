@@ -2,6 +2,7 @@ import debug_toolbar
 from django.contrib import admin
 from django.shortcuts import render
 from django.urls import include, path
+
 from seminare.problems import urls as problems_urls
 
 urlpatterns = [

@@ -4,7 +4,6 @@
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div class="hidden md:block">
             <p class="font-bold mb-4">{{ problem.problem_set.name }}</p>
-
             <div class="space-y-1">
                 {% for prob in problems %}
                     <a href="{% url 'detail' prob.id%}"
@@ -17,7 +16,7 @@
         </div>
 
         <div class="mx-auto max-w-prose w-full md:col-span-2">
-            <a href="{% url 'main' %}" class="mb-2 inline-flex items-center text-blue-700 hover:text-blue-900 md:hidden">
+            <a href="" class="mb-2 inline-flex items-center text-blue-700 hover:text-blue-900 md:hidden">
                 <iconify-icon icon="mdi:arrow-left" class="mr-2"></iconify-icon> Späť
             </a>
 
@@ -49,7 +48,7 @@
                 <p class="-mt-2">Vyber alebo presuň tvoje riešenie sem</p>
             </div>
 
-            <form action="{% url 'submit' problem.id %}" id="form" class="hidden">
+            <form action="" id="form" class="hidden">
                 <div class="mt-2">
                     <span class="bg-gray-100 text-gray-700 border rounded-md px-2 py-1 text-sm inline-flex items-center">
                         Image.jpg
