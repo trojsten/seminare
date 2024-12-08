@@ -4,21 +4,33 @@
 {% block title %}{{ problem.name }} {{ block.super }}{% endblock %}
 
 {% block root_body %}
-    <div class="flex">
-        <div class="shrink-0 w-80 divide-y">
-            <div class="w-full p-2 font-semibold text-lg">
-                1. kolo, 3. časť, 12. ročník KMS
+    <div class="sidenav" data-controller="toggle" data-toggle-toggle-class="sidenav--open" data-toggle-target="toggle">
+        <div class="sidenav__nav">
+            <div class="sidenav__header">
+                <span>
+                    1. kolo, 3. časť, 12. ročník KMS
+                </span>
+
+                <div class="sidenav__close" data-action="click->toggle#click">
+                    <iconify-icon icon="mdi:close"></iconify-icon>
+                </div>
             </div>
             {% for problem in problems %}
-            <a class="flex w-full p-2 hover:bg-gray-100" href="{% url "problem_detail" problem.problem_set_id problem.number %}">
+            <a class="sidenav__item" href="{% url "problem_detail" problem.problem_set_id problem.number %}">
                 {{ problem.number }}. {{ problem.name }}
             </a>
             {% endfor %}
         </div>
-        <div class="grow p-4">
-            <div class="prose mx-auto">
-                <h1>{{ problem.name }}</h1>
-                {{ statement.text|markdownify }}
+        <div class="sidenav__content">
+            <div class="container--small">
+                <a href="#" class="mb-2 inline-flex items-center text-blue-700 hover:text-blue-900 md:hidden" data-action="click->toggle#click">
+                    <iconify-icon icon="mdi:arrow-left" class="mr-2"></iconify-icon> Späť
+                </a>
+
+                <div class="prose">
+                    <h1>{{ problem.name }}</h1>
+                    {{ statement.text|markdownify }}
+                </div>
             </div>
         </div>
     </div>

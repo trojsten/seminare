@@ -1,0 +1,15 @@
+:root {
+  --black: oklch(28% 0.01 269.14);
+  //--gray-400: oklch(82% 0.01 269.14);
+  --gray-400: oklch(86% 0.01 269.14);
+  --gray-300: oklch(90% 0.01 269.14);
+  --gray-200: oklch(94% 0.01 269.14);
+  --gray-100: oklch(98% 0.01 269.14);
+}
+
+.theme-math {
+  --primary-dark: oklch(51.72% 0.1589 269.14);
+  --primary: oklch(61.72% 0.1589 269.14);
+  --primary-light: oklch(71.72% 0.1589 269.14);
+  --primary-text: white;
+}
