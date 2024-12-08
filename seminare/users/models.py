@@ -20,16 +20,6 @@ class School(models.Model):
         return self.short_name
 
 
-class Category(models.Model):
-    name = models.CharField(blank=True, max_length=256)
-
-    class Meta:
-        ordering = ["name"]
-
-    def __str__(self):
-        return self.name
-
-
 class Enrollment(models.Model):
     class Grade(models.TextChoices):
         ZS5 = "5ZS", "5zš"
@@ -48,7 +38,7 @@ class Enrollment(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     school = models.ForeignKey(School, on_delete=models.CASCADE)
     grade = models.CharField(choices=Grade)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    category = models.ForeignKey("contests.Category", on_delete=models.CASCADE)
 
     class Meta:
         ordering = ["problem_set", "user"]
