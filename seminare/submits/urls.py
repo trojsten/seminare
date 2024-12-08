@@ -5,6 +5,7 @@ from .views import (
     JudgeSubmitDetailView,
     SubmitListView,
     TextSubmitDetailView,
+    file_submit_create_view,
 )
 
 urlpatterns = [
@@ -23,5 +24,8 @@ urlpatterns = [
         "text_submit/<int:pk>",
         TextSubmitDetailView.as_view(),
         name="text_submit_detail",
+    ),
+    path(
+        "file_submit/create/<int:problem>", file_submit_create_view, name="file_submit"
     ),
 ]

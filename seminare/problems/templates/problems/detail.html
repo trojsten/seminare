@@ -1,37 +1,109 @@
 {% extends "base.html" %}
 {% load markdownify %}
-
+{% block head %}
+	<script>
+		const submits = [];
+		const setFiles = () => {
+			const b = new DataTransfer();
+			for (const file of submits) b.items.add(file);
+			document.getElementById('filepicker').files = b.files;
+		};
+		const onSubmitDelete = (filename) => {
+			for (let i = 0; i < submits.length; i++) {
+				if (submits[i].name === filename) {
+					submits.splice(i, 1);
+					if (submits.length === 0) {
+						document.getElementById('form').classList.add('hidden');
+					}
+					setFiles();
+					return;
+				}
+			}
+		};
+		const onFileSubmit = () => {
+			const filepicker = document.getElementById('filepicker');
+			for (const file of filepicker.files) {
+				const reader = new FileReader();
+				reader.readAsDataURL(file);
+				reader.onload = () => {
+					filepicker.insertAdjacentHTML("beforebegin", `
+                        <div class="file px-2 py-1 text-sm">
+                            <img src="${reader.result}">
+                            <div class="file__name">
+                                ${file.name}
+                                <iconify-icon class="icon" icon="mdi:close" onclick="document.getElementById('form').removeChild(this.parentElement.parentElement); onSubmitDelete('${file.name}')"></iconify-icon>
+                            </div>
+                        </div>
+                        `);
+				};
+			}
+			submits.push(...filepicker.files);
+			setFiles();
+			document.getElementById('form').classList.remove('hidden');
+		};
+	</script>
+{% endblock %}
 {% block title %}{{ problem.name }} {{ block.super }}{% endblock %}
 
 {% block root_body %}
-    <div class="sidenav" data-controller="toggle" data-toggle-toggle-class="sidenav--open" data-toggle-target="toggle">
-        <div class="sidenav__nav">
-            <div class="sidenav__header">
-                <span>
-                    1. kolo, 3. časť, 12. ročník KMS
-                </span>
+	<div class="sidenav" data-controller="toggle" data-toggle-toggle-class="sidenav--open" data-toggle-target="toggle">
+		<div class="sidenav__nav">
+			<div class="sidenav__header">
+				<span>1. kolo, 3. časť, 12. ročník KMS</span>
 
-                <div class="sidenav__close" data-action="click->toggle#click">
-                    <iconify-icon icon="mdi:close"></iconify-icon>
-                </div>
-            </div>
-            {% for problem in problems %}
-            <a class="sidenav__item" href="{% url "problem_detail" problem.problem_set_id problem.number %}">
-                {{ problem.number }}. {{ problem.name }}
-            </a>
-            {% endfor %}
-        </div>
-        <div class="sidenav__content">
-            <div class="container--small">
-                <a href="#" class="mb-2 inline-flex items-center text-blue-700 hover:text-blue-900 md:hidden" data-action="click->toggle#click">
-                    <iconify-icon icon="mdi:arrow-left" class="mr-2"></iconify-icon> Späť
-                </a>
-
-                <div class="prose">
-                    <h1>{{ problem.name }}</h1>
-                    {{ statement.text|markdownify }}
-                </div>
-            </div>
-        </div>
-    </div>
+				<div class="sidenav__close" data-action="click->toggle#click">
+					<iconify-icon icon="mdi:close"></iconify-icon>
+				</div>
+			</div>
+			{% for problem in problems %}
+				<a class="sidenav__item" href="{% url "problem_detail" problem.problem_set_id problem.number %}">
+					{{ problem.number }}. {{ problem.name }}
+				</a>
+			{% endfor %}
+		</div>
+		<div class="sidenav__content flex flex--row row--m-col text-sm">
+			<div class="container--small m-w-full" style="width: 75%">
+				<a href="#" class="mb-2 inline-flex items-center text-blue-700 hover:text-blue-900 md:hidden"
+				   data-action="click->toggle#click">
+					<iconify-icon icon="mdi:arrow-left" class="mr-2"></iconify-icon>
+					Späť
+				</a>
+				<div class="prose">
+					<h1>{{ problem.name }}</h1>
+					{{ statement.text|markdownify }}
+				</div>
+			</div>
+			<div class="container--small m-w-full" style="width: 25%">
+				<p style="font-weight: 700;">Odovzdávanie</p>
+				{% if problem.category == 0 %}
+					<div class="flex flex--items-center">
+						<iconify-icon icon="mdi:warning" style="margin-right: .5rem; flex-shrink: 0"></iconify-icon>
+						Za túto úlohu nedostávaš v svojej kategórií body.
+					</div>
+				{% endif %}
+				<div class="submit-upload" onclick="document.getElementById('filepicker').click()">
+					<iconify-icon icon="mdi:upload" width="none" class="icon icon--large"></iconify-icon>
+					<p style="margin: 0">Vyber alebo presuň tvoje riešenie sem</p>
+				</div>
+				<form method="POST" enctype="multipart/form-data" action="{% url "file_submit" problem.id %}" id="form" class="hidden"
+				      style="margin-top: .5rem">
+					{% csrf_token %}
+					<input type="file" name="files" multiple accept="image/jpeg, image/png" class="hidden" id="filepicker"
+					       onchange="onFileSubmit()">
+					<button class="button button--primary" style="margin-top: .5rem">Odovzdať</button>
+				</form>
+				<p style="font-weight: 700; margin-top: 2rem; margin-bottom: .5rem">Odovzdané riešenia</p>
+				<div class="submit">
+					{% if problem_submits %}
+						{% for submit in problem_submits %}
+							<a href="#" class="submit__link">{{ submit.created_at }}
+								({{ submit.score|floatformat:"1g" }} b)</a>
+						{% endfor %}
+					{% else %}
+						<p>Zatiaľ si nič neodovzdal/a.</p>
+					{% endif %}
+				</div>
+			</div>
+		</div>
+	</div>
 {% endblock %}
