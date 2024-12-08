@@ -1,3 +1,5 @@
+from datetime import datetime, time
+
 from django.db import models
 
 
@@ -12,6 +14,10 @@ class ProblemSet(models.Model):
 
     def __str__(self):
         return self.name
+
+    @property
+    def end_date_time(self):
+        return datetime.combine(self.end_date, time(hour=23, minute=59, second=59))
 
 
 class Problem(models.Model):
