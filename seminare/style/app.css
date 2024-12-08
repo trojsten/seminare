@@ -4,6 +4,13 @@
 @tailwind components;
 @tailwind utilities;
 
+.theme-math {
+    --primary-dark: oklch(51.72% 0.1589 269.14);
+    --primary: oklch(61.72% 0.1589 269.14);
+    --primary-light: oklch(71.72% 0.1589 269.14);
+    --primary-text: white;
+}
+
 .btn {
     @apply px-3 py-1.5 rounded text-white font-bold inline-flex gap-1.5 items-center;
 }
