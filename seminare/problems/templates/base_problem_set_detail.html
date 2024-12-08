@@ -18,7 +18,7 @@
 	{% for problem in problem_set.problems.all %}
 		<tr>
 			<td class="table__td">{{ problem.number }}</td>
-			<td class="table__td"><a href="{% url "problem_detail" problem.pk %}">{{ problem.name }}</a></td>
+			<td class="table__td"><a href="{% url "problem_detail" problem.problem_set_id problem.pk %}">{{ problem.name }}</a></td>
 			{% if submits %}
 				<td class="table__td">{{ submits|dict_key:problem.id|default_if_none:0|floatformat:"g" }}</td>
 			{% endif %}

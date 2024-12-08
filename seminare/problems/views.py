@@ -1,16 +1,12 @@
 from django.contrib.auth.models import AnonymousUser
+from django.contrib.sites.shortcuts import get_current_site
 from django.db.models import Max, Q
+from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.views.generic import DetailView, ListView
 
-from seminare.problems.models import Problem, ProblemSet
+from seminare.problems.models import Problem, ProblemSet, Text
 from seminare.submits.models import FileSubmit, JudgeSubmit, TextSubmit
-
-
-class ProblemDetailView(DetailView):
-    queryset = Problem.objects.get_queryset()
-    template_name = "problem_detail.html"
-    context_object_name = "problem"
 
 
 class ProblemSetListView(ListView):
@@ -69,3 +65,27 @@ class ProblemSetDetailView(DetailView):
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         return ctx | self.get_problem_set_context(ctx["problem_set"], self.request.user)
+
+
+class ProblemDetailView(DetailView):
+    template_name = "problems/detail.html"
+
+    def get_object(self, queryset=None):
+        site = get_current_site(self.request)
+        return get_object_or_404(
+            Problem,
+            number=self.kwargs["number"],
+            problem_set_id=self.kwargs["problem_set_id"],
+            problem_set__contest__site=site,
+        )
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        self.object: Problem
+        ctx["statement"] = self.object.text_set.filter(
+            type=Text.Type.PROBLEM_STATEMENT
+        ).first()
+        ctx["problems"] = Problem.objects.filter(
+            problem_set_id=self.kwargs["problem_set_id"]
+        )
+        return ctx
