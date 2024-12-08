@@ -1,0 +1,12 @@
+.table {
+    border-collapse: collapse;
+
+    .table__th {
+        border: 2px solid var(--primary-dark);
+    }
+
+    .table__td {
+        border: 2px solid var(--primary-dark);
+        padding: 0.5rem;
+    }
+}
