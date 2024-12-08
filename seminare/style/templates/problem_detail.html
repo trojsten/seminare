@@ -7,7 +7,6 @@
 				const b = new DataTransfer();
 				for (const file of submits) b.items.add(file);
 				document.getElementById('filepicker').files = b.files;
-				console.log(document.getElementById('filepicker').files);
 			};
 			const onSubmitDelete = (filename) => {
 				for (let i = 0; i < submits.length; i++) {
