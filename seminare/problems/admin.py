@@ -3,6 +3,11 @@ from django.contrib import admin
 from seminare.problems.models import Problem, ProblemSet, Text
 
 
+class TextInline(admin.TabularInline):
+    model = Text
+    extra = 2
+
+
 @admin.register(ProblemSet)
 class ProblemSetAdmin(admin.ModelAdmin):
     list_display = ["name", "start_date", "end_date"]
@@ -13,6 +18,7 @@ class ProblemSetAdmin(admin.ModelAdmin):
 class ProblemAdmin(admin.ModelAdmin):
     list_display = ["number", "name", "problem_set"]
     search_fields = ["name", "problem_set__name"]
+    inlines = [TextInline]
 
 
 @admin.register(Text)
