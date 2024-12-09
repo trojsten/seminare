@@ -1,0 +1,33 @@
+.submit-form {
+  &__header {
+    font-weight: bold;
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  &__dropzone {
+    cursor: pointer;
+    border-radius: 0.5rem;
+    padding: 1.25rem 1rem;
+
+    background: var(--gray-100);
+    color: var(--gray-500);
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    p {
+      margin: 0;
+    }
+  }
+
+  &__subheader {
+    font-weight: bold;
+    font-size: 1.125rem;
+    margin-bottom: 0.5rem;
+    margin-top: 0.75rem;
+  }
+
+}

@@ -1,10 +1,18 @@
 :root {
   --black: oklch(28% 0.01 269.14);
   //--gray-400: oklch(82% 0.01 269.14);
+  --gray-500: oklch(50% 0.01 269.14);
   --gray-400: oklch(86% 0.01 269.14);
   --gray-300: oklch(90% 0.01 269.14);
   --gray-200: oklch(94% 0.01 269.14);
-  --gray-100: oklch(98% 0.01 269.14);
+  --gray-100: oklch(97% 0.01 269.14);
+
+  --blue: oklch(63.33% 0.1776 242.47);
+  --blue-dark: oklch(53.33% 0.1776 242.47);
+
+  --green-light: oklch(92.73% 0.0631 145.06);
+  --green-light-darker: oklch(82.73% 0.0631 145.06);
+  --green: oklch(60.29% 0.1801 145.06);
 }
 
 .theme-math {

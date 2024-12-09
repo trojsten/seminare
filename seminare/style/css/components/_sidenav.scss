@@ -9,17 +9,26 @@
     display: none;
     z-index: 10;
     background: white;
+    border-right: 1px solid var(--gray-200);
 
     @include utils.large {
       width: 20rem;
       display: block;
     }
-
-    border-right: 1px solid var(--gray-200);
   }
 
   &__content {
     flex-grow: 1;
+  }
+
+  &__right {
+    flex: 1;
+    padding: 1rem;
+    border-left: 1px solid var(--gray-200);
+
+    @include utils.large {
+      width: 20rem;
+    }
   }
 
   &__header {
@@ -61,6 +70,7 @@
   }
 
   @include utils.small {
+    flex-direction: column;
     &--open {
       display: block;
     }

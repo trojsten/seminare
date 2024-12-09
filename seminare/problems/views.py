@@ -79,6 +79,11 @@ class ProblemDetailView(DetailView):
             problem_set__contest__site=site,
         )
 
+    def get_submits(self):
+        return {
+            "file": FileSubmit.objects.filter(enrollment__user=self.request.user, problem=self.object)
+        }
+
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         self.object: Problem
@@ -88,4 +93,5 @@ class ProblemDetailView(DetailView):
         ctx["problems"] = Problem.objects.filter(
             problem_set_id=self.kwargs["problem_set_id"]
         )
+        ctx["submits"] = self.get_submits()
         return ctx

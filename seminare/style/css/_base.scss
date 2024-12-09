@@ -18,35 +18,15 @@
   }
 }
 
-.flex {
-  display: flex;
-
-  &--items-center {
-    align-items: center;
-  }
-
-  &--col {
-    flex-direction: column;
-  }
-
-  &--row {
-    flex-direction: row;
-  }
-
-  &--m-col {
-    @include utils.small {
-      flex-direction: column;
-    }
-  }
-}
-
 .hidden {
   display: none;
 }
 
-.m-w-full {
-  @include utils.small {
-    width: 100% !important;
+.link {
+  color: var(--blue);
+
+  &:hover {
+    color: var(--blue-dark);
   }
 }
 
