@@ -1,13 +1,17 @@
 from django.core.files import File
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
+from django.shortcuts import get_object_or_404
+from django.urls import reverse
 from django.views.generic import DetailView, TemplateView
 
+from seminare.problems.models import Problem
 from seminare.submits.forms import FileFieldForm
 from seminare.submits.models import FileSubmit, JudgeSubmit, TextSubmit
 from seminare.users.models import Enrollment
 
 
 def file_submit_create_view(request: HttpRequest, **kwargs):
+    problem = get_object_or_404(Problem, id=kwargs['problem'])
     if request.method == "POST":
         form = FileFieldForm(request.POST, request.FILES)
         if form.is_valid():
@@ -15,12 +19,12 @@ def file_submit_create_view(request: HttpRequest, **kwargs):
                 file: File
                 file_submit = FileSubmit(
                     file=file,
-                    problem_id=kwargs["problem"],
+                    problem=problem,
                     enrollment=Enrollment.objects.filter(user=request.user).first(),
                 )
                 file_submit.save()
                 break
-        return HttpResponse(status=201)
+        return HttpResponseRedirect(problem.get_absolute_url())
     return HttpResponse(status=405, content=f"Method {request.method} not allowed")
 
 

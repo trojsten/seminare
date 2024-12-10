@@ -1,6 +1,7 @@
 from datetime import datetime, time
 
 from django.db import models
+from django.urls import reverse
 
 
 class ProblemSet(models.Model):
@@ -32,6 +33,9 @@ class Problem(models.Model):
 
     def __str__(self):
         return f"{self.name}({self.number})"
+
+    def get_absolute_url(self):
+        return reverse("problem_detail", kwargs={"problem_set_id": self.problem_set_id, "number": self.number})
 
 
 class Text(models.Model):
