@@ -8,7 +8,9 @@
             <tr class="border-b border-gray-400">
                 <th class="p-2 whitespace-nowrap text-left">#</th>
                 <th class="p-2 text-left w-full">Názov</th>
-                <th class="p-2 whitespace-nowrap text-center">Tvoje body</th>
+                {% if user.is_authenticated %}
+                    <th class="p-2 whitespace-nowrap text-center">Tvoje body</th>
+                {% endif %}
             </tr>
             </thead>
             <tbody class="divide-y">
@@ -17,13 +19,13 @@
                     {% elif submits|dict_key:problem.id is not None %}class="bg-green-100 text-green-600"{% endif %}>
                     <td class="p-2 whitespace-nowrap">{{ forloop.counter }}</td>
                     <td class="p-2">
-                        <a href="{% url "problem_detail" problem.problem_set_id problem.id %}" class="link">{{ problem.name }}</a>
+                        <a href="{% url "problem_detail" problem.problem_set_id problem.number %}" class="link">{{ problem.name }}</a>
                     </td>
-                    {% with id=problem.id %}
+                    {% if user.is_authenticated %}
                         <td class="p-2 whitespace-nowrap text-center">{{ submits|dict_key:problem.id|default_if_none:0|floatformat:"g" }}
 {#                            / {{ problem.max_score|floatformat:"g" }}#}
                         </td>
-                    {% endwith %}
+                    {% endif %}
                 </tr>
             {% endfor %}
         </table>

@@ -80,8 +80,13 @@ class ProblemDetailView(DetailView):
         )
 
     def get_submits(self):
+        if not self.request.user.is_authenticated:
+            return {}
+
         return {
-            "file": FileSubmit.objects.filter(enrollment__user=self.request.user, problem=self.object)
+            "file": FileSubmit.objects.filter(
+                enrollment__user=self.request.user, problem=self.object
+            )
         }
 
     def get_context_data(self, **kwargs):
