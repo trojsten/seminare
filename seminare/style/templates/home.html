@@ -1,21 +1,16 @@
 {% extends "base.html" %}
-
+{% load static %}
 {% block body %}
-    <div class="hero">
-        <div class="hero__container">
-            <h1 class="hero__title">
-                Korešpondenčný Matematický Seminár
-            </h1>
-            <p class="hero__lead">
-                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Cumque deserunt et facilis iste labore maxime, odit officiis porro repellat sequi?
-            </p>
-            <div class="hero__buttons">
-                <a href="#" class="button button--primary button--large">Aktuálne zadania</a>
-            </div>
-        </div>
+    <img src="{% static 'kms.jpg' %}">
+    <div class="bg-gray-100 p-4 text-center">
+        <h1 class="font-bold text-3xl mb-4">
+            Korešpondenčný Matematický Seminár
+        </h1>
+        <a href="{% url 'problem_set_list' %}" class="btn btn-primary">Aktuálne zadania</a>
+{#        <a href="{% url 'rules' %}" class="btn btn-primary">Pravidlá</a>#}
     </div>
 
-    <div>
+    <div class="mt-6 prose">
         <p>Korešpondenčný matematický seminár je súťaž v riešení netradičných (zaujímavých) matematických úloh, určená
             pre stredoškolákov. Skladá sa z dvoch častí - zimnej (začína v septembri) a letnej (začína vo februári). Po
             každej časti pozývame najúspešnejších riešiteľov časti na sústredenie.</p>
@@ -30,8 +25,7 @@
             <li>Sústredenia fakt stoja za to.</li>
         </ul>
     </div>
-
-    <div>
+    <div class="mt-6 prose">
         <h2>Čo sú sústredenia?</h2>
         <p>Sústredenia sú odmena pre najúspešnejších účastníkov zimnej a letnej časti. Na sústredení sa okrem odborných
             prednášok výborne zabavíš, spoznáš kopec mega super ľudí, oddýchneš si od školy, poriadne sa nevyspíš... Ale
