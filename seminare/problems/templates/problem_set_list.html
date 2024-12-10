@@ -1,25 +1,19 @@
 {% extends "base.html" %}
 {% block body %}
-	{% for problem_set_detail in problem_set_details %}
-		{% include "base_problem_set_detail.html" with problem_set=problem_set_detail.problem_set submits=problem_set_detail.submits progress=problem_set_detail.progress %}
-	{% endfor %}
-	
-	{% if problem_sets %}
-		<hr>
+    {% for problem_set_detail in problem_set_details %}
+        {% include "base_problem_set_detail.html" with problem_set=problem_set_detail.problem_set submits=problem_set_detail.submits progress=problem_set_detail.progress %}
+    {% endfor %}
+
+    {% if problem_sets %}
+        <hr class="mt-4">
         <div class="mt-4">
             <h2 class="text-2xl font-bold">Archív zadaní</h2>
-            <table class="table" style="width: 100%">
-                <tbody>
-                {% for problem_set in problem_sets %}
-                    <tr>
-                        <td class="table__td">{{ problem_set.name }}</td>
-                        <td class="table__td right"><a class="button button--primary"
-                                                       href="{% url "problem_set_detail" problem_set.id %}">Detail</a>
-                        </td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
+
+            {% for problem_set in problem_sets %}
+                <div class="my-2">
+                    <a class="link" href="{% url "problem_set_detail" problem_set.id %}">{{ problem_set.name }}</a>
+                </div>
+            {% endfor %}
         </div>
-	{% endif %}
+    {% endif %}
 {% endblock %}

@@ -15,14 +15,16 @@
             </thead>
             <tbody class="divide-y">
             {% for problem in problem_set.problems.all %}
-                <tr {% if problem.category == 0 %}class="bg-gray-100 text-gray-500"
+                <tr {% if problem.number == 1 %}class="bg-gray-100 text-gray-500"
                     {% elif submits|dict_key:problem.id is not None %}class="bg-green-100 text-green-600"{% endif %}>
                     <td class="p-2 whitespace-nowrap">{{ forloop.counter }}</td>
                     <td class="p-2">
                         <a href="{% url "problem_detail" problem.problem_set_id problem.number %}" class="link">{{ problem.name }}</a>
                     </td>
                     {% if user.is_authenticated %}
-                        <td class="p-2 whitespace-nowrap text-center">{{ submits|dict_key:problem.id|default_if_none:0|floatformat:"g" }}
+                        <td class="p-2 whitespace-nowrap text-center">
+                        {% if submits|dict_key:problem.id == "?" %}?{% else %}
+                            {{ submits|dict_key:problem.id|floatformat:"g" }}{% endif %}
 {#                            / {{ problem.max_score|floatformat:"g" }}#}
                         </td>
                     {% endif %}

@@ -1,6 +1,5 @@
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.sites.shortcuts import get_current_site
-from django.db.models import Max, Q
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.views.generic import DetailView, ListView
@@ -43,23 +42,50 @@ class ProblemSetDetailView(DetailView):
             return ctx
 
         ctx["submits"] = dict()
+        ctx["submitted"] = dict()
         for problem in problem_set.problems.all():
-            ctx["submits"][problem.pk] = 0
-            ctx["submits"][problem.pk] += (
-                FileSubmit.objects.all()
-                .filter(Q(enrollment__user=user) & Q(problem=problem))
-                .aggregate(Max("score", default=0))
-            )["score__max"]
-            ctx["submits"][problem.pk] += (
-                TextSubmit.objects.all()
-                .filter(Q(enrollment__user=user) & Q(problem=problem))
-                .aggregate(Max("score", default=0))
-            )["score__max"]
-            ctx["submits"][problem.pk] += (
-                JudgeSubmit.objects.all()
-                .filter(Q(enrollment__user=user) & Q(problem=problem))
-                .aggregate(Max("score", default=0))
-            )["score__max"]
+            points = None
+            file = (
+                FileSubmit.objects.filter(enrollment__user=user, problem=problem)
+                .order_by("-score")
+                .first()
+            )
+            if file is not None:
+                if file.score is None:
+                    points = "?"
+                elif points is None:
+                    points = file.score
+                else:
+                    points += file.score
+
+            text = (
+                TextSubmit.objects.filter(enrollment__user=user, problem=problem)
+                .order_by("-score")
+                .first()
+            )
+            if text is not None:
+                if text.score is None:
+                    points = "?"
+                elif points is None:
+                    points = text.score
+                else:
+                    points += text.score
+
+            judge = (
+                JudgeSubmit.objects.filter(enrollment__user=user, problem=problem)
+                .order_by("-score")
+                .first()
+            )
+            if judge is not None:
+                if judge.score is None:
+                    points = "?"
+                elif points is None:
+                    points = judge.score
+                else:
+                    points += judge.score
+
+            ctx["submits"][problem.id] = points
+
         return ctx
 
     def get_context_data(self, **kwargs):
