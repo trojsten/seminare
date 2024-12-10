@@ -1,6 +1,7 @@
 from datetime import datetime, time
 
 from django.db import models
+from django.db.models import UniqueConstraint
 from django.urls import reverse
 
 
@@ -35,7 +36,19 @@ class Problem(models.Model):
         return f"{self.name}({self.number})"
 
     def get_absolute_url(self):
-        return reverse("problem_detail", kwargs={"problem_set_id": self.problem_set_id, "number": self.number})
+        return reverse(
+            "problem_detail",
+            kwargs={"problem_set_id": self.problem_set_id, "number": self.number},
+        )
+
+    def get_texts(self):
+        texts = self.text_set.all()
+        text_types = {}
+
+        for text in texts:
+            text_types[text.type] = text
+
+        return text_types
 
 
 class Text(models.Model):
@@ -53,6 +66,9 @@ class Text(models.Model):
 
     class Meta:
         ordering = ["problem", "type"]
+        constraints = [
+            UniqueConstraint("problem", "type", name="text__unique_problem_type")
+        ]
 
     def __str__(self):
         return f"{self.problem}({self.type})"

@@ -5,7 +5,7 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.views.generic import DetailView, ListView
 
-from seminare.problems.models import Problem, ProblemSet, Text
+from seminare.problems.models import Problem, ProblemSet
 from seminare.submits.models import FileSubmit, JudgeSubmit, TextSubmit
 
 
@@ -92,9 +92,7 @@ class ProblemDetailView(DetailView):
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         self.object: Problem
-        ctx["statement"] = self.object.text_set.filter(
-            type=Text.Type.PROBLEM_STATEMENT
-        ).first()
+        ctx["texts"] = self.object.get_texts()
         ctx["problems"] = Problem.objects.filter(
             problem_set_id=self.kwargs["problem_set_id"]
         )
