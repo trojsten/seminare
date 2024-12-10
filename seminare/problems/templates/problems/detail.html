@@ -65,14 +65,13 @@
 
         <div class="flex-1 p-4 md:py-8">
             <div class="mx-auto max-w-prose">
-                <a href="#" class="mb-2 inline-flex items-center text-blue-700 hover:text-blue-900 md:hidden"
+                <a href="#" class="mb-2 flex justify-end items-center text-blue-700 hover:text-blue-900 md:hidden"
                    data-action="click->toggle#click">
-                    <iconify-icon icon="mdi:arrow-left" class="mr-2"></iconify-icon>
-                    Späť
+                    <iconify-icon icon="mdi:menu" class="mr-2"></iconify-icon>
+                    Zoznam úloh
                 </a>
 
                 <div class="prose">
-                    <h1>{{ problem.name }}</h1>
                     {{ statement.text|markdownify }}
                 </div>
             </div>
