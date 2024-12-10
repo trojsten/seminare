@@ -12,8 +12,8 @@
     "tippy.js": "^6.3.7"
   },
   "scripts": {
-    "build": "sass seminare/style/css/app.scss:seminare/style/static/app.min.css && esbuild --bundle seminare/style/js/app.js --minify --outfile=seminare/style/static/app.min.js",
-    "watch": "npm run build && concurrently \"sass seminare/style/css/app.scss:seminare/style/static/app.min.css --watch\" \"esbuild --bundle seminare/style/js/app.js --watch --outfile=seminare/style/static/app.min.js\""
+    "build": "tailwindcss -i seminare/style/app.css -o seminare/style/static/app2.min.css --minify && sass seminare/style/css/app.scss:seminare/style/static/app.min.css && esbuild --bundle seminare/style/js/app.js --minify --outfile=seminare/style/static/app.min.js",
+    "watch": "npm run build && concurrently \"tailwindcss -i seminare/style/app.css -o seminare/style/static/app2.min.css --watch\" \"sass seminare/style/css/app.scss:seminare/style/static/app.min.css --watch\" \"esbuild --bundle seminare/style/js/app.js --watch --outfile=seminare/style/static/app.min.js\""
   },
   "devDependencies": {
     "concurrently": "^8.2.2",

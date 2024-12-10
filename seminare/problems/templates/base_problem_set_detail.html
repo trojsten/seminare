@@ -1,28 +1,52 @@
 {% load custom_tags %}
-<h1>{{ problem_set.name }}</h1>
-{% if progress <= 100 %}
-	<p>Koniec kola o: ({{ problem_set.end_date_time|timeuntil }})</p>
-	<progress max="100" value="{{ progress }}">{{ progress }}%</progress>
-{% endif %}
-<table class="table" style="width: 100%">
-	<thead class="table__thead">
-	<tr>
-		<th class="table__th">#</th>
-		<th class="table__th">Názov</th>
-		{% if submits %}
-			<th class="table__th">Body</th>
-		{% endif %}
-	</tr>
-	</thead>
-	<tbody>
-	{% for problem in problem_set.problems.all %}
-		<tr>
-			<td class="table__td">{{ problem.number }}</td>
-			<td class="table__td"><a href="{% url "problem_detail" problem.problem_set_id problem.pk %}">{{ problem.name }}</a></td>
-			{% if submits %}
-				<td class="table__td">{{ submits|dict_key:problem.id|default_if_none:0|floatformat:"g" }}</td>
-			{% endif %}
-		</tr>
-	{% endfor %}
-	</tbody>
-</table>
+
+<div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+    <div class="sm:col-span-3">
+        <h2 class="text-lg font-bold">{{ problem_set.name }}</h2>
+        <table class="w-full mb-4 text-sm">
+            <thead>
+            <tr class="border-b border-gray-400">
+                <th class="p-2 whitespace-nowrap text-left">#</th>
+                <th class="p-2 text-left w-full">Názov</th>
+                <th class="p-2 whitespace-nowrap text-center">Tvoje body</th>
+            </tr>
+            </thead>
+            <tbody class="divide-y">
+            {% for problem in problem_set.problems.all %}
+                <tr {% if problem.category == 0 %}class="bg-gray-100 text-gray-500"
+                    {% elif submits|dict_key:problem.id is not None %}class="bg-green-100 text-green-600"{% endif %}>
+                    <td class="p-2 whitespace-nowrap">{{ forloop.counter }}</td>
+                    <td class="p-2">
+                        <a href="{% url "problem_detail" problem.problem_set_id problem.id %}" class="link">{{ problem.name }}</a>
+                    </td>
+                    {% with id=problem.id %}
+                        <td class="p-2 whitespace-nowrap text-center">{{ submits|dict_key:problem.id|default_if_none:0|floatformat:"g" }}
+{#                            / {{ problem.max_score|floatformat:"g" }}#}
+                        </td>
+                    {% endwith %}
+                </tr>
+            {% endfor %}
+        </table>
+
+        <div class="flex sm:items-center flex-col sm:flex-row flex-wrap gap-y-2 gap-x-4">
+            <div class="flex items-center gap-1 text-xs">
+                <div class="w-4 h-4 border rounded"></div>
+                Za túto úlohu získavaš body
+            </div>
+            <div class="flex items-center gap-1 text-xs">
+                <div class="w-4 h-4 bg-gray-200 rounded"></div>
+                Za túto úlohu nezískavaš body
+            </div>
+            <div class="flex items-center gap-1 text-xs">
+                <div class="w-4 h-4 bg-green-500 rounded"></div>
+                Túto úlohu si už vyriešil
+            </div>
+        </div>
+    </div>
+    <div class="">
+        <h2 class="text-lg font-bold">Termíny</h2>
+
+        <p>Koniec kola: {{ problem_set.end_date_time }} <span
+                class="text-red-600">({{ problem_set.end_date_time|timeuntil }})</span></p>
+    </div>
+</div>

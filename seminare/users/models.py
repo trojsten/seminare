@@ -4,7 +4,19 @@ from django.db import models
 
 
 class User(AbstractUser):
-    pass
+    @property
+    def profile_url(self):
+        return f"https://id.trojsten.sk/profile/{self.username}/"
+
+    @property
+    def avatar_url(self):
+        return f"https://id.trojsten.sk/profile/{self.username}/avatar/"
+
+    @property
+    def display_name(self):
+        if self.first_name and self.last_name:
+            return self.get_full_name()
+        return self.username
 
 
 class School(models.Model):

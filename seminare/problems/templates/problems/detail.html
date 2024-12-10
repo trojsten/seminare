@@ -43,39 +43,42 @@
         };
     </script>
 {% endblock %}
+
 {% block title %}{{ problem.name }} {{ block.super }}{% endblock %}
 
 {% block root_body %}
-    <div class="sidenav" data-controller="toggle" data-toggle-toggle-class="sidenav--open" data-toggle-target="toggle">
-        <div class="sidenav__nav">
-            <div class="sidenav__header">
+    <div class="flex flex-col md:flex-row" data-controller="toggle" data-toggle-toggle-class="hidden">
+        <div class="shrink-0 w-full md:w-80 bg-white z-10 hidden md:block border-b md:border-b-0 absolute md:relative md:border-r" data-toggle-target="toggle">
+            <div class="py-3 px-4 font-bold border-b text-lg flex items-center justify-between">
                 <span>1. kolo, 3. časť, 12. ročník KMS</span>
 
-                <div class="sidenav__close" data-action="click->toggle#click">
+                <div class="cursor-pointer md:hidden flex p-3 -m-3 rounded-full hover:bg-gray-100 items-center justify-center" data-action="click->toggle#click">
                     <iconify-icon icon="mdi:close"></iconify-icon>
                 </div>
             </div>
-            {% for problem in problems %}
-                <a class="sidenav__item" href="{% url "problem_detail" problem.problem_set_id problem.number %}">
-                    {{ problem.number }}. {{ problem.name }}
+            {% for side_problem in problems %}
+                <a class="block px-4 py-3 hover:bg-gray-100 {% if side_problem.id == problem.id %}font-semibold bg-gray-100{% endif %}" href="{% url "problem_detail" side_problem.problem_set_id side_problem.number %}">
+                    {{ side_problem.number }}. {{ side_problem.name }}
                 </a>
             {% endfor %}
         </div>
-        <div class="sidenav__content flex flex--row row--m-col text-sm">
-            <div class="container--small">
+
+        <div class="flex-1 p-4 md:py-8">
+            <div class="mx-auto max-w-prose">
                 <a href="#" class="mb-2 inline-flex items-center text-blue-700 hover:text-blue-900 md:hidden"
                    data-action="click->toggle#click">
                     <iconify-icon icon="mdi:arrow-left" class="mr-2"></iconify-icon>
                     Späť
                 </a>
 
-                <div class="markdown">
+                <div class="prose">
                     <h1>{{ problem.name }}</h1>
                     {{ statement.text|markdownify }}
                 </div>
             </div>
         </div>
-        <div class="sidenav__right">
+
+        <div class="shrink-0 w-full p-4 md:border-l md:w-80">
             {% if problem.category == 0 %}
                 <div class="flex flex--items-center">
                     <iconify-icon icon="mdi:warning" style="margin-right: .5rem; flex-shrink: 0"></iconify-icon>
@@ -105,7 +108,7 @@
 
                 <div class="submit-list">
                     {% for submit in submits.file %}
-                        <a href="#" class="submit-list__item {% if submit.score is not None %}submit-list__item--graded{% endif %}">
+                        <a href="{% url "file_submit_detail" submit.id %}" class="submit-list__item {% if submit.score is not None %}submit-list__item--graded{% endif %}">
                             <iconify-icon icon="mdi:file-text"></iconify-icon>
                             <span>{{ submit.created_at|date:"d.m.Y" }} {{ submit.created_at|time:"H:i" }}</span>
 

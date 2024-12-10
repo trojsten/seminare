@@ -11,9 +11,9 @@ from seminare.submits import urls as submits_urls
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("", include("seminare.problems.urls")),
+    path("", include("seminare.submits.urls")),
     path("__debug__/", include(debug_toolbar.urls)),
     path("test/", lambda request: render(request, "test.html")),
-    path("submits/", include(submits_urls)),
 ]
 
 if settings.DEBUG:

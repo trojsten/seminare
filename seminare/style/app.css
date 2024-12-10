@@ -44,11 +44,3 @@ iconify-icon {
     width: 1em;
     height: 1em;
 }
-
-td, th {
-    @apply border;
-}
-
-td {
-    @apply p-2;
-}

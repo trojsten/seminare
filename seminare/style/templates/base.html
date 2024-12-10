@@ -7,34 +7,36 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:ital,wght@0,200..900;1,200..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:ital,wght@0,200..900;1,200..900&display=swap"
+          rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'app2.min.css' %}">
     <link rel="stylesheet" href="{% static 'app.min.css' %}">
 
     <script src="{% static 'app.min.js' %}" defer></script>
     <title>{% block title %}| TODO{% endblock %}</title>
-		{% block head %}
-		{% endblock %}
+    {% block head %}
+    {% endblock %}
 </head>
 <body class="theme-math">
-    <header class="navbar">
-        <div class="navbar__container">
-            <a href="/" class="navbar__brand">
-                <img src="https://raw.githubusercontent.com/trojsten/brand/refs/heads/master/kms/logo/white.svg" alt="">
-                <span class="navbar__brand_name">
+<header class="bg-primary">
+    <nav class="p-4 text-white flex items-center">
+        <a href="/" class="flex items-center font-bold gap-3 hover:underline">
+            <img src="https://raw.githubusercontent.com/trojsten/brand/refs/heads/master/kms/logo/white.svg" alt="">
+            <span class="hidden md:inline-block">
                     Korešpondenčný Matematický Seminár
                 </span>
-            </a>
+        </a>
 
-{#            <button class="p-4 -m-4 flex">#}
-{#                <iconify-icon icon="mdi:menu" width="none" class="w-6 h-6"></iconify-icon>#}
-{#            </button>#}
-        </div>
-    </header>
+        {#            <button class="p-4 -m-4 flex">#}
+        {#                <iconify-icon icon="mdi:menu" width="none" class="w-6 h-6"></iconify-icon>#}
+        {#            </button>#}
+    </nav>
+</header>
 
-    {% block root_body %}
-    <main class="container">
+{% block root_body %}
+    <main class="mx-auto max-w-6xl p-4">
         {% block body %}{% endblock %}
     </main>
-    {% endblock %}
+{% endblock %}
 </body>
 </html>
