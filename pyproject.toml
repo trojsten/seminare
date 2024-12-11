@@ -16,6 +16,8 @@ django-widget-tweaks = "^1.5.0"
 django-probes = "^1.7.0"
 psycopg = { extras = ["binary"], version = "^3.2.3" }
 markdown = "^3.7"
+pillow = "^11.0.0"
+reportlab = "^4.2.5"
 
 
 [build-system]
