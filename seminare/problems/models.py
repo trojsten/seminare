@@ -3,6 +3,16 @@ from datetime import datetime, time
 from django.db import models
 from django.db.models import UniqueConstraint
 from django.urls import reverse
+from django.utils import timezone
+
+
+class ProblemSetQuerySet(models.QuerySet):
+    def for_user(self, user):
+        # TODO: real permission check
+        return self.filter(is_public=True)
+
+    def only_current(self):
+        return self.filter(start_date__lte=timezone.now(), end_date__gte=timezone.now())
 
 
 class ProblemSet(models.Model):
@@ -10,6 +20,9 @@ class ProblemSet(models.Model):
     name = models.CharField(blank=True, max_length=256)
     start_date = models.DateField()
     end_date = models.DateField()
+    is_public = models.BooleanField(default=False)
+
+    objects = ProblemSetQuerySet.as_manager()
 
     class Meta:
         ordering = ["start_date", "end_date"]
