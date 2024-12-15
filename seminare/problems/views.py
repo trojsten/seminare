@@ -65,8 +65,8 @@ class ProblemDetailView(DetailView):
         ctx = super().get_context_data(**kwargs)
         self.object: Problem
         ctx["texts"] = self.object.get_texts()
-        ctx["problems"] = Problem.objects.filter(
+        ctx["sidebar_problems"] = inject_user_score(Problem.objects.filter(
             problem_set_id=self.kwargs["problem_set_id"]
-        )
+        ), self.request.user)
         ctx["submits"] = self.get_submits()
         return ctx

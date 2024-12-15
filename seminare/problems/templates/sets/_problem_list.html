@@ -1,7 +1,7 @@
 <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
     <div class="sm:col-span-3">
         <h2 class="text-2xl font-semibold mb-2">{{ problem_set.name }}</h2>
-    
+
         <table class="w-full mb-4 text-sm">
             <thead>
                 <tr class="border-b border-gray-400">
@@ -23,7 +23,7 @@
                     </td>
                     {% if user.is_authenticated %}
                         <td class="p-2 whitespace-nowrap text-center">
-                            {{ problem.users_score|default_if_none:""|floatformat:"g" }}{% if problem.users_score_pending %}?{% endif %}
+                            {{ problem.users_score|default_if_none:""|floatformat:"g" }}{{ side_problem.users_score_pending|yesno:"?," }}
                         </td>
                     {% endif %}
                 </tr>
