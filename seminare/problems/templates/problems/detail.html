@@ -47,8 +47,9 @@
 {% block title %}{{ problem.name }} {{ block.super }}{% endblock %}
 
 {% block root_body %}
+<div data-controller="submit--cta">
     <div class="flex flex-col md:flex-row" data-controller="toggle" data-toggle-toggle-class="hidden">
-        {% include 'problems/_sidebar.html' %}
+        {% include "problems/_sidebar.html" %}
 
         <div class="flex-1 p-4 md:py-8">
             <div class="mx-auto max-w-prose">
@@ -65,14 +66,14 @@
         </div>
 
         <div class="shrink-0 w-full p-4 md:border-l md:w-80">
-            {% if problem.category == 0 %}
-                <div class="flex flex--items-center">
-                    <iconify-icon icon="mdi:warning" style="margin-right: .5rem; flex-shrink: 0"></iconify-icon>
+            {% if problem.number == 1 %}
+                <div class="flex items-center text-amber-600 bg-amber-100 rounded-md py-2 px-3 mb-4">
+                    <iconify-icon icon="mdi:warning" class="shrink-0 mr-3"></iconify-icon>
                     Za túto úlohu nedostávaš v svojej kategórií body.
                 </div>
             {% endif %}
 
-            <div class="submit-form">
+            <div class="submit-form" data-submit--cta-target="submitForm" id="submit">
                 <div class="submit-form__header">Odovzdať popis</div>
 
                 <div class="submit-form__dropzone" onclick="document.getElementById('filepicker').click()">
@@ -92,7 +93,7 @@
 
                 <div class="submit-form__subheader">Odovzdané riešenia</div>
 
-                <div class="submit-list">
+                <div class="submit-list mb-10">
                     {% for submit in submits.file %}
                         <a href="{% url "file_submit_detail" submit.id %}" class="submit-list__item {% if submit.score is not None %}submit-list__item--graded{% endif %}">
                             <iconify-icon icon="mdi:file-text"></iconify-icon>
@@ -113,4 +114,12 @@
             </div>
         </div>
     </div>
+
+    <div class="fixed inset-x bottom-0 z-30 w-full p-4 flex items-center" data-submit--cta-target="cta">
+        <button type="button" data-action="submit--cta#scroll" class="flex items-center gap-2 px-4 py-2 rounded-full bg-gray-800 text-white mx-auto w-auto shadow-lg" id="scroll" onclick="document.getElementById('scroll').classList.add('hidden')">
+            Odovzdávanie
+            <iconify-icon icon="mdi:arrow-down"></iconify-icon>
+        </button>
+    </div>
+</div>
 {% endblock %}
