@@ -66,9 +66,9 @@
         </div>
 
         <div class="shrink-0 w-full p-4 md:border-l md:w-80">
-            {% if problem.number == 1 %}
-                <div class="flex items-center text-amber-600 bg-amber-100 rounded-md py-2 px-3 mb-4">
-                    <iconify-icon icon="mdi:warning" class="shrink-0 mr-3"></iconify-icon>
+            {% if user.is_authenticated and problem.number == 1 %}
+                <div class="flex items-center text-amber-600 bg-amber-100 rounded-md py-2 px-3 mb-4 text-sm">
+                    <iconify-icon icon="mdi:warning" width="none" class="shrink-0 mr-3 size-4"></iconify-icon>
                     Za túto úlohu nedostávaš v svojej kategórií body.
                 </div>
             {% endif %}
@@ -76,6 +76,14 @@
             <div class="submit-form" data-submit--cta-target="submitForm" id="submit">
                 <div class="submit-form__header">Odovzdať popis</div>
 
+                {% if not user.is_authenticated %}
+                <div class="flex items-center text-red-600 bg-red-100 rounded-md py-2 px-3 mb-4 text-sm">
+                    <iconify-icon icon="mdi:warning" width="none" class="shrink-0 mr-3 size-4"></iconify-icon>
+                    <span>
+                        Pre odovzdávanie sa musíš <a href="{% url "oidc_authentication_init" %}?next={{ request.path_info|urlencode }}" class="underline hover:text-red-700">prihlásiť</a>.
+                    </span>
+                </div>
+                {% else %}
                 <div class="submit-form__dropzone" onclick="document.getElementById('filepicker').click()">
                     <iconify-icon icon="mdi:upload" width="none" class="icon icon--large"></iconify-icon>
                     <p>Vyber alebo presuň tvoje riešenie sem</p>
@@ -111,6 +119,7 @@
                         <div class="submit-list__empty">Zatiaľ si nič neodovzdal/a.</div>
                     {% endfor %}
                 </div>
+                {% endif %}
             </div>
         </div>
     </div>
