@@ -1,14 +1,19 @@
 {% extends "base.html" %}
+
+{% block title %}
+    Aktuálne zadania {{ block.super }}
+{% endblock %}
+
 {% block body %}
     {% if current_sets %}
         <h1 class="text-3xl font-bold mb-4">Aktuálne zadania</h1>
+
+        {% for current_set in current_sets %}
+            {% include "sets/_problem_list.html" with problem_set=current_set problems=current_set.problems_with_score %}
+        {% endfor %}
+
+        <hr class="my-4">
     {% endif %}
-
-    {% for current_set in current_sets %}
-        {% include "sets/_problem_list.html" with problem_set=current_set problems=current_set.problems_with_score %}
-    {% endfor %}
-
-    <hr class="my-4">
 
     <h2 class="text-3xl font-bold mb-4">Archív zadaní</h2>
 
