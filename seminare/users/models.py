@@ -4,6 +4,8 @@ from django.db import models
 
 
 class User(AbstractUser):
+    trojsten_id = models.BigIntegerField(blank=True, null=True)
+
     @property
     def profile_url(self):
         return f"https://id.trojsten.sk/profile/{self.username}/"

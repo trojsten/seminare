@@ -7,6 +7,7 @@ from django.urls import include, path
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("oidc/", include("mozilla_django_oidc.urls")),
     path("", include("seminare.problems.urls")),
     path("", include("seminare.submits.urls")),
     path("__debug__/", include(debug_toolbar.urls)),

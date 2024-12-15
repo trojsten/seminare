@@ -16,6 +16,7 @@ django-widget-tweaks = "^1.5.0"
 django-probes = "^1.7.0"
 psycopg = { extras = ["binary"], version = "^3.2.3" }
 markdown = "^3.7"
+mozilla-django-oidc = "^4.0.1"
 
 
 [build-system]

@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     #
     "django_probes",
     "debug_toolbar",
+    "mozilla_django_oidc",
 ]
 
 MIDDLEWARE = [
@@ -44,6 +45,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "mozilla_django_oidc.middleware.SessionRefresh",
 ]
 
 ROOT_URLCONF = "seminare.urls"
@@ -71,23 +73,37 @@ WSGI_APPLICATION = "seminare.wsgi.application"
 
 DATABASES = {"default": env.db()}
 
-# Password validation
-# https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
+# Authentication
 
-AUTH_PASSWORD_VALIDATORS = [
-    {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
-    },
+AUTH_USER_MODEL = "users.User"
+AUTH_PASSWORD_VALIDATORS = []
+AUTHENTICATION_BACKENDS = [
+    "seminare.users.auth.TrojstenOIDCAB",
+    "django.contrib.auth.backends.ModelBackend",
 ]
+
+OIDC_OP_JWKS_ENDPOINT = env(
+    "OIDC_OP_JWKS_ENDPOINT",
+    default="https://id.trojsten.sk/oauth/.well-known/jwks.json",
+)
+OIDC_OP_AUTHORIZATION_ENDPOINT = env(
+    "OIDC_OP_AUTHORIZATION_ENDPOINT", default="https://id.trojsten.sk/oauth/authorize/"
+)
+OIDC_OP_USER_ENDPOINT = env(
+    "OIDC_OP_USER_ENDPOINT", default="https://id.trojsten.sk/oauth/userinfo/"
+)
+OIDC_OP_TOKEN_ENDPOINT = env(
+    "OIDC_OP_TOKEN_ENDPOINT", default="https://id.trojsten.sk/oauth/token/"
+)
+OIDC_RP_SCOPES = "openid email profile"
+OIDC_RP_SIGN_ALGO = "RS256"
+OIDC_RP_CLIENT_ID = env("OIDC_RP_CLIENT_ID", default="")
+OIDC_RP_CLIENT_SECRET = env("OIDC_RP_CLIENT_SECRET", default="")
+OIDC_OP_LOGOUT_URL_METHOD = "seminare.users.auth.logout_url"
+OIDC_RENEW_ID_TOKEN_EXPIRY_SECONDS = 3600  # 1-hour
+
+LOGIN_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = "/"
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
@@ -119,5 +135,3 @@ if DEBUG:
 
     hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
     INTERNAL_IPS = [ip[: ip.rfind(".")] + ".1" for ip in ips] + ["127.0.0.1"]
-
-AUTH_USER_MODEL = "users.User"
