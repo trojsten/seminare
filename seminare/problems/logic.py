@@ -1,22 +1,30 @@
-from collections import namedtuple, defaultdict
+from collections import defaultdict
 from dataclasses import dataclass
 from decimal import Decimal
 from typing import Iterable
 
 from django.contrib.auth.models import AnonymousUser
 
-from seminare.problems.models import ProblemSet, Problem
-from seminare.submits.models import FileSubmit, BaseSubmit, JudgeSubmit, TextSubmit
+from seminare.problems.models import Problem
+from seminare.submits.models import BaseSubmit, FileSubmit, JudgeSubmit, TextSubmit
 from seminare.users.models import User
+
 
 @dataclass
 class SubmitData:
     submitted: bool = False
-    score: Decimal|None = None
+    score: Decimal | None = None
 
 
-def _get_best_submits(problems: Iterable[Problem], user: User, submit_cls: type[BaseSubmit]) -> dict[int, SubmitData]:
-    submits = submit_cls.objects.filter(problem__in=problems, enrollment__user=user).order_by('problem_id', "-score").distinct("problem_id", "score").values()
+def _get_best_submits(
+    problems: Iterable[Problem], user: User, submit_cls: type[BaseSubmit]
+) -> dict[int, SubmitData]:
+    submits = (
+        submit_cls.objects.filter(problem__in=problems, enrollment__user=user)
+        .order_by("problem_id", "-score")
+        .distinct("problem_id", "score")
+        .values()
+    )
 
     data = defaultdict(SubmitData)
     for submit in submits:
@@ -24,19 +32,27 @@ def _get_best_submits(problems: Iterable[Problem], user: User, submit_cls: type[
     return data
 
 
-def get_best_file_submits(problems: Iterable[Problem], user: User) -> dict[int, SubmitData]:
+def get_best_file_submits(
+    problems: Iterable[Problem], user: User
+) -> dict[int, SubmitData]:
     return _get_best_submits(problems, user, FileSubmit)
 
 
-def get_best_judge_submits(problems: Iterable[Problem], user: User) -> dict[int, SubmitData]:
+def get_best_judge_submits(
+    problems: Iterable[Problem], user: User
+) -> dict[int, SubmitData]:
     return _get_best_submits(problems, user, JudgeSubmit)
 
 
-def get_best_text_submits(problems: Iterable[Problem], user: User) -> dict[int, SubmitData]:
+def get_best_text_submits(
+    problems: Iterable[Problem], user: User
+) -> dict[int, SubmitData]:
     return _get_best_submits(problems, user, TextSubmit)
 
 
-def inject_user_score(problems: Iterable[Problem], user: User|AnonymousUser) -> Iterable[Problem]:
+def inject_user_score(
+    problems: Iterable[Problem], user: User | AnonymousUser
+) -> Iterable[Problem]:
     if not user.is_authenticated:
         return problems
 

@@ -2,18 +2,16 @@ from django.core.exceptions import PermissionDenied
 from django.core.files import File
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
-from django.urls import reverse
 from django.views.generic import DetailView, TemplateView
 
 from seminare.problems.models import Problem
 from seminare.submits.forms import FileFieldForm
 from seminare.submits.models import FileSubmit, JudgeSubmit, TextSubmit
 from seminare.users.logic.enrollment import get_enrollment
-from seminare.users.models import Enrollment
 
 
 def file_submit_create_view(request: HttpRequest, **kwargs):
-    problem = get_object_or_404(Problem, id=kwargs['problem'])
+    problem = get_object_or_404(Problem, id=kwargs["problem"])
     if not request.user.is_authenticated:
         raise PermissionDenied("You must be logged in to perform this action.")
 

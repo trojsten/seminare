@@ -2,9 +2,7 @@ from django.urls import path
 
 from .views import (
     FileSubmitDetailView,
-    JudgeSubmitDetailView,
     SubmitListView,
-    TextSubmitDetailView,
     file_submit_create_view,
 )
 
