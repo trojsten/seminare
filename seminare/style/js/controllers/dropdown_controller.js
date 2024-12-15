@@ -13,6 +13,10 @@ export default class extends Controller {
         this.buttonTarget.setAttribute("aria-expanded", !this.dropdownTarget.classList.contains("hidden"))
     }
 
+    clickOutside() {
+        this.hide()
+    }
+
     hide() {
         this.dropdownTarget.classList.add("hidden")
         this.buttonTarget.setAttribute("aria-expanded", false)
