@@ -23,7 +23,7 @@
                     </td>
                     {% if user.is_authenticated %}
                         <td class="p-2 whitespace-nowrap text-center">
-                            {{ problem.users_score|default_if_none:""|floatformat:"g" }}{{ side_problem.users_score_pending|yesno:"?," }}
+                            {{ problem.users_score|default_if_none:""|floatformat:"g" }}{{ problem.users_score_pending|yesno:"?," }}
                         </td>
                     {% endif %}
                 </tr>
