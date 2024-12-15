@@ -1,3 +1,4 @@
+{% load navbar %}
 <!doctype html>
 {% load static %}
 <html lang="sk">
@@ -36,20 +37,7 @@
     {% endblock %}
 </head>
 <body class="theme-math">
-<header class="bg-primary">
-    <nav class="p-4 text-white flex items-center">
-        <a href="/" class="flex items-center font-bold gap-3 hover:underline">
-            <img src="https://raw.githubusercontent.com/trojsten/brand/refs/heads/master/kms/logo/white.svg" alt="">
-            <span class="hidden md:inline-block">
-                    Korešpondenčný Matematický Seminár
-                </span>
-        </a>
-
-        {#            <button class="p-4 -m-4 flex">#}
-        {#                <iconify-icon icon="mdi:menu" width="none" class="w-6 h-6"></iconify-icon>#}
-        {#            </button>#}
-    </nav>
-</header>
+{% navbar_menu %}
 
 {% block root_body %}
     <main class="mx-auto max-w-6xl p-4">

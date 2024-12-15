@@ -26,6 +26,9 @@ importers:
       sass:
         specifier: ^1.82.0
         version: 1.82.0
+      stimulus-use:
+        specifier: ^0.52.3
+        version: 0.52.3(@hotwired/stimulus@3.2.2)(hotkeys-js@3.13.9)
       tailwindcss:
         specifier: ^3.4.14
         version: 3.4.14
@@ -39,6 +42,9 @@ importers:
       esbuild:
         specifier: ^0.23.1
         version: 0.23.1
+      esbuild-plugin-stimulus:
+        specifier: ^0.1.5
+        version: 0.1.5
 
 packages:
 
@@ -442,6 +448,9 @@ packages:
   emoji-regex@9.2.2:
     resolution: {integrity: sha512-L18DaJsXSUk2+42pv8mLs5jJT2hqFkFE4j21wOmgbUqsZ2hL72NsUU785g9RXgo3s0ZNgVl42TiHp3ZtOv/Vyg==}
 
+  esbuild-plugin-stimulus@0.1.5:
+    resolution: {integrity: sha512-ANav+mJxDJCIMuKfj4h7F2BemA1BcIaE5VmmGd6qDVQEaFEH3YeVRAHOWjgiUhGJBFi6wI8Q7RtZIZkNvbckZg==}
+
   esbuild@0.23.1:
     resolution: {integrity: sha512-VVNz/9Sa0bs5SELtn3f7qhJCDPCF5oMEl5cO9/SSinpE9hbPVvxbd572HH5AKiP7WD8INO53GgfDDhRjkylHEg==}
     engines: {node: '>=18'}
@@ -497,6 +506,9 @@ packages:
   hasown@2.0.2:
     resolution: {integrity: sha512-0hJU9SCPvmMzIBdZFqNPXWa6dqh7WdH0cII9y+CyS8rG3nL48Bclra9HmKhVVUHyPWNH5Y7xDwAB7bfgSjkUMQ==}
     engines: {node: '>= 0.4'}
+
+  hotkeys-js@3.13.9:
+    resolution: {integrity: sha512-3TRCj9u9KUH6cKo25w4KIdBfdBfNRjfUwrljCLDC2XhmPDG0SjAZFcFZekpUZFmXzfYoGhFDcdx2gX/vUVtztQ==}
 
   htmx.org@2.0.3:
     resolution: {integrity: sha512-AeoJUAjkCVVajbfKX+3sVQBTCt8Ct4lif1T+z/tptTXo8+8yyq3QIMQQe/IT+R8ssfrO1I0DeX4CAronzCL6oA==}
@@ -745,6 +757,12 @@ packages:
 
   spawn-command@0.0.2:
     resolution: {integrity: sha512-zC8zGoGkmc8J9ndvml8Xksr1Amk9qBujgbF0JAIWO7kXr43w0h/0GJNM/Vustixu+YE8N/MTrQ7N31FvHUACxQ==}
+
+  stimulus-use@0.52.3:
+    resolution: {integrity: sha512-stZ5dID6FUrGCR/ChWUa0FT5Z8iqkzT6lputOAb50eF+Ayg7RzJj4U/HoRlp2NV333QfvoRidru9HLbom4hZVw==}
+    peerDependencies:
+      '@hotwired/stimulus': '>= 3'
+      hotkeys-js: '>= 3'
 
   string-width@4.2.3:
     resolution: {integrity: sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g==}
@@ -1147,6 +1165,8 @@ snapshots:
 
   emoji-regex@9.2.2: {}
 
+  esbuild-plugin-stimulus@0.1.5: {}
+
   esbuild@0.23.1:
     optionalDependencies:
       '@esbuild/aix-ppc64': 0.23.1
@@ -1226,6 +1246,8 @@ snapshots:
   hasown@2.0.2:
     dependencies:
       function-bind: 1.1.2
+
+  hotkeys-js@3.13.9: {}
 
   htmx.org@2.0.3: {}
 
@@ -1425,6 +1447,11 @@ snapshots:
   source-map-js@1.2.1: {}
 
   spawn-command@0.0.2: {}
+
+  stimulus-use@0.52.3(@hotwired/stimulus@3.2.2)(hotkeys-js@3.13.9):
+    dependencies:
+      '@hotwired/stimulus': 3.2.2
+      hotkeys-js: 3.13.9
 
   string-width@4.2.3:
     dependencies:

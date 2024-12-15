@@ -2,6 +2,7 @@ import 'iconify-icon'
 import htmx from 'htmx.org'
 import tippy from "tippy.js"
 import { Application } from "@hotwired/stimulus"
+import { definitions } from 'stimulus:./controllers'
 
 window.htmx = htmx
 htmx.on("htmx:load", () => {
@@ -9,6 +10,4 @@ htmx.on("htmx:load", () => {
 })
 
 const app = Application.start()
-
-import Toggle from "./controllers/toggle";
-app.register("toggle", Toggle)
+app.load(definitions)

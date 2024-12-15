@@ -8,15 +8,17 @@
     "htmx.org": "^2.0.3",
     "iconify-icon": "^2.1.0",
     "sass": "^1.82.0",
+    "stimulus-use": "^0.52.3",
     "tailwindcss": "^3.4.14",
     "tippy.js": "^6.3.7"
   },
   "scripts": {
-    "build": "tailwindcss -i seminare/style/app.css -o seminare/style/static/app2.min.css --minify && sass seminare/style/css/app.scss:seminare/style/static/app.min.css && esbuild --bundle seminare/style/js/app.js --minify --outfile=seminare/style/static/app.min.js",
-    "watch": "npm run build && concurrently \"tailwindcss -i seminare/style/app.css -o seminare/style/static/app2.min.css --watch\" \"sass seminare/style/css/app.scss:seminare/style/static/app.min.css --watch\" \"esbuild --bundle seminare/style/js/app.js --watch --outfile=seminare/style/static/app.min.js\""
+    "build": "tailwindcss -i seminare/style/app.css -o seminare/style/static/app2.min.css --minify && sass seminare/style/css/app.scss:seminare/style/static/app.min.css && node seminare/style/build.mjs",
+    "watch": "npm run build && concurrently \"tailwindcss -i seminare/style/app.css -o seminare/style/static/app2.min.css --watch\" \"sass seminare/style/css/app.scss:seminare/style/static/app.min.css --watch\" \"node seminare/style/build.mjs watch\""
   },
   "devDependencies": {
     "concurrently": "^8.2.2",
-    "esbuild": "^0.23.1"
+    "esbuild": "^0.23.1",
+    "esbuild-plugin-stimulus": "^0.1.5"
   }
 }

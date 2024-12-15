@@ -10,6 +10,7 @@ urlpatterns = [
     path("oidc/", include("mozilla_django_oidc.urls")),
     path("", include("seminare.problems.urls")),
     path("", include("seminare.submits.urls")),
+    path("", include("seminare.content.urls")),
     path("__debug__/", include(debug_toolbar.urls)),
     path("test/", lambda request: render(request, "test.html")),
     path("", lambda request: render(request, "home.html")),

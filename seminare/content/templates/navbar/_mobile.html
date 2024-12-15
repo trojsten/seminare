@@ -1,0 +1,12 @@
+<div class="bg-white p-4 border-b shadow space-y-6 absolute w-full md:hidden hidden" data-menu-toggle-target="toggle">
+    {% regroup items by group as groups %}
+
+    {% for group, group_items in groups %}
+    <div>
+        <h3 class="text-sm text-gray-600 font-semibold">{{ group.title }}</h3>
+        <div class="mt-4 flow-root">
+            {% include "navbar/_group_items.html" %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
