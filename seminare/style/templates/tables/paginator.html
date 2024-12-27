@@ -1,0 +1,33 @@
+<nav class="flex items-center justify-between border-t border-gray-200 px-4 sm:px-0">
+  <div class="-mt-px flex w-0 flex-1">
+    {% if page.has_previous %}
+    <a href="{% querystring page=page.previous_page_number %}"
+      class="inline-flex items-center border-t-2 border-transparent pr-1 pt-4 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">
+      <iconify-icon icon="mdi:arrow-left" class="mr-1"></iconify-icon>
+      Predchádzajúce
+    </a>
+    {% endif %}
+  </div>
+  <div class="hidden md:-mt-px md:flex">
+    {% for p in pages %}
+    {% if p == ellipsis %}
+    <span class="inline-flex items-center border-t-2 border-transparent px-4 pt-4 text-sm font-medium text-gray-500">...</span>
+    {% elif p == page.number %}
+    <a href="{% querystring page=p %}"
+      class="inline-flex items-center border-t-2 px-4 pt-4 text-sm font-medium border-primary text-primary">{{ p }}</a>
+    {% else %}
+    <a href="{% querystring page=p %}"
+      class="inline-flex items-center border-t-2 px-4 pt-4 text-sm font-medium border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700">{{ p }}</a>
+    {% endif %}
+    {% endfor %}
+  </div>
+  <div class="-mt-px flex w-0 flex-1 justify-end">
+    {% if page.has_next %}
+    <a href="{% querystring page=page.next_page_number %}"
+      class="inline-flex items-center border-t-2 border-transparent pr-1 pt-4 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">
+      Ďalšie
+      <iconify-icon icon="mdi:arrow-right" class="ml-1"></iconify-icon>
+    </a>
+    {% endif %}
+  </div>
+</nav>
