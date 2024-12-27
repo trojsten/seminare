@@ -40,7 +40,7 @@
 }
 
 .input {
-    @apply w-full rounded px-3 py-1.5 inline-flex;
+    @apply w-full rounded px-3 py-2 text-sm border border-gray-300 inline-flex;
 }
 
 .checkbox {

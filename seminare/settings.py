@@ -36,7 +36,7 @@ INSTALLED_APPS = [
     "django_probes",
     "debug_toolbar",
     "mozilla_django_oidc",
-    "django_web_components",
+    "widget_tweaks",
 ]
 
 MIDDLEWARE = [

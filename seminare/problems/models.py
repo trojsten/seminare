@@ -16,8 +16,10 @@ class ProblemSetQuerySet(models.QuerySet):
 
 
 class ProblemSet(models.Model):
+    id: int
     contest = models.ForeignKey("contests.Contest", on_delete=models.CASCADE)
-    name = models.CharField(blank=True, max_length=256)
+    contest_id: int
+    name = models.CharField(max_length=256)
     start_date = models.DateField()
     end_date = models.DateField()
     is_public = models.BooleanField(default=False)

@@ -27,9 +27,9 @@
             {% get_links table object extra_context as links %}
             {% for link in links %}
             {% if link|length == 2 %}
-            <a href="{{ link.1 }}" class="link">{{ link.0 }}</a>
+            <a href="{{ link.1 }}" class="text-blue-600 hover:text-blue-700">{{ link.0 }}</a>
             {% elif link|length == 3 %}
-            <a href="{{ link.2 }}" class="link inline-flex items-center">
+            <a href="{{ link.2 }}" class="text-blue-600 hover:text-blue-700 inline-flex items-center">
               <iconify-icon icon="{{ link.0 }}" class="mr-1"></iconify-icon>
               {{ link.1 }}
             </a>

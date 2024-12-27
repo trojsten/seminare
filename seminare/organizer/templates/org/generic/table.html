@@ -6,25 +6,7 @@
 {% endblock title %}
 
 {% block body %}
-  <div class="md:flex md:items-center md:justify-between mb-6">
-    <div class="min-w-0 flex-1">
-      <h2 class="font-bold text-gray-900 text-2xl md:text-3xl">
-        {{ table_title }}
-      </h2>
-    </div>
-    <div class="mt-4 flex md:ml-4 md:mt-0 gap-2">
-      {% for link in table_links %}
-        {% if link|length == 3 %}
-        <a href="{{ link.2 }}" class="btn btn-{{ link.0 }}">{{ link.1 }}</a>
-        {% else %}
-        <a href="{{ link.3 }}" class="btn btn-{{ link.0 }}">
-          <iconify-icon icon="{{ link.1 }}" class="mr-1"></iconify-icon>
-          {{ link.2 }}
-        </a>
-        {% endif %}
-      {% endfor %}
-    </div>
-  </div>
+  {% include "org/generic/_title.html" with title=table_title links=table_links %}
 
   {% render_table table object_list %}
   {% if page_obj %}
