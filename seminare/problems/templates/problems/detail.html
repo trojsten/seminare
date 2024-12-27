@@ -46,7 +46,7 @@
 
 {% block title %}{{ problem.name }} {{ block.super }}{% endblock %}
 
-{% block root_body %}
+{% block body_container %}
 <div data-controller="submit--cta">
     <div class="flex flex-col md:flex-row" data-controller="toggle" data-toggle-toggle-class="hidden">
         {% include "problems/_sidebar.html" %}

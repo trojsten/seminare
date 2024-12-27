@@ -1,0 +1,19 @@
+{% extends "root_base.html" %}
+{% load org_navbar %}
+
+{% block root_body_class %}min-h-screen flex flex-col {{ block.super }}{% endblock %}
+
+{% block root_body %}
+<div class="flex flex-col md:flex-row flex-1">
+  <div class="shrink-0 w-full md:w-80 md:border-r">
+    <a href="#" class="bg-primary p-4 flex items-center justify-center">
+      {# TODO: Proper logo #}
+      <img src="https://raw.githubusercontent.com/trojsten/brand/refs/heads/master/kms/logo/white.svg" alt="" class="h-10">
+    </a>
+
+    <div class="p-4 space-y-6">
+      {# TODO: Contest switcher #}
+      {% org_navbar %}
+  </div>
+</div>
+{% endblock root_body %}

@@ -10,7 +10,7 @@ module.exports = {
         "primary-text": "var(--primary-text)",
       },
       fontFamily: {
-        sans: ['"Source Sans Pro"', 'sans-serif'],
+        sans: ['"Source Sans 3"', 'sans-serif'],
       },
       typography: {
         DEFAULT: {
