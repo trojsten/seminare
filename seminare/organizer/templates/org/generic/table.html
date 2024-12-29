@@ -1,0 +1,15 @@
+{% extends "org/base.html" %}
+{% load tables %}
+
+{% block title %}
+  {{ table_title }} {{ block.super }}
+{% endblock title %}
+
+{% block body %}
+  {% include "org/generic/_title.html" with title=table_title links=table_links %}
+
+  {% render_table table object_list %}
+  {% if page_obj %}
+    {% paginator page_obj %}
+  {% endif %}
+{% endblock body %}

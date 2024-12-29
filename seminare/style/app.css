@@ -12,19 +12,35 @@
 }
 
 .btn {
-    @apply px-3 py-1.5 rounded text-white font-bold inline-flex gap-1.5 items-center;
+  @apply inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold shadow-sm;
+}
+
+.btn-default {
+  @apply bg-white text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50;
 }
 
 .btn-primary {
-    @apply bg-blue-800 hover:bg-blue-900;
+  @apply bg-primary text-primary-text hover:bg-primary-dark;
 }
 
-.btn-danger {
-    @apply bg-red-600 hover:bg-red-700;
+.btn-blue {
+  @apply bg-blue-600 text-white hover:bg-blue-700;
+}
+
+.btn-green {
+  @apply bg-green-600 text-white hover:bg-green-700;
+}
+
+.btn-red {
+  @apply bg-red-600 text-white hover:bg-red-700;
+}
+
+.btn-amber {
+  @apply bg-amber-600 text-white hover:bg-amber-700;
 }
 
 .input {
-    @apply w-full rounded px-3 py-1.5 inline-flex;
+    @apply w-full rounded px-3 py-2 text-sm border border-gray-300 inline-flex;
 }
 
 .checkbox {

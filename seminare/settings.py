@@ -31,10 +31,12 @@ INSTALLED_APPS = [
     "seminare.problems",
     "seminare.contests",
     "seminare.content",
+    "seminare.organizer",
     #
     "django_probes",
     "debug_toolbar",
     "mozilla_django_oidc",
+    "widget_tweaks",
 ]
 
 MIDDLEWARE = [
