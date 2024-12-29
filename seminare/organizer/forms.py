@@ -1,6 +1,7 @@
 from django import forms
 
 from seminare.problems.models import ProblemSet
+from seminare.style.forms import DateInput
 
 
 class ProblemSetForm(forms.ModelForm):
@@ -16,4 +17,8 @@ class ProblemSetForm(forms.ModelForm):
         help_texts = {
             "end_date": "Riešenia bude možné odovzdávať najneskôr v tento deň.",
             "is_public": "Sada úloh sa bude zobrazovať na stránke.",
+        }
+        widgets = {
+            "start_date": DateInput(),
+            "end_date": DateInput(),
         }
