@@ -12,14 +12,18 @@ def submit_file_filepath(instance: "BaseSubmit", filename):
 
 
 class BaseSubmit(models.Model):
+    id: int
     enrollment = models.ForeignKey("users.Enrollment", on_delete=models.CASCADE)
+    enrollment_id: int
     problem = models.ForeignKey("problems.Problem", on_delete=models.CASCADE)
+    problem_id: int
     created_at = models.DateTimeField(auto_now_add=True)
 
     score = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
     scored_by = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, blank=True, null=True
     )
+    scored_by_id: int
     comment = models.TextField(blank=True)
 
     class Meta:
