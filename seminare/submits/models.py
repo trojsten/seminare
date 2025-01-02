@@ -33,10 +33,38 @@ class BaseSubmit(models.Model):
     def __str__(self):
         return f"{self.problem} ({self.enrollment.user})"
 
+    @property
+    def submit_id(self):
+        raise NotImplementedError()
+
+    @classmethod
+    def get_submit_by_id(cls, submit_id: str) -> "BaseSubmit|None":
+        try:
+            submit_type, id = submit_id.split("-", 1)
+        except ValueError:
+            return None
+
+        submit_types = {
+            "F": FileSubmit,
+            "J": JudgeSubmit,
+            "T": TextSubmit,
+        }
+        if submit_type not in submit_types:
+            return None
+
+        if not id.isnumeric():
+            return None
+
+        return submit_types[submit_type].objects.filter(id=id).first()
+
 
 class FileSubmit(BaseSubmit):
     file = models.FileField(upload_to=submit_file_filepath)
     comment_file = models.FileField(upload_to=submit_file_filepath, blank=True)
+
+    @property
+    def submit_id(self):
+        return f"F-{self.id}"
 
 
 class JudgeSubmit(BaseSubmit):
@@ -45,6 +73,14 @@ class JudgeSubmit(BaseSubmit):
     judge_id = models.CharField(max_length=255, unique=True)
     protocol_key = models.CharField(max_length=255, blank=True)
 
+    @property
+    def submit_id(self):
+        return f"J-{self.id}"
+
 
 class TextSubmit(BaseSubmit):
     value = models.TextField(blank=True)
+
+    @property
+    def submit_id(self):
+        return f"T-{self.id}"
