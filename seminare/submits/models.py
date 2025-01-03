@@ -38,7 +38,7 @@ class BaseSubmit(models.Model):
         raise NotImplementedError()
 
     @classmethod
-    def get_submit_by_id(cls, submit_id: str) -> "BaseSubmit|None":
+    def get_submit_by_id(cls, submit_id: str, **kwargs) -> "BaseSubmit|None":
         try:
             submit_type, id = submit_id.split("-", 1)
         except ValueError:
@@ -55,7 +55,7 @@ class BaseSubmit(models.Model):
         if not id.isnumeric():
             return None
 
-        return submit_types[submit_type].objects.filter(id=id).first()
+        return submit_types[submit_type].objects.filter(id=id, **kwargs).first()
 
 
 class FileSubmit(BaseSubmit):
