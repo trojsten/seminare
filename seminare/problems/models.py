@@ -48,7 +48,7 @@ class Problem(models.Model):
         ordering = ["problem_set", "number"]
 
     def __str__(self):
-        return f"{self.name}({self.number})"
+        return f"{self.number}. {self.name}"
 
     def get_absolute_url(self):
         return reverse(
