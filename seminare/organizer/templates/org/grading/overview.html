@@ -1,0 +1,40 @@
+{% extends "org/base.html" %}
+
+{% block title %}
+{{ problem }} - hodnotenie {{ block.super }}
+{% endblock title %}
+
+{% block body %}
+  {# TODO: Breadcrumbs #}
+  {% include "org/generic/_title.html" with title=problem subtitle="Prehľad hodnotení" %}
+
+  <div class="overflow-x-auto mb-4">
+    <table class="simple-table">
+      <thead>
+        <tr>
+          <th>Používateľ</th>
+          {# TODO: Hide irrelevant columns #}
+          <th class="w-32">Program</th>
+          <th class="w-32">Text</th>
+          <th class="w-32">Popis</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in users %}
+        <tr>
+          <td>{{ row.user.display_name }}</td>
+          <td class="relative {% if row.judge %}hover:bg-gray-50{% endif %}">
+            {% include "org/grading/_overview_score.html" with submit=row.judge %}
+          </td>
+          <td class="relative {% if row.text %}hover:bg-gray-50{% endif %}">
+            {% include "org/grading/_overview_score.html" with submit=row.text %}
+          </td>
+          <td class="relative {% if row.file %}hover:bg-gray-50{% endif %}">
+            {% include "org/grading/_overview_score.html" with submit=row.file %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock body %}

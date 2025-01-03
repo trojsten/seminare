@@ -1,6 +1,6 @@
 from django.urls import include, path
 
-from seminare.organizer.views import problemset
+from seminare.organizer.views import grading, problemset
 
 app_name = "org"
 
@@ -15,6 +15,11 @@ contest_patterns = [
         "sets/<int:pk>/",
         problemset.ProblemSetUpdateView.as_view(),
         name="problemset_update",
+    ),
+    path(
+        "grading/problem/<int:problem_id>/",
+        grading.GradingOverviewView.as_view(),
+        name="grading_overview",
     ),
 ]
 
