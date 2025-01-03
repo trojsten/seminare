@@ -3,7 +3,20 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.shortcuts import render
-from django.urls import include, path
+from django.urls import include, path, register_converter
+
+
+class SubmitIDConverter:
+    regex = "[FJT]-[0-9]+"
+
+    def to_python(self, value):
+        return value
+
+    def to_url(self, value):
+        return value
+
+
+register_converter(SubmitIDConverter, "submit_id")
 
 urlpatterns = [
     path("admin/", admin.site.urls),
