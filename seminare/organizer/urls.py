@@ -21,6 +21,11 @@ contest_patterns = [
         grading.GradingOverviewView.as_view(),
         name="grading_overview",
     ),
+    path(
+        "grading/submit/<submit_id:submit_id>/",
+        grading.GradingSubmitView.as_view(),
+        name="grading_submit",
+    ),
 ]
 
 

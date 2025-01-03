@@ -3,7 +3,7 @@
   <div class="text-gray-500 text-sm font-semibold tracking-wide mb-2">{{ section.0 }}</div>
   <div class="space-y-1">
     {% for item in section.1 %}
-    <a href="{{ item.2 }}" class="flex items-center text-gray-800 p-2 hover:text-primary font-semibold hover:bg-gray-50 rounded">
+    <a href="{{ item.2 }}" class="flex items-center text-gray-800 px-3 py-2 hover:text-primary font-semibold hover:bg-gray-50 rounded">
       <iconify-icon icon="{{ item.0 }}" width="none" class="size-5 mr-2"></iconify-icon>
       {{ item.1 }}
     </a>

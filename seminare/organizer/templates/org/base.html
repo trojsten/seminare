@@ -18,9 +18,11 @@
   </div>
 
   <div class="flex-1">
+    {% block org_body %}
     <div class="mx-auto p-4 w-full max-w-6xl md:py-10">
       {% block body %}{% endblock %}
     </div>
+    {% endblock org_body %}
   </div>
 </div>
 {% endblock root_body %}

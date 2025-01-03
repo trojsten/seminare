@@ -1,0 +1,60 @@
+{% extends "org/base.html" %}
+
+{% block title %}
+{{ submit.submit_id }} ({{ submit.enrollment.user.display_name }}) {{ block.super }}
+{% endblock title %}
+
+{% block org_body %}
+<div class="flex w-full h-full max-h-screen">
+  <div class="border-r w-80 shrink-0 px-4 py-3 overflow-auto space-y-1" hx-boost="true">
+    <a href="{% url 'org:grading_overview' contest.id submit.problem_id %}#user-{{ submit.enrollment.user_id }}" class="link flex items-center mb-2">
+      <iconify-icon icon="mdi:arrow-left" class="mr-1"></iconify-icon>
+      Späť na hodnotenie úlohy
+    </a>
+
+    {% for row in other_users %}
+    <a href="{% url 'org:grading_submit' contest.id row.submit.submit_id %}" class="block text-gray-800 px-3 py-2 hover:bg-gray-50 {% if row.user.id == submit.enrollment.user_id %}bg-gray-100{% endif %} rounded">
+      <div class="flex items-center justify-between font-semibold">
+        <span>{{ row.user.display_name }}</span>
+        {% if row.submit.score is not None %}
+        <span data-submit-score="{{ submit.id }}"class="text-green-600 whitespace-nowrap shrink-0 tabular-nums">{{ row.submit.score|floatformat:"g" }} b</span>
+        {% else %}
+        <span data-submit-score="{{ submit.id }}"class="text-red-600 text-sm shrink-0">neohodnotené</span>
+        {% endif %}
+      </div>
+      {% if row.submit.comment %}
+      <div class="text-sm text-gray-500">
+        {{ row.submit.comment }}
+      </div>
+      {% endif %}
+    </a>
+    {% endfor %}
+  </div>
+
+  <div class="flex-1 overflow-auto">
+    {% include "submits/content/render.html" %}
+  </div>
+
+  <div class="border-l w-80 shrink-0 flex flex-col">
+    <div class="font-bold text-lg pb-2 pt-3 px-4 shrink-0">Ostatné odovzdania</div>
+
+    <div class="px-4 pb-3 pt-0 flex-1 overflow-auto space-y-1" hx-boost="true">
+      {% for osubmit in other_submits %}
+      {# TODO: Add deadline marker, different stages #}
+      <a href="{% url 'org:grading_submit' contest.id osubmit.submit_id %}" class="block text-gray-800 px-3 py-2 hover:bg-gray-50 {% if osubmit == submit %}bg-gray-100{% endif %} rounded">
+        <div class="flex items-center justify-between font-semibold gap-1">
+          <span class="text-ellipsis overflow-hidden">{{ osubmit.created_at }}</span>
+          <span data-submit-score="{{ osubmit.id }}"class="text-green-600 whitespace-nowrap shrink-0 tabular-nums">{% if osubmit.score is not None %}{{ osubmit.score|floatformat:"g" }} b{% endif %}</span>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+
+    <div class="px-4 py-3 border-t flex-1 flex flex-col">
+      <div class="font-bold text-lg mb-2">Hodnotenie</div>
+
+      {% include "org/grading/_form.html" %}
+    </div>
+  </div>
+</div>
+{% endblock org_body %}
