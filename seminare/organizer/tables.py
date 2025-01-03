@@ -24,6 +24,6 @@ class ProblemSetTable(Table):
             (
                 "mdi:pencil",
                 "Upraviť",
-                reverse("problemset_update", args=[object.contest_id, object.id]),
+                reverse("org:problemset_update", args=[object.contest_id, object.id]),
             )
         ]

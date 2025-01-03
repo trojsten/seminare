@@ -28,7 +28,7 @@ class ProblemSetListView(WithContest, GenericTableView):
                 "green",
                 "mdi:plus",
                 "Pridať",
-                reverse("problemset_create", args=[self.contest.id]),
+                reverse("org:problemset_create", args=[self.contest.id]),
             )
         ]
 
