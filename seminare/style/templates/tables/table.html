@@ -1,28 +1,28 @@
 {% load tables %}
 <div class="overflow-x-auto mb-4">
-  <table class="min-w-full divide-y divide-gray-300">
+  <table class="simple-table">
     {% if not hide_header %}
     <thead>
       <tr>
         {% for field in table.fields %}
-        <th scope="col" class="whitespace-nowrap pt-0 p-3 text-left text-sm font-semibold text-gray-900 {% if forloop.first %}sm:pl-0{% endif %}">
+        <th scope="col">
           {% get_label table field %}
         </th>
         {% endfor %}
-        <th scope="col" class="relative pt-0 p-3 sm:pr-0"></th>
+        <th scope="col"></th>
       </tr>
     </thead>
     {% endif %}
-    <tbody class="divide-y divide-gray-200">
+    <tbody>
       {% for object in objects %}
       <tr>
         {% for field in table.fields %}
-        <td class="whitespace-nowrap p-3 text-sm text-gray-700 {% if forloop.first %}sm:pl-0{% endif %}">
+        <td>
           {% get_cell table field object extra_context %}
         </td>
         {% endfor %}
 
-        <td class="whitespace-nowrap p-3 sm:pr-0 text-sm text-right w-full">
+        <td class="text-right w-full">
           <div class="flex gap-3 justify-end">
             {% get_links table object extra_context as links %}
             {% for link in links %}
