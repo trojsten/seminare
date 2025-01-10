@@ -66,3 +66,20 @@ class Enrollment(models.Model):
 
     def __str__(self):
         return f"{self.user} ({self.grade})"
+
+
+class ContestRole(models.Model):
+    class Role(models.IntegerChoices):
+        ORGANIZER = 1
+        ADMINISTRATOR = 2
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user_id: int
+    contest = models.ForeignKey("contests.Contest", on_delete=models.CASCADE)
+    contest_id: int
+    role = models.IntegerField(choices=Role.choices)
+
+    def __str__(self):
+        return f"{self.user}, {self.contest}: {self.get_role_display()}"
+
+    def get_role_display(self) -> str: ...
