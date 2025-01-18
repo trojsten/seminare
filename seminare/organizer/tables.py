@@ -1,6 +1,6 @@
 from django.urls import reverse
 
-from seminare.problems.models import ProblemSet
+from seminare.problems.models import Problem, ProblemSet
 from seminare.style.tables import Table
 
 
@@ -44,17 +44,23 @@ class ProblemTable(Table):
     labels = {
         "name": "Názov",
         "number": "Číslo úlohy",
-        "problem_set": "Koniec",
+        "problem_set": "Sada úloh",
     }
 
     def get_links(
-        self, object: ProblemSet, context: dict
+        self, object: Problem, context: dict
     ) -> list[tuple[str, str] | tuple[str, str, str]]:
         return [
             (
                 "mdi:pencil",
                 "Upraviť",
-                "#",
-                # reverse("org:problemset_update", args=[object.contest_id, object.id]),
+                reverse(
+                    "org:problem_update",
+                    args=[
+                        object.problem_set.contest_id,
+                        object.problem_set_id,
+                        object.id,
+                    ],
+                ),
             )
         ]

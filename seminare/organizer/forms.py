@@ -1,6 +1,6 @@
 from django import forms
 
-from seminare.problems.models import ProblemSet
+from seminare.problems.models import Problem, ProblemSet
 from seminare.style.forms import DateInput
 
 
@@ -27,3 +27,10 @@ class ProblemSetForm(forms.ModelForm):
 class GradingForm(forms.Form):
     comment = forms.CharField(required=False)
     score = forms.DecimalField(required=False)
+
+
+class ProblemForm(forms.ModelForm):
+    class Meta:
+        model = Problem
+        fields = ["name", "number"]
+        labels = {"name": "Názov", "number": "Číslo"}

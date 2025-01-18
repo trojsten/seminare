@@ -82,3 +82,15 @@ class ProblemSetUpdateView(WithContest, GenericFormTableView, UpdateView):
 
     def get_success_url(self) -> str:
         return reverse("problemset_list", args=[self.contest.id])
+
+    def get_form_table_links(self):
+        return [
+            (
+                "green",
+                "mdi:plus",
+                "Pridať úlohu",
+                reverse(
+                    "org:problem_create", args=[self.contest.id, self.get_object().id]
+                ),
+            )
+        ]

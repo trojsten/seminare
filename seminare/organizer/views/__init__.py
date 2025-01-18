@@ -40,6 +40,18 @@ class WithProblemSet(MixinProtocol):
         return ctx
 
 
+class WithProblem(MixinProtocol):
+    @cached_property
+    def problem(self) -> ProblemSet:
+        # site = get_current_site(self.request)
+        return get_object_or_404(ProblemSet, id=self.kwargs["problem_id"])
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["problem"] = self.problem
+        return ctx
+
+
 class WithSubmit(MixinProtocol):
     @cached_property
     def submit(self) -> BaseSubmit:
