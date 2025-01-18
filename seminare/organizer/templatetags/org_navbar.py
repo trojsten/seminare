@@ -1,4 +1,5 @@
 from django import template
+from django.urls import reverse
 
 register = template.Library()
 
@@ -12,6 +13,11 @@ def org_navbar(context):
             "Section",
             [
                 ("mdi:home", "Test", "#"),
+                (
+                    "mdi:abacus",
+                    "Sady úloh",
+                    reverse("org:problemset_list", args=[context.get("contest").id]),
+                ),
             ],
         )
     )

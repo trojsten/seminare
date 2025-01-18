@@ -6,6 +6,7 @@ from django.shortcuts import get_object_or_404
 from django.utils.functional import cached_property
 
 from seminare.contests.models import Contest
+from seminare.problems.models import ProblemSet
 from seminare.submits.models import BaseSubmit
 
 
@@ -24,6 +25,18 @@ class WithContest(MixinProtocol):
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx["contest"] = self.contest
+        return ctx
+
+
+class WithProblemSet(MixinProtocol):
+    @cached_property
+    def problem_set(self) -> ProblemSet:
+        # site = get_current_site(self.request)
+        return get_object_or_404(ProblemSet, id=self.kwargs["problem_set_id"])
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["problem_set"] = self.problem_set
         return ctx
 
 
