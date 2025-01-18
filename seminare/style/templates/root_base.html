@@ -37,7 +37,7 @@
     {% block head %}
     {% endblock %}
 </head>
-<body class="{% block root_body_class %}theme-math{% endblock %}">
+<body class="{% block root_body_class %}theme-math{% endblock %}" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
   {% block root_body %}{% endblock %}
 </body>
 </html>

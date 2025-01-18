@@ -1,0 +1,10 @@
+{# Renders a file submit content #}
+{% if submit.is_displayable %}
+<embed src="{{ submit.file.url }}" class="mx-auto max-w-full w-full h-full">
+{% else %}
+<div class="p-8 text-gray-800 text-center">
+  <iconify-icon icon="mdi:file-alert-outline" width="none" class="size-12"></iconify-icon>
+  <div class="text-2xl mb-4 mt-2 font-semibold">Tento súbor sa nedá zobraziť</div>
+  <a href="{{ submit.file.url }}" class="btn btn-default">Stiahnúť</a>
+</div>
+{% endif %}

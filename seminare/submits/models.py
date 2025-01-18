@@ -25,6 +25,7 @@ class BaseSubmit(models.Model):
     )
     scored_by_id: int
     comment = models.TextField(blank=True)
+    type: str
 
     class Meta:
         abstract = True
@@ -61,10 +62,17 @@ class BaseSubmit(models.Model):
 class FileSubmit(BaseSubmit):
     file = models.FileField(upload_to=submit_file_filepath)
     comment_file = models.FileField(upload_to=submit_file_filepath, blank=True)
+    type = "file"
 
     @property
     def submit_id(self):
         return f"F-{self.id}"
+
+    def is_displayable(self):
+        if not self.file:
+            return False
+        _, ext = os.path.splitext(self.file.name)
+        return ext.lower()[1:] in {"pdf", "jpg"}
 
 
 class JudgeSubmit(BaseSubmit):
@@ -72,6 +80,7 @@ class JudgeSubmit(BaseSubmit):
     protocol = models.JSONField(blank=True, default=dict)
     judge_id = models.CharField(max_length=255, unique=True)
     protocol_key = models.CharField(max_length=255, blank=True)
+    type = "judge"
 
     @property
     def submit_id(self):
@@ -80,6 +89,7 @@ class JudgeSubmit(BaseSubmit):
 
 class TextSubmit(BaseSubmit):
     value = models.TextField(blank=True)
+    type = "text"
 
     @property
     def submit_id(self):

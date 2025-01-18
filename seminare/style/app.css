@@ -60,3 +60,27 @@ iconify-icon {
     width: 1em;
     height: 1em;
 }
+
+.simple-table {
+  @apply min-w-full divide-y divide-gray-300;
+}
+
+.simple-table th {
+  @apply whitespace-nowrap pt-0 p-3 text-left text-sm font-semibold text-gray-900;
+}
+
+.simple-table td:first-child, .simple-table th:first-child {
+  @apply md:pl-0;
+}
+
+.simple-table td:last-child, .simple-table th:last-child {
+  @apply md:pr-0;
+}
+
+.simple-table tbody {
+  @apply divide-y divide-gray-200;
+}
+
+.simple-table td {
+  @apply whitespace-nowrap p-3 text-sm text-gray-700;
+}

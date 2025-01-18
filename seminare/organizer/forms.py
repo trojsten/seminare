@@ -22,3 +22,8 @@ class ProblemSetForm(forms.ModelForm):
             "start_date": DateInput(),
             "end_date": DateInput(),
         }
+
+
+class GradingForm(forms.Form):
+    comment = forms.CharField(required=False)
+    score = forms.DecimalField(required=False)

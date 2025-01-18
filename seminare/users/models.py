@@ -4,6 +4,7 @@ from django.db import models
 
 
 class User(AbstractUser):
+    id: int
     trojsten_id = models.BigIntegerField(blank=True, null=True)
 
     @property
