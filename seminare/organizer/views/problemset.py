@@ -5,10 +5,14 @@ from django.urls import reverse
 from django.views.generic import CreateView, UpdateView
 
 from seminare.organizer.forms import ProblemSetForm
-from seminare.organizer.tables import ProblemSetTable
+from seminare.organizer.tables import ProblemSetTable, ProblemTable
 from seminare.organizer.views import WithContest
-from seminare.organizer.views.generic import GenericFormView, GenericTableView
-from seminare.problems.models import ProblemSet
+from seminare.organizer.views.generic import (
+    GenericFormTableView,
+    GenericFormView,
+    GenericTableView,
+)
+from seminare.problems.models import Problem, ProblemSet
 
 
 class ProblemSetListView(WithContest, GenericTableView):
@@ -49,14 +53,32 @@ class ProblemSetCreateView(WithContest, GenericFormView, CreateView):
         return reverse("problemset_list", args=[self.contest.id])
 
 
-class ProblemSetUpdateView(WithContest, GenericFormView, UpdateView):
+#
+# class ProblemSetUpdateView(WithContest, GenericTableView, UpdateView):
+#     # TODO: Permission checking
+#
+#     form_class = ProblemSetForm
+#     form_title = "Upraviť sadu úloh"
+#
+#     def get_object(self, queryset=None):
+#         return get_object_or_404(ProblemSet, id=self.kwargs["pk"], contest=self.contest)
+#
+#     def get_success_url(self) -> str:
+#         return reverse("problemset_list", args=[self.contest.id])
+
+
+class ProblemSetUpdateView(WithContest, GenericFormTableView, UpdateView):
     # TODO: Permission checking
 
     form_class = ProblemSetForm
-    form_title = "Upraviť sadu úloh"
+    table_class = ProblemTable
+    form_table_title = "Upraviť sadu úloh"
 
     def get_object(self, queryset=None):
         return get_object_or_404(ProblemSet, id=self.kwargs["pk"], contest=self.contest)
+
+    def get_queryset(self) -> QuerySet[Problem]:
+        return Problem.objects.filter(problem_set=self.get_object()).order_by("number")
 
     def get_success_url(self) -> str:
         return reverse("problemset_list", args=[self.contest.id])
