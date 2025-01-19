@@ -2,35 +2,54 @@
 {% load markdownify %}
 
 {% block title %}
-    Novinky {{ block.super }}
+	Novinky {{ block.super }}
 {% endblock %}
 
 {% block body %}
-    <div class="max-w-prose mx-auto">
-        <h1 class="text-4xl font-bold mb-8">Novinky</h1>
+	<div class="max-w-prose mx-auto">
+		<div class="flex flex-row items-center justify-between">
+			<h1 class="text-4xl font-bold mb-8">Novinky</h1>
+			{% if user.is_staff %}
+				<div class="mb-4">
+					<a href="{% url "post_create" %}">
+						<iconify-icon icon="mdi:add" width="none" class="size-6"></iconify-icon>
+					</a>
+				</div>
+			{% endif %}
+		</div>
 
-        <div class="space-y-8">
-        {% for post in object_list %}
-            <article class="border shadow-sm p-6 rounded-md">
-                <div class="text-gray-600 mb-1 text-sm">{{ post.created_at|date }}</div>
-                <h2 class="text-2xl font-semibold mb-4">{{ post.title }}</h2>
-                <div class="prose prose-sm">
-                    {{ post.content|markdownify }}
-                </div>
+		<div class="space-y-8">
+			{% for post in object_list %}
+				<article class="border shadow-sm p-6 rounded-md">
+					{% if user.is_staff %}
+						<div class="float-end">
+							<a href="{% url "post_edit" post.id %}">
+								<iconify-icon icon="mdi:edit" width="none" class="size-6"></iconify-icon>
+							</a>
+							<a href="{% url "post_delete" post.id %}?return={% url "post_list" %}">
+								<iconify-icon icon="mdi:delete" width="none" class="size-6"></iconify-icon>
+							</a>
+						</div>
+					{% endif %}
+					<div class="text-gray-600 mb-1 text-sm">{{ post.created_at|date }}</div>
+					<h2 class="text-2xl font-semibold mb-4">{{ post.title }}</h2>
+					<div class="prose prose-sm">
+						{{ post.content|markdownify }}
+					</div>
 
-                <div class="relative mt-6 flex items-center gap-x-3">
-                    <img src="{{ post.author.avatar_url }}" alt="" class="size-8 rounded-full bg-gray-50">
-                    <div class="text-sm font-semibold">
-                        <a href="{{ post.author.profile_url }}" target="_blank">
-                            <span class="absolute inset-0"></span>
-                            {{ post.author.display_name }}
-                        </a>
-                    </div>
-                </div>
-            </article>
-        {% endfor %}
-        </div>
+					<div class="relative mt-6 flex items-center gap-x-3">
+						<img src="{{ post.author.avatar_url }}" alt="" class="size-8 rounded-full bg-gray-50">
+						<div class="text-sm font-semibold">
+							<a href="{{ post.author.profile_url }}" target="_blank">
+								<span class="absolute inset-0"></span>
+								{{ post.author.display_name }}
+							</a>
+						</div>
+					</div>
+				</article>
+			{% endfor %}
+		</div>
 
-        {# TODO: Pagination #}
-    </div>
+		{# TODO: Pagination #}
+	</div>
 {% endblock %}
