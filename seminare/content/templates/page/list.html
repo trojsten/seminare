@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% load markdownify %}
+
+{% block title %}
+	Stránky {{ block.super }}
+{% endblock %}
+
+{% block body %}
+	<div class="max-w-prose mx-auto">
+		<div class="flex flex-row items-center justify-between">
+			<h1 class="text-4xl font-bold mb-8">Stránky</h1>
+			{% if user.is_staff %}
+				<div class="mb-4">
+					<a href="{% url "page_create" %}">
+						<iconify-icon icon="mdi:add" width="none" class="size-6"></iconify-icon>
+					</a>
+				</div>
+			{% endif %}
+		</div>
+
+		<div class="space-y-8">
+			{% for page in object_list %}
+				<article class="border shadow-sm p-6 rounded-md">
+					{% if user.is_staff %}
+						<div class="float-end">
+							<a href="{% url "page_edit" page.slug %}">
+								<iconify-icon icon="mdi:edit" width="none" class="size-6"></iconify-icon>
+							</a>
+							<a href="{% url "page_delete" page.slug %}?return={% url "page_list" %}">
+								<iconify-icon icon="mdi:delete" width="none" class="size-6"></iconify-icon>
+							</a>
+						</div>
+					{% endif %}
+					<h2 class="text-2xl font-semibold mb-4"><a href="{% url "page_detail" page.slug %}">{{ page.title }}</a></h2>
+					<div class="prose prose-sm">
+						{{ page.content|markdownify|truncatewords_html:50 }}
+					</div>
+				</article>
+			{% endfor %}
+		</div>
+
+		{# TODO: Pagination #}
+	</div>
+{% endblock %}
