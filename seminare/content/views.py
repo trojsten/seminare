@@ -10,7 +10,7 @@ from django.views.generic import (
 )
 
 from seminare.content import forms
-from seminare.content.models import Page, Post
+from seminare.content.models import MenuGroup, Page, Post
 from seminare.organizer.views.generic import GenericFormView
 
 
@@ -114,3 +114,26 @@ class PostDeleteView(DeleteView):
 
     def get_success_url(self):
         return reverse("post_list")
+
+
+class MenuListView(ListView):
+    model = MenuGroup
+    template_name = "menu/list.html"
+    paginate_by = 15
+
+    def get_queryset(self):
+        site = get_current_site(self.request)
+        return MenuGroup.objects.filter(site=site)
+
+
+class MenuDeleteView(DeleteView):
+    model = MenuGroup
+    template_name = "menu/confirm_delete.html"
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["return"] = self.request.GET.get("return", None)
+        return ctx
+
+    def get_success_url(self):
+        return reverse("menu_list")

@@ -12,4 +12,6 @@ urlpatterns = [
     path("posts/create/", views.PostCreateView.as_view(), name="post_create"),
     path("posts/<int:pk>/", views.PostEditView.as_view(), name="post_edit"),
     path("posts/<int:pk>/delete/", views.PostDeleteView.as_view(), name="post_delete"),
+    path("menus/", views.MenuListView.as_view(), name="menu_list"),
+    path("menus/<int:pk>/delete/", views.MenuDeleteView.as_view(), name="menu_delete"),
 ]

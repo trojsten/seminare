@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% load markdownify %}
+
+{% block title %}
+    {{ object.title }} {{ block.super }}
+{% endblock %}
+
+{% block body %}
+    <div class="prose mx-auto">
+        <h1>{{ object.title }}</h1>
+
+        {{ object.content|markdownify }}
+    </div>
+{% endblock %}

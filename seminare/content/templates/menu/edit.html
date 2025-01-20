@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-{% load forms %}
 {% load markdownify %}
 
 {% block title %}
@@ -9,21 +8,21 @@
 {% block body %}
 	<div class="max-w-prose mx-auto">
 		<div class="flex flex-row items-center gap-2">
-			<a href="{% url "post_list" %}">
+			<a href="{% url "page_list" %}">
 				<iconify-icon icon="mdi:arrow-back" width="none" class="size-6 mb-8"></iconify-icon>
 			</a>
 			<h1 class="text-4xl font-bold mb-8">{{ form_title }}</h1>
 		</div>
 		<form method="POST">
-			{% render_form form %}
+			{{ form.as_div }}
 			{% csrf_token %}
 			<div class="pt-2">
 				<button type="submit" class="btn btn-primary">Uložiť</button>
-				{% if post %}
-					<a href="{% url "post_delete" post.id %}?return={% url "post_edit" post.id %}">
-						<button type="button" class="btn btn-red">Vymazať</button>
-					</a>
-				{% endif %}
+				{#				{% if page %}#}
+				{#					<a href="{% url "menu_delete" page.slug %}?return={% url "menu_edit" page.slug %}">#}
+				{#						<button type="button" class="btn btn-red">Vymazať</button>#}
+				{#					</a>#}
+				{#				{% endif %}#}
 			</div>
 		</form>
 	</div>

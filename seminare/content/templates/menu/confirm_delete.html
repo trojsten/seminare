@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load markdownify %}
+
+{% block body %}
+	<div class="max-w-prose mx-auto">
+		<h1 class="text-4xl font-bold mb-8">Vymazať skupinu položiek</h1>
+		<p>Ste si istí, že chcete vymazať skupinu položiek &quot;<strong>{{ menugroup.title }}</strong>&quot;?</p>
+		<form method="POST">
+			{% csrf_token %}
+			<button type="submit" class="btn btn-red">Vymazať</button>
+			<a href="{{ return }}">
+				<button type="button" class="btn btn-default">Návrat</button>
+			</a>
+		</form>
+	</div>
+{% endblock %}
