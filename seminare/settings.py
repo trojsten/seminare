@@ -105,6 +105,7 @@ OIDC_RP_CLIENT_SECRET = env("OIDC_RP_CLIENT_SECRET", default="")
 OIDC_OP_LOGOUT_URL_METHOD = "seminare.users.auth.logout_url"
 OIDC_RENEW_ID_TOKEN_EXPIRY_SECONDS = 3600  # 1-hour
 
+LOGIN_URL = "oidc_authentication_init"
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/"
 
