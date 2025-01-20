@@ -1,21 +1,22 @@
-<header class="bg-primary z-50" data-controller="menu-toggle"">
-    <nav class="p-4 text-white flex items-center justify-between">
-        <a href="/" class="flex items-center font-bold gap-3 hover:underline">
-            <img src="https://raw.githubusercontent.com/trojsten/brand/refs/heads/master/kms/logo/white.svg" alt="">
-            <span class="hidden md:inline-block">
+<header class="bg-primary z-50" data-controller="menu-toggle">
+	<nav class="p-4 text-white flex items-center justify-between">
+		<a href="/" class="flex items-center font-bold gap-3 hover:underline">
+			<img src="https://raw.githubusercontent.com/trojsten/brand/refs/heads/master/kms/logo/white.svg" alt="">
+			<span class="hidden md:inline-block">
                 Korešpondenčný Matematický Seminár
             </span>
-        </a>
+		</a>
 
-        {% include "navbar/_computer.html" %}
+		{% include "navbar/_computer.html" %}
 
-        <button class="p-4 -m-4 flex md:hidden" data-menu-toggle-target="openIcon" data-action="click->menu-toggle#open">
-            <iconify-icon icon="mdi:menu" width="none" class="size-6"></iconify-icon>
-        </button>
-        <button class="p-4 -m-4 flex hidden md:hidden" data-menu-toggle-target="closeIcon" data-action="click->menu-toggle#close">
-            <iconify-icon icon="mdi:close" width="none" class="size-6"></iconify-icon>
-        </button>
-    </nav>
+		<button class="p-4 -m-4 flex md:hidden" data-menu-toggle-target="openIcon" data-action="click->menu-toggle#open">
+			<iconify-icon icon="mdi:menu" width="none" class="size-6"></iconify-icon>
+		</button>
+		<button class="p-4 -m-4 flex hidden md:hidden" data-menu-toggle-target="closeIcon"
+		        data-action="click->menu-toggle#close">
+			<iconify-icon icon="mdi:close" width="none" class="size-6"></iconify-icon>
+		</button>
+	</nav>
 
-    {% include "navbar/_mobile.html" %}
+	{% include "navbar/_mobile.html" %}
 </header>
