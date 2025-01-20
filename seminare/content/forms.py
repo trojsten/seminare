@@ -4,6 +4,8 @@ from seminare.content import models
 
 
 class PageForm(forms.ModelForm):
+    template_name_div = "forms/div.html"
+
     class Meta:
         model = models.Page
         fields = ["title", "slug", "site", "content"]

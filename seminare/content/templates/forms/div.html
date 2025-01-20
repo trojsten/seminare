@@ -1,10 +1,13 @@
+{% load widget_tweaks %}
 {{ errors }}
 {% if errors and not fields %}
 	<div>{% for field in hidden_fields %}{{ field }}{% endfor %}</div>
 {% endif %}
 {% for field, errors in fields %}
-	<div{% with classes=field.css_classes %}{% if classes %} class="{{ classes }}"{% endif %}{% endwith %}>
-		{{ field.as_field_group }}
+	<div{% with classes=field.css_classes %}
+		class="{{ classes }} flex flex-col {% if not forloop.first %}pt-2{% endif %}"{% endwith %}>
+		<label for="{{ field.id_for_label }}">{{ field.label }}</label>
+		{% render_field field class+="input" %}
 		{% if forloop.last %}
 			{% for field in hidden_fields %}{{ field }}{% endfor %}
 		{% endif %}

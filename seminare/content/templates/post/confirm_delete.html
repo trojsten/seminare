@@ -7,8 +7,10 @@
 		<p>Ste si istí, že chcete vymazať príspevok &quot;<strong>{{ post.title }}</strong>&quot;?</p>
 		<form method="POST">
 			{% csrf_token %}
-			<button type="submit" class="button button--primary">Vymazať</button>
-			<a href="{{ return }}">Návrat</a>
+			<button type="submit" class="btn btn-red">Vymazať</button>
+			<a href="{{ return }}">
+				<button type="button" class="btn btn-default">Návrat</button>
+			</a>
 		</form>
 	</div>
 {% endblock %}
