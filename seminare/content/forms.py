@@ -15,7 +15,9 @@ class PageForm(forms.ModelForm):
         }
 
 
-class ProblemSetForm(forms.ModelForm):
+class PostForm(forms.ModelForm):
+    template_name_div = "forms/div.html"
+
     class Meta:
         model = models.Post
         fields = ["title", "contests", "content", "author"]

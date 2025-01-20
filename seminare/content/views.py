@@ -76,7 +76,7 @@ class PostListView(ListView):
 
 class PostCreateView(GenericFormView, CreateView):
     template_name = "post/edit.html"
-    form_class = forms.ProblemSetForm
+    form_class = forms.PostForm
     form_title = "Pridať príspevok"
 
     def get_context_data(self, **kwargs):
@@ -91,7 +91,7 @@ class PostCreateView(GenericFormView, CreateView):
 class PostEditView(GenericFormView, UpdateView):
     model = Post
     template_name = "post/edit.html"
-    form_class = forms.ProblemSetForm
+    form_class = forms.PostForm
     form_title = "Upraviť príspevok"
 
     def get_context_data(self, **kwargs):
