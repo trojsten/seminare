@@ -47,6 +47,7 @@ class ProblemTable(Table):
         "problem_set": "Sada úloh",
     }
 
+    # TODO link na opravovanie
     def get_links(
         self, object: Problem, context: dict
     ) -> list[tuple[str, str] | tuple[str, str, str]]:

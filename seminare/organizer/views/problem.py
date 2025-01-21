@@ -1,8 +1,7 @@
 from django.db.models import QuerySet
-from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
-from django.views.generic import UpdateView
+from django.views.generic import CreateView, UpdateView
 
 from seminare.organizer.forms import ProblemForm
 from seminare.organizer.tables import ProblemTable
@@ -32,7 +31,7 @@ class ProblemListView(WithContest, WithProblemSet, GenericTableView):
         ]
 
 
-class ProblemCreateView(WithContest, WithProblemSet, GenericFormView):
+class ProblemCreateView(WithContest, WithProblemSet, GenericFormView, CreateView):
     # TODO: Permission checking
     # TODO: return to correct success url or rethink the organization
     # TODO: add texts to form aswell
@@ -40,11 +39,10 @@ class ProblemCreateView(WithContest, WithProblemSet, GenericFormView):
     form_class = ProblemForm
     form_title = "Nová úloha"
 
-    def form_valid(self, form):
-        self.object: Problem = form.save(commit=False)
-        self.object.problem_set = self.problem_set
-        self.object.save()
-        return HttpResponseRedirect(self.get_success_url())
+    def get_form_kwargs(self):
+        kw = super().get_form_kwargs()
+        kw["problem_set"] = self.problem_set
+        return kw
 
     def get_success_url(self) -> str:
         return reverse("org:problem_list", args=[self.contest.id, self.problem_set.id])
@@ -56,6 +54,11 @@ class ProblemUpdateView(WithContest, WithProblemSet, GenericFormView, UpdateView
     # TODO: add texts to form aswell
     form_class = ProblemForm
     form_title = "Upraviť úlohu"
+
+    def get_form_kwargs(self):
+        kw = super().get_form_kwargs()
+        kw["problem_set"] = self.problem_set
+        return kw
 
     def get_object(self, queryset=None):
         return get_object_or_404(Problem, id=self.kwargs.get("problem_id"))
