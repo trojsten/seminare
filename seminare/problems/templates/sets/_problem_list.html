@@ -1,49 +1,14 @@
+{# django #}
 <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
     <div class="sm:col-span-3">
         <h2 class="text-2xl font-semibold mb-2">{{ problem_set.name }}</h2>
 
-        <table class="w-full mb-4 text-sm">
-            <thead>
-                <tr class="border-b border-gray-400">
-                    <th class="p-2 whitespace-nowrap text-left">#</th>
-                    <th class="p-2 text-left w-full">Názov</th>
-                    {% if user.is_authenticated %}
-                        <th class="p-2 whitespace-nowrap text-center">Tvoje body</th>
-                    {% endif %}
-                </tr>
-            </thead>
-
-            <tbody class="divide-y">
-            {% for problem in problems %}
-                <tr {% if problem.number == 1 %}class="bg-amber-100 text-amber-500"
-                    {% elif problem.users_score or problem.users_score_pending %}class="bg-green-100 text-green-600"{% endif %}>
-                    <td class="p-2 whitespace-nowrap">{{ problem.number }}</td>
-                    <td class="p-2">
-                        <a href="{% url "problem_detail" problem.problem_set_id problem.number %}" class="link">{{ problem.name }}</a>
-                    </td>
-                    {% if user.is_authenticated %}
-                        <td class="p-2 whitespace-nowrap text-center">
-                            {{ problem.users_score|default_if_none:""|floatformat:"g" }}{{ problem.users_score_pending|yesno:"?," }}
-                        </td>
-                    {% endif %}
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-
-        <div class="flex sm:items-center flex-col sm:flex-row flex-wrap gap-y-2 gap-x-4">
-            <div class="flex items-center gap-1 text-xs">
-                <div class="w-4 h-4 border rounded"></div>
-                Za túto úlohu získavaš body
-            </div>
-            <div class="flex items-center gap-1 text-xs">
-                <div class="w-4 h-4 bg-amber-200 rounded"></div>
-                Za túto úlohu nezískavaš body
-            </div>
-            <div class="flex items-center gap-1 text-xs">
-                <div class="w-4 h-4 bg-green-500 rounded"></div>
-                Túto úlohu si už vyriešil
-            </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          {% for problem in problems %}
+          <div class="rounded-md border overflow-hidden">
+            {% include "problems/_item.html" %}
+          </div>
+          {% endfor %}
         </div>
     </div>
     <div class="">

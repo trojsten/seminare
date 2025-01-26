@@ -9,13 +9,9 @@
         </div>
     </div>
 
+    <div class="divide-y">
     {% for side_problem in sidebar_problems %}
-        <a class="px-4 py-3 flex items-center justify-between {% if side_problem.users_score is not None or side_problem.users_score_pending %}bg-green-100 text-green-800 hover:bg-green-200{% else %}hover:bg-gray-200{% endif %} {% if side_problem.id == problem.id %}font-semibold{% endif %}"
-           href="{% url "problem_detail" side_problem.problem_set_id side_problem.number %}">
-            <span>{{ side_problem.number }}. {{ side_problem.name }}</span>
-            <span>
-                {{ side_problem.users_score|default_if_none:""|floatformat:"g" }}{{ side_problem.users_score_pending|yesno:"?," }}
-            </span>
-        </a>
+      {% include "problems/_item.html" with problem=side_problem active_problem=problem %}
     {% endfor %}
+    </div>
 </div>
