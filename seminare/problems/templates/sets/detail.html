@@ -1,9 +1,18 @@
 {% extends "base.html" %}
+{% load ui %}
 
 {% block title %}
     {{ object }} {{ block.super }}
 {% endblock %}
 
+{% block after_menu %}
+<div class="border-b px-4 py-3">
+  {% url "problem_set_list" as set_list_url %}
+  {% url "problem_set_detail" object.id as set_url %}
+  {% breadcrumbs "Kolá" set_list_url object set_url %}
+</div>
+{% endblock %}
+
 {% block body %}
-    {% include "sets/_problem_list.html" with problem_set=object %}
+{% include "sets/_problem_list.html" with problem_set=object %}
 {% endblock %}
