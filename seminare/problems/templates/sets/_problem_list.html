@@ -1,20 +1,27 @@
 {# django #}
-<div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
-    <div class="sm:col-span-3">
-        <h2 class="text-2xl font-semibold mb-2">{{ problem_set.name }}</h2>
 
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-          {% for problem in problems %}
-          <div class="rounded-md border overflow-hidden">
-            {% include "problems/_item.html" %}
-          </div>
-          {% endfor %}
-        </div>
-    </div>
-    <div class="">
-        <h2 class="text-lg font-bold">Termíny</h2>
+<div>
+  <h2 class="text-2xl font-semibold">{{ problem_set.name }}</h2>
 
-        <p>Koniec kola: {{ problem_set.end_date_time }} <span
-                class="text-red-600">({{ problem_set.end_date_time|timeuntil }})</span></p>
+  <dl class="grid grid-cols-1 sm:grid-cols-3 -mx-2 text-sm md:-mx-4 mb-2">
+    <div class="p-2 md:p-4">
+      <dt class="font-semibold text-gray-900">Koniec kola:</dt>
+      <dd class="text-gray-700">
+        {{ problem_set.end_date }}
+        <span class="text-gray-500 text-xs block">({{ problem_set.end_date_time|timeuntil }})</span>
+      </dd>
     </div>
+  </dl>
+
+  <div class="border divide-y rounded-md overflow-hidden">
+    <div class="flex justify-between text-sm text-gray-600 bg-gray-100 font-semibold py-3 px-4">
+      <div>Úloha</div>
+      {% if user.is_authenticated %}
+      <div>Tvoje body</div>
+      {% endif %}
+    </div>
+    {% for problem in problems %}
+      {% include "problems/_item.html" %}
+    {% endfor %}
+  </div>
 </div>
