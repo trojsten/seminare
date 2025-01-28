@@ -1,25 +1,32 @@
 {% extends "base.html" %}
+{% load ui %}
 
 {% block title %}
-    Aktuálne zadania {{ block.super }}
+  Aktuálne zadania {{ block.super }}
+{% endblock %}
+
+{% block after_menu %}
+<div class="border-b px-4 py-3">
+  {% url "problem_set_list" as set_list_url %}
+  {% breadcrumbs "Zadania" set_list_url %}
+</div>
 {% endblock %}
 
 {% block body %}
-    {% if current_sets %}
-        <h1 class="text-3xl font-bold mb-4">Aktuálne zadania</h1>
+  {% if current_sets %}
+    <h1 class="text-3xl font-bold mb-4">Aktuálne zadania</h1>
 
-        {% for current_set in current_sets %}
-            {% include "sets/_problem_list.html" with problem_set=current_set problems=current_set.problems_with_score %}
-        {% endfor %}
-
-        <hr class="my-4">
-    {% endif %}
-
-    <h2 class="text-3xl font-bold mb-4">Archív zadaní</h2>
-
-    {% for problem_set in object_list %}
-        <div class="my-2">
-            <a class="link" href="{% url "problem_set_detail" problem_set.id %}">{{ problem_set.name }}</a>
-        </div>
+    {% for current_set in current_sets %}
+      {% include "sets/_problem_list.html" with problem_set=current_set problems=current_set.problems_with_score %}
+      <hr class="my-8">
     {% endfor %}
+  {% endif %}
+
+  <h2 class="text-3xl font-bold mb-4">Archív zadaní</h2>
+
+  {% for problem_set in object_list %}
+    <div class="my-2">
+      <a class="link" href="{% url "problem_set_detail" problem_set.id %}">{{ problem_set.name }}</a>
+    </div>
+  {% endfor %}
 {% endblock %}
