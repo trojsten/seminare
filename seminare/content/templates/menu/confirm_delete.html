@@ -8,9 +8,11 @@
 		<form method="POST">
 			{% csrf_token %}
 			<button type="submit" class="btn btn-red">Vymazať</button>
-			<a href="{{ return }}">
-				<button type="button" class="btn btn-default">Návrat</button>
-			</a>
+			{% if return %}
+				<a href="{{ return }}">
+					<button type="button" class="btn btn-default">Návrat</button>
+				</a>
+			{% endif %}
 		</form>
 	</div>
 {% endblock %}

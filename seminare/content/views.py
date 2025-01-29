@@ -11,7 +11,8 @@ from django.views.generic import (
 
 from seminare.content import forms
 from seminare.content.models import MenuGroup, Page, Post
-from seminare.organizer.views.generic import GenericFormView
+from seminare.content.tables import MenuTable
+from seminare.organizer.views.generic import GenericFormView, GenericTableView
 
 
 class PageListView(ListView):
@@ -33,7 +34,6 @@ class PageDetailView(DetailView):
 
 
 class PageCreateView(GenericFormView, CreateView):
-    template_name = "page/edit.html"
     form_class = forms.PageForm
     form_title = "Pridať stránku"
 
@@ -44,7 +44,6 @@ class PageCreateView(GenericFormView, CreateView):
 class PageEditView(GenericFormView, UpdateView):
     model = Page
     form_class = forms.PageForm
-    template_name = "page/edit.html"
     form_title = "Upraviť stránku"
 
     def get_success_url(self):
@@ -75,7 +74,6 @@ class PostListView(ListView):
 
 
 class PostCreateView(GenericFormView, CreateView):
-    template_name = "post/edit.html"
     form_class = forms.PostForm
     form_title = "Pridať príspevok"
 
@@ -90,7 +88,6 @@ class PostCreateView(GenericFormView, CreateView):
 
 class PostEditView(GenericFormView, UpdateView):
     model = Post
-    template_name = "post/edit.html"
     form_class = forms.PostForm
     form_title = "Upraviť príspevok"
 
@@ -116,10 +113,9 @@ class PostDeleteView(DeleteView):
         return reverse("post_list")
 
 
-class MenuListView(ListView):
-    model = MenuGroup
-    template_name = "menu/list.html"
-    paginate_by = 15
+class MenuListView(GenericTableView):
+    table_class = MenuTable
+    table_title = "Položky menu"
 
     def get_queryset(self):
         site = get_current_site(self.request)

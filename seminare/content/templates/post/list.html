@@ -12,7 +12,10 @@
 			{% if user.is_staff %}
 				<div class="mb-4">
 					<a href="{% url "post_create" %}">
-						<iconify-icon icon="mdi:add" width="none" class="size-6"></iconify-icon>
+						<button type="button" class="btn btn-green">
+							<iconify-icon icon="mdi:add" class="mr-1"></iconify-icon>
+							Pridať
+						</button>
 					</a>
 				</div>
 			{% endif %}
