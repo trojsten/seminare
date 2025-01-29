@@ -8,7 +8,12 @@ from django.utils.functional import cached_property
 from django.views.generic import FormView, TemplateView
 
 from seminare.organizer.forms import GradingForm
-from seminare.organizer.views import MixinProtocol, WithContest, WithSubmit
+from seminare.organizer.views import (
+    MixinProtocol,
+    WithBreadcrumbs,
+    WithContest,
+    WithSubmit,
+)
 from seminare.problems.models import Problem
 from seminare.submits.models import BaseSubmit, FileSubmit, JudgeSubmit, TextSubmit
 from seminare.users.models import User
@@ -67,7 +72,7 @@ class WithSubmitList(WithContest, MixinProtocol):
         return data
 
 
-class GradingOverviewView(WithSubmitList, TemplateView):
+class GradingOverviewView(WithSubmitList, WithBreadcrumbs, TemplateView):
     # TODO: Permission checking
     template_name = "org/grading/overview.html"
 
@@ -82,6 +87,21 @@ class GradingOverviewView(WithSubmitList, TemplateView):
         ctx["problem"] = self.problem
         ctx["users"] = self.get_users_with_submits()
         return ctx
+
+    def get_breadcrumbs(self):
+        return [
+            ("Sady úloh", reverse("org:problemset_list", args=[self.contest.id])),
+            (self.problem.problem_set, ""),
+            (
+                "Úlohy",
+                reverse(
+                    "org:problem_list",
+                    args=[self.contest.id, self.problem.problem_set.id],
+                ),
+            ),
+            (self.problem, ""),
+            ("Opravovanie", ""),
+        ]
 
 
 class GradingSubmitView(WithSubmit, WithSubmitList, FormView):

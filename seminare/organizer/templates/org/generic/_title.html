@@ -1,4 +1,11 @@
 {# Organizer title with links #}
+{% load ui %}
+{% if breadcrumbs %}
+<div class="mb-2">
+  {% breadcrumbs breadcrumbs %}
+</div>
+{% endif %}
+
 <div class="md:flex md:items-center md:justify-between mb-6">
   <div class="min-w-0 flex-1">
     <h2 class="font-bold text-gray-900 text-2xl md:text-3xl">

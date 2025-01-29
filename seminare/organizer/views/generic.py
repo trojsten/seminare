@@ -1,10 +1,11 @@
 from django.core.exceptions import ImproperlyConfigured
 from django.views.generic import FormView, ListView
 
+from seminare.organizer.views import WithBreadcrumbs
 from seminare.style.tables import Table
 
 
-class GenericTableView(ListView):
+class GenericTableView(WithBreadcrumbs, ListView):
     template_name = "org/generic/table.html"
 
     table_title = ""
@@ -30,7 +31,7 @@ class GenericTableView(ListView):
         return ctx
 
 
-class GenericFormView(FormView):
+class GenericFormView(WithBreadcrumbs, FormView):
     template_name = "org/generic/form.html"
 
     form_title = ""
@@ -45,4 +46,33 @@ class GenericFormView(FormView):
         ctx["form_title"] = self.get_form_title()
         ctx["form_multipart"] = self.form_multipart
         ctx["form_submit_label"] = self.form_submit_label
+        return ctx
+
+
+class GenericFormTableView(WithBreadcrumbs, FormView, ListView):
+    template_name = "org/generic/form_table.html"
+    form_multipart = False
+    form_submit_label = "Uložiť"
+    form_table_title = ""
+    form_table_links: list[tuple] = []
+    table_class: type[Table] | None = None
+
+    def get_form_table_title(self):
+        return self.form_table_title
+
+    def get_form_table_links(self):
+        return self.form_table_links
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["form_multipart"] = self.form_multipart
+        ctx["form_submit_label"] = self.form_submit_label
+        if not self.table_class:
+            raise ImproperlyConfigured(
+                f"{self.__class__.__name__} is missing table_class."
+            )
+
+        ctx["table"] = self.table_class()
+        ctx["form_table_title"] = self.get_form_table_title()
+        ctx["form_table_links"] = self.get_form_table_links()
         return ctx

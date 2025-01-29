@@ -38,11 +38,13 @@ class ProblemSet(models.Model):
 
 
 class Problem(models.Model):
+    id: int
     name = models.CharField(blank=True, max_length=256)
     number = models.IntegerField(default=0)
     problem_set = models.ForeignKey(
         ProblemSet, on_delete=models.CASCADE, related_name="problems"
     )
+    problem_set_id: int
 
     class Meta:
         ordering = ["problem_set", "number"]

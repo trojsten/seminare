@@ -1,0 +1,25 @@
+{% extends "org/base.html" %}
+{% load forms %}
+{% load tables %}
+
+{% block title %}
+    {{ table_title }} {{ block.super }}
+{% endblock title %}
+
+{% block body %}
+    {% include "org/generic/_title.html" with title=form_table_title links=form_table_links %}
+
+    <form method="post" class="space-y-6" {% if form_multipart %}enctype="multipart/form-data"{% endif %}>
+    {% csrf_token %}
+    {% render_form form %}
+
+    <button type="submit" class="btn btn-blue">{{ form_submit_label }}</button>
+    </form>
+
+    <div class="mt-4">
+    {% render_table table object_list %}
+    {% if page_obj %}
+        {% paginator page_obj %}
+    {% endif %}
+    </div>
+{% endblock body %}
