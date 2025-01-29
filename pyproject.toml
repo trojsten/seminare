@@ -18,6 +18,8 @@ psycopg = { extras = ["binary"], version = "^3.2.3" }
 markdown = "^3.7"
 mozilla-django-oidc = "^4.0.1"
 django-stubs = "^5.1.1"
+reportlab = "^4.2.5"
+pillow = "^11.1.0"
 
 
 [build-system]
