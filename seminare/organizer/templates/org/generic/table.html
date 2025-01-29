@@ -8,7 +8,7 @@
 {% block body %}
   {% include "org/generic/_title.html" with title=table_title links=table_links %}
 
-  {% render_table table object_list %}
+  {% render_table table object_list extra_context=table_context %}
   {% if page_obj %}
     {% paginator page_obj %}
   {% endif %}

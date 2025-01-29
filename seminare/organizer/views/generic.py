@@ -18,6 +18,9 @@ class GenericTableView(WithBreadcrumbs, ListView):
     def get_table_links(self):
         return self.table_links
 
+    def get_table_context(self):
+        return {}
+
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         if not self.table_class:
@@ -28,6 +31,7 @@ class GenericTableView(WithBreadcrumbs, ListView):
         ctx["table"] = self.table_class()
         ctx["table_title"] = self.get_table_title()
         ctx["table_links"] = self.get_table_links()
+        ctx["table_context"] = self.get_table_context()
         return ctx
 
 
