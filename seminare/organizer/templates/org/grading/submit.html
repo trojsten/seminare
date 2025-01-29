@@ -13,6 +13,7 @@
     </a>
 
     {% for row in other_users %}
+    {% if row.submit %}
     <a href="{% url 'org:grading_submit' contest.id row.submit.submit_id %}" class="block text-gray-800 px-3 py-2 hover:bg-gray-50 {% if row.user.id == submit.enrollment.user_id %}bg-gray-100{% endif %} rounded">
       <div class="flex items-center justify-between font-semibold">
         <span>{{ row.user.display_name }}</span>
@@ -28,6 +29,7 @@
       </div>
       {% endif %}
     </a>
+    {% endif %}
     {% endfor %}
   </div>
 

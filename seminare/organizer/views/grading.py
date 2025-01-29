@@ -61,7 +61,7 @@ class WithSubmitList(WithContest, MixinProtocol):
             row: dict = {"user": user}
             row.update(submits[user.id])
             if limit_types and len(limit_types) == 1:
-                row["submit"] = submits[user.id][limit_types[0]]
+                row["submit"] = submits[user.id].get(limit_types[0])
             data.append(row)
 
         return data
