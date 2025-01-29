@@ -5,6 +5,7 @@ from django.core.exceptions import PermissionDenied
 from django.core.files.base import ContentFile
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
+from django.urls import reverse
 from django.views.generic import DetailView
 from PIL import Image
 from reportlab.lib.pagesizes import A4
@@ -37,7 +38,9 @@ def file_submit_create_view(request: HttpRequest, **kwargs):
                 enrollment=get_enrollment(request.user, problem.problem_set),
             )
             file_submit.save()
-        return HttpResponseRedirect(problem.get_absolute_url())
+        return HttpResponseRedirect(
+            reverse("submit_detail", args=[file_submit.submit_id])
+        )
     return HttpResponse(status=405, content=f"Method {request.method} not allowed")
 
 
