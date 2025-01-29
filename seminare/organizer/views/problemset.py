@@ -26,6 +26,9 @@ class ProblemSetListView(WithContest, GenericTableView):
             "-end_date", "-start_date"
         )
 
+    def get_breadcrumbs(self):
+        return [("Sady úloh", "")]
+
     def get_table_links(self):
         return [
             (
@@ -43,6 +46,12 @@ class ProblemSetCreateView(WithContest, GenericFormView, CreateView):
     form_class = ProblemSetForm
     form_title = "Nová sada úloh"
 
+    def get_breadcrumbs(self):
+        return [
+            ("Sady úloh", reverse("org:problemset_list", args=[self.contest.id])),
+            ("Nová sada úloh", ""),
+        ]
+
     def form_valid(self, form):
         self.object: ProblemSet = form.save(commit=False)
         self.object.contest = self.contest
@@ -53,26 +62,19 @@ class ProblemSetCreateView(WithContest, GenericFormView, CreateView):
         return reverse("problemset_list", args=[self.contest.id])
 
 
-#
-# class ProblemSetUpdateView(WithContest, GenericTableView, UpdateView):
-#     # TODO: Permission checking
-#
-#     form_class = ProblemSetForm
-#     form_title = "Upraviť sadu úloh"
-#
-#     def get_object(self, queryset=None):
-#         return get_object_or_404(ProblemSet, id=self.kwargs["pk"], contest=self.contest)
-#
-#     def get_success_url(self) -> str:
-#         return reverse("problemset_list", args=[self.contest.id])
-
-
 class ProblemSetUpdateView(WithContest, GenericFormTableView, UpdateView):
     # TODO: Permission checking
 
     form_class = ProblemSetForm
     table_class = ProblemTable
     form_table_title = "Upraviť sadu úloh"
+
+    def get_breadcrumbs(self):
+        return [
+            ("Sady úloh", reverse("org:problemset_list", args=[self.contest.id])),
+            (self.object, ""),
+            ("Upraviť", ""),
+        ]
 
     def get_object(self, queryset=None):
         return get_object_or_404(ProblemSet, id=self.kwargs["pk"], contest=self.contest)
