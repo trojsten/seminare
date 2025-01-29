@@ -111,7 +111,7 @@
 
                 <div class="submit-list mb-10">
                     {% for submit in submits.file %}
-                        <a href="{% url "file_submit_detail" submit.submit_id %}" class="submit-list__item {% if submit.score is not None %}submit-list__item--graded{% endif %}">
+                        <a href="{% url "submit_detail" submit.submit_id %}" class="submit-list__item {% if submit.score is not None %}submit-list__item--graded{% endif %}">
                             <iconify-icon icon="mdi:file-text"></iconify-icon>
                             <span>{{ submit.created_at|date:"d.m.Y" }} {{ submit.created_at|time:"H:i" }}</span>
 
