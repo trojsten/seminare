@@ -1,0 +1,26 @@
+{% load ui %}
+<a href="{% url "problem_detail" problem.problem_set_id problem.number %}" class="block py-3 px-4 hover:bg-gray-50 {% if active_problem.id == problem.id %}bg-gray-100{% endif %}">
+  <div class="flex items-baseline justify-between">
+    <div class="font-semibold leading-4">
+      {{ problem.number }}.&nbsp;{{ problem.name }}
+    </div>
+
+    {% if user.is_authenticated %}
+    <div class="ml-2 leading-4">
+      {{ problem.users_score|default_if_none:""|floatformat:"g" }}{{ problem.users_score_pending|yesno:"?," }}
+    </div>
+    {% endif %}
+  </div>
+  <div class="mt-1.5 mb-0.5 flex flex-wrap gap-0.5">
+    {# TODO: Hide this element if empty. #}
+
+    {% if user.is_authenticated and problem.number == 1 %}
+      {# TODO: Proper check. #}
+      {% label "Nebodovaná" "amber" help="Táto úloha nie je v tvojej kategórií bodovaná." %}
+    {% endif %}
+
+    {% if problem.users_score_pending %}
+      {% label "Čaká na ohodnotenie" "gray" %}
+    {% endif %}
+  </div>
+</a>
