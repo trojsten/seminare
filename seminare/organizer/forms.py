@@ -1,6 +1,6 @@
 from django import forms
 
-from seminare.content.models import Page
+from seminare.content.models import Page, Post
 from seminare.problems.models import Problem, ProblemSet, Text
 from seminare.style.forms import DateInput
 
@@ -103,3 +103,25 @@ class PageForm(forms.ModelForm):
         if commit:
             page.save()
         return page
+
+
+class PostForm(forms.ModelForm):
+    class Meta:
+        model = Post
+        fields = ["title", "content"]
+
+    def __init__(self, *, user, contest, **kwargs):
+        super().__init__(**kwargs)
+        self.user = user
+        self.contest = contest
+
+    def save(self, commit=True) -> Post:
+        post = super().save(commit=False)
+        if not hasattr(post, "author"):
+            post.author = self.user
+
+        if not post.id:
+            post.save()
+        post.contests.add(self.contest)
+
+        return post

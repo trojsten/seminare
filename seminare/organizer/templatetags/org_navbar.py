@@ -46,6 +46,10 @@ def org_navbar(context):
             reverse("org:page_list"),
         )
     ]
+    if contest:
+        content_section.append(
+            ("mdi:newspaper", "Príspevky", reverse("org:post_list", args=[contest.id]))
+        )
 
     if content_section:
         sections.append(("Obsah", content_section))

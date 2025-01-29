@@ -91,3 +91,29 @@ class PageTable(Table):
             ("mdi:pencil", "Upraviť", reverse("org:page_update", args=[object.id])),
             ("mdi:delete", "Vymazať", reverse("org:page_delete", args=[object.id])),
         ]
+
+
+class PostTable(Table):
+    fields = ["title", "created_at", "author"]
+    labels = {
+        "title": "Nadpis",
+        "created_at": "Dátum vytvorenia",
+        "author": "Autor",
+    }
+    templates = {"created_at": "tables/fields/datetime.html"}
+
+    def get_links(
+        self, object: Page, context: dict
+    ) -> list[tuple[str, str] | tuple[str, str, str]]:
+        return [
+            (
+                "mdi:pencil",
+                "Upraviť",
+                reverse("org:post_update", args=[context["contest"].id, object.id]),
+            ),
+            (
+                "mdi:delete",
+                "Vymazať",
+                reverse("org:post_delete", args=[context["contest"].id, object.id]),
+            ),
+        ]
