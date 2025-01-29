@@ -41,7 +41,7 @@ class ProblemForm(forms.ModelForm):
 
         for text_type, label in Text.Type.choices:
             initial = ""
-            if self.instance:
+            if self.instance.id:
                 if current_text := self.instance.text_set.filter(
                     type=text_type
                 ).first():
