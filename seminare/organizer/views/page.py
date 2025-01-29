@@ -73,3 +73,10 @@ class PageDeleteView(WithPageQuerySet, GenericDeleteView):
     # TODO: Permission checking
 
     success_url = reverse_lazy("org:page_list")
+
+    def get_breadcrumbs(self) -> list[tuple[str, str]]:
+        return [
+            ("Stránky", reverse("org:page_list")),
+            (self.object, ""),
+            ("Vymazať", ""),
+        ]
