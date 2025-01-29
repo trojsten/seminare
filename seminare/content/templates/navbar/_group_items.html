@@ -1,11 +1,23 @@
 <div class="-m-2">
-    {% for item in group_items %}
-        <a href="{{ item.url }}"
-           class="flex items-center gap-x-2 p-2 text-sm font-semibold text-gray-800 hover:text-primary">
-            {% if item.icon %}
-                <iconify-icon icon="{{ item.icon }}" width="none" class="size-5"></iconify-icon>
-            {% endif %}
-            {{ item.title }}
-        </a>
-    {% endfor %}
+  {% for item in group_items %}
+    {% if item.post %}
+      <form method="post" action="{{ item.url }}">
+        {% csrf_token %}
+        <button type="submit" class="flex items-center gap-x-2 p-2 text-sm font-semibold text-gray-800 hover:text-primary">
+          {% if item.icon %}
+            <iconify-icon icon="{{ item.icon }}" width="none" class="size-5"></iconify-icon>
+          {% endif %}
+          {{ item.title }}
+        </button>
+      </form>
+    {% else %}
+      <a href="{{ item.url }}"
+        class="flex items-center gap-x-2 p-2 text-sm font-semibold text-gray-800 hover:text-primary">
+        {% if item.icon %}
+          <iconify-icon icon="{{ item.icon }}" width="none" class="size-5"></iconify-icon>
+        {% endif %}
+        {{ item.title }}
+      </a>
+    {% endif %}
+  {% endfor %}
 </div>
