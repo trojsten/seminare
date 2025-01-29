@@ -17,6 +17,11 @@ class ProblemSetTable(Table):
         "end_date": "Koniec",
     }
 
+    templates = {
+        "start_date": "tables/fields/date.html",
+        "end_date": "tables/fields/date.html",
+    }
+
     def get_links(
         self, object: ProblemSet, context: dict
     ) -> list[tuple[str, str] | tuple[str, str, str]]:
@@ -36,22 +41,27 @@ class ProblemSetTable(Table):
 
 class ProblemTable(Table):
     fields = [
-        "name",
         "number",
-        "problem_set",
+        "name",
     ]
 
     labels = {
         "name": "Názov",
-        "number": "Číslo úlohy",
-        "problem_set": "Sada úloh",
+        "number": "č.",
     }
 
-    # TODO link na opravovanie
     def get_links(
         self, object: Problem, context: dict
     ) -> list[tuple[str, str] | tuple[str, str, str]]:
         return [
+            (
+                "mdi:comment-arrow-left",
+                "Opravovanie",
+                reverse(
+                    "org:grading_overview",
+                    args=[object.problem_set.contest_id, object.id],
+                ),
+            ),
             (
                 "mdi:pencil",
                 "Upraviť",
@@ -63,5 +73,5 @@ class ProblemTable(Table):
                         object.id,
                     ],
                 ),
-            )
+            ),
         ]
