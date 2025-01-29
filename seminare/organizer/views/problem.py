@@ -18,6 +18,13 @@ class ProblemListView(WithContest, WithProblemSet, GenericTableView):
     def get_queryset(self) -> QuerySet[Problem]:
         return Problem.objects.filter(problem_set=self.problem_set).order_by("number")
 
+    def get_breadcrumbs(self):
+        return [
+            ("Sady úloh", reverse("org:problemset_list", args=[self.contest.id])),
+            (self.problem_set, ""),
+            ("Úlohy", ""),
+        ]
+
     def get_table_links(self):
         return [
             (
@@ -47,6 +54,19 @@ class ProblemCreateView(WithContest, WithProblemSet, GenericFormView, CreateView
     def get_success_url(self) -> str:
         return reverse("org:problem_list", args=[self.contest.id, self.problem_set.id])
 
+    def get_breadcrumbs(self):
+        return [
+            ("Sady úloh", reverse("org:problemset_list", args=[self.contest.id])),
+            (self.problem_set, ""),
+            (
+                "Úlohy",
+                reverse(
+                    "org:problem_list", args=[self.contest.id, self.problem_set.id]
+                ),
+            ),
+            ("Nová", ""),
+        ]
+
 
 class ProblemUpdateView(WithContest, WithProblemSet, GenericFormView, UpdateView):
     # TODO: Permission checking
@@ -65,3 +85,17 @@ class ProblemUpdateView(WithContest, WithProblemSet, GenericFormView, UpdateView
 
     def get_success_url(self) -> str:
         return reverse("org:problem_list", args=[self.contest.id, self.problem_set.id])
+
+    def get_breadcrumbs(self):
+        return [
+            ("Sady úloh", reverse("org:problemset_list", args=[self.contest.id])),
+            (self.problem_set, ""),
+            (
+                "Úlohy",
+                reverse(
+                    "org:problem_list", args=[self.contest.id, self.problem_set.id]
+                ),
+            ),
+            (self.object, ""),
+            ("Upraviť", ""),
+        ]
