@@ -16,6 +16,16 @@ class MixinProtocol(Protocol):
     get_context_data: Callable[..., dict]
 
 
+class WithBreadcrumbs(MixinProtocol):
+    def get_breadcrumbs(self) -> list[tuple[str, str]]:
+        return []
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["breadcrumbs"] = self.get_breadcrumbs()
+        return ctx
+
+
 class WithContest(MixinProtocol):
     @cached_property
     def contest(self) -> Contest:

@@ -1,10 +1,11 @@
 from django.core.exceptions import ImproperlyConfigured
 from django.views.generic import FormView, ListView
 
+from seminare.organizer.views import WithBreadcrumbs
 from seminare.style.tables import Table
 
 
-class GenericTableView(ListView):
+class GenericTableView(WithBreadcrumbs, ListView):
     template_name = "org/generic/table.html"
 
     table_title = ""
@@ -30,7 +31,7 @@ class GenericTableView(ListView):
         return ctx
 
 
-class GenericFormView(FormView):
+class GenericFormView(WithBreadcrumbs, FormView):
     template_name = "org/generic/form.html"
 
     form_title = ""
@@ -48,7 +49,7 @@ class GenericFormView(FormView):
         return ctx
 
 
-class GenericFormTableView(FormView, ListView):
+class GenericFormTableView(WithBreadcrumbs, FormView, ListView):
     template_name = "org/generic/form_table.html"
     form_multipart = False
     form_submit_label = "Uložiť"

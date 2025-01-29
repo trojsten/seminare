@@ -10,6 +10,9 @@ def label(message, color="gray", *, icon="", help=""):
 
 @register.inclusion_tag("_ui/breadcrumbs.html")
 def breadcrumbs(*args):
+    if isinstance(args[0], list):
+        return {"crumbs": args[0]}
+
     crumbs = []
     for i in range(0, len(args), 2):
         crumbs.append(args[i : i + 2])
