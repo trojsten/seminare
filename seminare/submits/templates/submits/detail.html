@@ -5,16 +5,21 @@
   Riešenie {{ block.super }}
 {% endblock %}
 
+{% block root_body_class %}
+  {{ block.super }} flex flex-col min-h-screen
+{% endblock root_body_class %}
 {% block body_container %}
-<div class="flex flex-col-reverse md:flex-row">
-  <div class="flex-1">
+<div class="flex-1 flex flex-col md:flex-row w-full h-full max-h-screen">
+  <div class="flex-1 flex flex-col">
     <div class="border-b px-4 py-3">
       {% url "problem_set_list" as set_list_url %}
       {% url "problem_set_detail" submit.problem.problem_set.id as set_url %}
       {% url "problem_detail" submit.problem.problem_set.id submit.problem.id as problem_url %}
       {% breadcrumbs "Zadania" set_list_url submit.problem.problem_set set_url submit.problem problem_url "Odovzdané riešenie" %}
     </div>
+    <div class="md:h-full h-80 flex-1 flex">
     {% include "submits/content/render.html" %}
+    </div>
   </div>
 
   <div class="shrink-0 md:w-80 border-b md:border-b-0 border-l px-4 py-3">

@@ -1,6 +1,6 @@
 {# Renders a file submit content #}
 {% if submit.is_displayable %}
-<embed src="{{ submit.file.url }}" class="mx-auto max-w-full w-full h-full">
+<embed src="{{ submit.file.url }}" class="mx-auto max-w-full flex-1">
 {% else %}
 <div class="p-8 text-gray-800 text-center">
   <iconify-icon icon="mdi:file-alert-outline" width="none" class="size-12"></iconify-icon>
