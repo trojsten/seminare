@@ -40,8 +40,6 @@ class ProblemListView(WithContest, WithProblemSet, GenericTableView):
 
 class ProblemCreateView(WithContest, WithProblemSet, GenericFormView, CreateView):
     # TODO: Permission checking
-    # TODO: return to correct success url or rethink the organization
-    # TODO: add texts to form aswell
 
     form_class = ProblemForm
     form_title = "Nová úloha"
@@ -70,8 +68,7 @@ class ProblemCreateView(WithContest, WithProblemSet, GenericFormView, CreateView
 
 class ProblemUpdateView(WithContest, WithProblemSet, GenericFormView, UpdateView):
     # TODO: Permission checking
-    # TODO: return to correct success url or rethink the organization
-    # TODO: add texts to form aswell
+
     form_class = ProblemForm
     form_title = "Upraviť úlohu"
 
