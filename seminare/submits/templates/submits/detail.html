@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% load ui %}
+
+{% block title %}
+  Riešenie {{ block.super }}
+{% endblock %}
+
+{% block body_container %}
+<div class="flex flex-col-reverse md:flex-row">
+  <div class="flex-1">
+    <div class="border-b px-4 py-3">
+      {% url "problem_set_list" as set_list_url %}
+      {% url "problem_set_detail" submit.problem.problem_set.id as set_url %}
+      {% url "problem_detail" submit.problem.problem_set.id submit.problem.id as problem_url %}
+      {% breadcrumbs "Zadania" set_list_url submit.problem.problem_set set_url submit.problem problem_url "Odovzdané riešenie" %}
+    </div>
+    {% include "submits/content/render.html" %}
+  </div>
+
+  <div class="shrink-0 md:w-80 border-b md:border-b-0 border-l px-4 py-3">
+    <div class="mb-2 font-bold text-lg">
+      Hodnotenie
+    </div>
+
+    {% if submit.score is not None %}
+    <div class="px-4 py-3 flex space-x-3">
+      <div class="shrink-0">
+        <a href="{{ submit.scored_by.profile_url }}">
+          <img class="inline-block size-10 rounded-full" src="{{ submit.scored_by.avatar_url }}" alt="{{ submit.scored_by.get_full_name }}">
+        </a>
+      </div>
+      <div class="flex-1 text-sm">
+        <div class="font-semibold mb-1">{{ submit.scored_by.display_name }}:</div>
+
+        <div class="prose max-w-none prose-sm">
+          {# TODO: Markdown? #}
+          {{ submit.comment }}
+        </div>
+
+        <div class="font-semibold mt-2 text-base text-green-600">{{ submit.score|floatformat:"g" }} b</div>
+      </div>
+    </div>
+    {% else %}
+    <div class="px-4 py-3 text-gray-600 text-center text-sm">
+      <iconify-icon icon="mdi:emoticon-sad-outline" width="none" class="size-8"></iconify-icon>
+      <p>Toto riešenie zatiaľ nebolo ohodnotené.</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
