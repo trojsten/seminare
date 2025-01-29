@@ -1,5 +1,5 @@
 from django.core.exceptions import ImproperlyConfigured
-from django.views.generic import FormView, ListView
+from django.views.generic import DeleteView, FormView, ListView
 
 from seminare.organizer.views import WithBreadcrumbs
 from seminare.style.tables import Table
@@ -47,6 +47,12 @@ class GenericFormView(WithBreadcrumbs, FormView):
         ctx["form_multipart"] = self.form_multipart
         ctx["form_submit_label"] = self.form_submit_label
         return ctx
+
+
+class GenericDeleteView(GenericFormView, DeleteView):
+    template_name = "org/generic/delete.html"
+    form_title = "Naozaj?"
+    form_submit_label = "Vymazať"
 
 
 class GenericFormTableView(WithBreadcrumbs, FormView, ListView):

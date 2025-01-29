@@ -1,5 +1,6 @@
 from django import forms
 
+from seminare.content.models import Page
 from seminare.problems.models import Problem, ProblemSet, Text
 from seminare.style.forms import DateInput
 
@@ -66,3 +67,39 @@ class ProblemForm(forms.ModelForm):
                     type=text_type, problem=problem, defaults={"text": value}
                 )
         return problem
+
+
+class PageForm(forms.ModelForm):
+    class Meta:
+        model = Page
+        fields = ["title", "slug", "content"]
+        labels = {
+            "title": "Názov",
+            "slug": "URL adresa",
+            "content": "Obsah",
+        }
+
+    def __init__(self, *, site, **kwargs):
+        super().__init__(**kwargs)
+        self.site = site
+
+    def clean_slug(self):
+        slug = self.cleaned_data["slug"]
+        if not self.site:
+            return slug
+
+        obj = Page.objects.filter(site=self.site, slug=slug)
+        if self.instance.id:
+            obj = obj.exclude(id=self.instance.id)
+
+        if obj.exists():
+            raise forms.ValidationError("Stránka s touto adresou už existuje.")
+
+        return slug
+
+    def save(self, commit: bool = True) -> Page:
+        page = super().save(commit=False)
+        page.site = self.site
+        if commit:
+            page.save()
+        return page

@@ -4,7 +4,9 @@ from django.db import models
 
 
 class Page(models.Model):
+    id: int
     site = models.ForeignKey(Site, on_delete=models.CASCADE)
+    site_id: int
     slug = models.SlugField()
     title = models.CharField(max_length=256)
     content = models.TextField(blank=True)
