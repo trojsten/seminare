@@ -31,7 +31,8 @@ class PostListView(WithPostQuerySet, GenericTableView):
                 "mdi:plus",
                 "Pridať",
                 reverse("org:post_create", args=[self.contest.id]),
-            )
+            ),
+            ("default", "mdi:eye", "Pozrieť na stránke", reverse("post_list")),
         ]
 
     def get_table_context(self):
