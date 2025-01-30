@@ -1,10 +1,11 @@
 from django.urls import include, path
 
-from seminare.organizer.views import grading, problem, problemset
+from seminare.organizer.views import dashboard, grading, problem, problemset
 
 app_name = "org"
 
 contest_patterns = [
+    path("", dashboard.ContestDashboardView.as_view(), name="contest_dashboard"),
     path("sets/", problemset.ProblemSetListView.as_view(), name="problemset_list"),
     path(
         "sets/create/",
@@ -45,5 +46,6 @@ contest_patterns = [
 
 
 urlpatterns = [
+    path("", dashboard.ContestSwitchView.as_view(), name="home"),
     path("contests/<int:contest_id>/", include(contest_patterns)),
 ]

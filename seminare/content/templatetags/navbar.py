@@ -25,6 +25,16 @@ def navbar_menu(context):
         )
         setattr(logout, "post", True)
 
+        if user.is_staff:
+            items.append(
+                MenuItem(
+                    group=group,
+                    title="Organizátorské rozhranie",
+                    icon="mdi:account-tie",
+                    url=reverse("org:home"),
+                )
+            )
+
         items.extend(
             [
                 MenuItem(
