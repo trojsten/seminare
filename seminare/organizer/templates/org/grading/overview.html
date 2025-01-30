@@ -23,13 +23,13 @@
         {% for row in users %}
         <tr id="user-{{ row.user.id }}">
           <td>{{ row.user.display_name }}</td>
-          <td class="relative tabular-nums {% if row.judge %}hover:bg-gray-50{% endif %}">
+          <td class="relative tabular-nums {% if row.judge %}hover:bg-gray-50{% endif %} group">
             {% include "org/grading/_overview_score.html" with submit=row.judge %}
           </td>
-          <td class="relative tabular-nums {% if row.text %}hover:bg-gray-50{% endif %}">
+          <td class="relative tabular-nums {% if row.text %}hover:bg-gray-50{% endif %} group">
             {% include "org/grading/_overview_score.html" with submit=row.text %}
           </td>
-          <td class="relative tabular-nums {% if row.file %}hover:bg-gray-50{% endif %}">
+          <td class="relative tabular-nums {% if row.file %}hover:bg-gray-50{% endif %} group">
             {% include "org/grading/_overview_score.html" with submit=row.file %}
           </td>
         </tr>

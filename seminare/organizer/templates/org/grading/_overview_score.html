@@ -1,11 +1,14 @@
 {# Overview table submit #}
+<div class="flex justify-between items-center">
 {% if submit %}
   {% if submit.score is None %}
     <span class="text-red-600">neohodnotené</span>
   {% else %}
     {{ submit.score|floatformat:"g" }}
   {% endif %}
+  <iconify-icon icon="mdi:pencil" class="text-gray-800/40 group-hover:text-gray-800"></iconify-icon>
   <a href="{% url "org:grading_submit" contest.id submit.submit_id %}" class="inset-0 absolute" {% if submit.scored_by %}data-tippy-content="{{ submit.scored_by.display_name }}"{% endif %}></a>
 {% else %}
   <span class="text-gray-400">neodovzdané</span>
 {% endif %}
+</div>
