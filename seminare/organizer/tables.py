@@ -88,6 +88,7 @@ class PageTable(Table):
         self, object: Page, context: dict
     ) -> list[tuple[str, str] | tuple[str, str, str]]:
         return [
+            ("mdi:eye", "Pozrieť", reverse("page_detail", args=[object.slug])),
             ("mdi:pencil", "Upraviť", reverse("org:page_update", args=[object.id])),
             ("mdi:delete", "Vymazať", reverse("org:page_delete", args=[object.id])),
         ]
