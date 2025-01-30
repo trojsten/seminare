@@ -9,6 +9,9 @@ register = template.Library()
 
 @register.inclusion_tag("tables/table.html")
 def render_table(table: Table, objects: Iterable, hide_header=False, **kwargs):
+    if "extra_context" in kwargs and len(kwargs) == 1:
+        kwargs = kwargs["extra_context"]
+
     return {
         "table": table,
         "objects": objects,

@@ -1,5 +1,5 @@
 from django.core.exceptions import ImproperlyConfigured
-from django.views.generic import FormView, ListView
+from django.views.generic import DeleteView, FormView, ListView
 
 from seminare.organizer.views import WithBreadcrumbs
 from seminare.style.tables import Table
@@ -18,6 +18,9 @@ class GenericTableView(WithBreadcrumbs, ListView):
     def get_table_links(self):
         return self.table_links
 
+    def get_table_context(self):
+        return {}
+
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         if not self.table_class:
@@ -28,6 +31,7 @@ class GenericTableView(WithBreadcrumbs, ListView):
         ctx["table"] = self.table_class()
         ctx["table_title"] = self.get_table_title()
         ctx["table_links"] = self.get_table_links()
+        ctx["table_context"] = self.get_table_context()
         return ctx
 
 
@@ -47,6 +51,12 @@ class GenericFormView(WithBreadcrumbs, FormView):
         ctx["form_multipart"] = self.form_multipart
         ctx["form_submit_label"] = self.form_submit_label
         return ctx
+
+
+class GenericDeleteView(GenericFormView, DeleteView):
+    template_name = "org/generic/delete.html"
+    form_title = "Naozaj?"
+    form_submit_label = "Vymazať"
 
 
 class GenericFormTableView(WithBreadcrumbs, FormView, ListView):

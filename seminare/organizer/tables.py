@@ -1,5 +1,6 @@
 from django.urls import reverse
 
+from seminare.content.models import Page
 from seminare.problems.models import Problem, ProblemSet
 from seminare.style.tables import Table
 
@@ -73,5 +74,47 @@ class ProblemTable(Table):
                         object.id,
                     ],
                 ),
+            ),
+        ]
+
+
+class PageTable(Table):
+    fields = ["title"]
+    labels = {
+        "title": "Názov",
+    }
+
+    def get_links(
+        self, object: Page, context: dict
+    ) -> list[tuple[str, str] | tuple[str, str, str]]:
+        return [
+            ("mdi:eye", "Pozrieť", reverse("page_detail", args=[object.slug])),
+            ("mdi:pencil", "Upraviť", reverse("org:page_update", args=[object.id])),
+            ("mdi:delete", "Vymazať", reverse("org:page_delete", args=[object.id])),
+        ]
+
+
+class PostTable(Table):
+    fields = ["title", "created_at", "author"]
+    labels = {
+        "title": "Nadpis",
+        "created_at": "Dátum vytvorenia",
+        "author": "Autor",
+    }
+    templates = {"created_at": "tables/fields/datetime.html"}
+
+    def get_links(
+        self, object: Page, context: dict
+    ) -> list[tuple[str, str] | tuple[str, str, str]]:
+        return [
+            (
+                "mdi:pencil",
+                "Upraviť",
+                reverse("org:post_update", args=[context["contest"].id, object.id]),
+            ),
+            (
+                "mdi:delete",
+                "Vymazať",
+                reverse("org:post_delete", args=[context["contest"].id, object.id]),
             ),
         ]
