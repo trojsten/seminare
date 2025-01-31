@@ -94,5 +94,11 @@ class ProblemSetUpdateView(WithContest, GenericFormTableView, UpdateView):
                 reverse(
                     "org:problem_create", args=[self.contest.id, self.get_object().id]
                 ),
-            )
+            ),
+            (
+                "default",
+                "mdi:eye",
+                "Pozrieť na stránke",
+                reverse("problem_set_detail", args=[self.get_object().id]),
+            ),
         ]
