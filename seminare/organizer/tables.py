@@ -82,8 +82,15 @@ class ProblemTable(Table):
             ),
             (
                 "mdi:eye",
-                "Pozrieť na stránke",
-                reverse("problem_detail", args=[object.problem_set.id, object.number]),
+                "Detail",
+                reverse(
+                    "org:problem_detail",
+                    args=[
+                        object.problem_set.contest_id,
+                        object.problem_set.id,
+                        object.id,
+                    ],
+                ),
             ),
         ]
 
