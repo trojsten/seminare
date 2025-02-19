@@ -14,8 +14,8 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ./:/app/
-    environment: &env
+      - ./seminare:/app/seminare
+    environment:
       - DEBUG=True
       - DATABASE_URL=psql://postgres:postgres@db/postgres
     env_file:
@@ -29,7 +29,7 @@ services:
       context: .
       target: cssbuild
     volumes:
-      - ./:/app/
+      - ./seminare:/app/seminare
     tty: true
 
 volumes:
