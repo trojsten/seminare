@@ -1,8 +1,9 @@
 from typing import Callable, Protocol
 
 from django.conf import settings
+from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
-from django.http import HttpRequest, HttpResponseRedirect
+from django.http import HttpRequest
 
 from seminare.users.logic.permissions import has_contest_role
 from seminare.users.models import ContestRole, User
@@ -21,7 +22,9 @@ class AccessMixin(MixinProtocol):
 
     def dispatch(self, request: HttpRequest, *args, **kwargs):
         if not request.user.is_authenticated:
-            return HttpResponseRedirect(settings.LOGIN_URL)
+            return redirect_to_login(
+                self.request.get_full_path(), settings.LOGIN_URL, "next"
+            )
 
         if not self.check_access():
             raise PermissionDenied()
@@ -33,6 +36,12 @@ class ContestAccessMixin(AccessMixin):
     required_role = None
 
     def get_permission_contest(self):
+        if hasattr(self, "contest"):
+            return getattr(self, "contest")
+
+        if hasattr(self, "get_contest"):
+            return getattr(self, "get_contest")()
+
         raise ImproperlyConfigured(
             f"{self.__class__.__name__} does not provide permission contest."
         )
