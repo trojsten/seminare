@@ -8,8 +8,8 @@ admin.site.register(User, UserAdmin)
 
 @admin.register(Enrollment)
 class EnrollmentAdmin(admin.ModelAdmin):
-    list_display = ["user", "school", "grade", "category"]
-    list_filter = ["school", "grade", "category"]
+    list_display = ["user", "school", "grade"]
+    list_filter = ["school", "grade"]
 
 
 @admin.register(School)

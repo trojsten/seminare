@@ -53,7 +53,6 @@ class Enrollment(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     school = models.ForeignKey(School, on_delete=models.CASCADE, blank=True, null=True)
     grade = models.CharField(choices=Grade, max_length=3)
-    category = models.ForeignKey("contests.Category", on_delete=models.CASCADE)
 
     class Meta:
         ordering = ["problem_set", "user"]
