@@ -26,7 +26,6 @@ urlpatterns = [
     path("", include("seminare.content.urls")),
     path("org/", include("seminare.organizer.urls")),
     path("__debug__/", include(debug_toolbar.urls)),
-    path("test/", lambda request: render(request, "test.html")),
     path("", lambda request: render(request, "home.html")),
 ]
 
