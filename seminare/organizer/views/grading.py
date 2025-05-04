@@ -16,6 +16,7 @@ from seminare.organizer.views import (
 )
 from seminare.problems.models import Problem
 from seminare.submits.models import BaseSubmit, FileSubmit, JudgeSubmit, TextSubmit
+from seminare.users.mixins.permissions import ContestOrganizerRequired
 from seminare.users.models import User
 
 
@@ -72,8 +73,9 @@ class WithSubmitList(WithContest, MixinProtocol):
         return data
 
 
-class GradingOverviewView(WithSubmitList, WithBreadcrumbs, TemplateView):
-    # TODO: Permission checking
+class GradingOverviewView(
+    WithSubmitList, WithBreadcrumbs, TemplateView, ContestOrganizerRequired
+):
     template_name = "org/grading/overview.html"
 
     @cached_property
@@ -104,8 +106,7 @@ class GradingOverviewView(WithSubmitList, WithBreadcrumbs, TemplateView):
         ]
 
 
-class GradingSubmitView(WithSubmit, WithSubmitList, FormView):
-    # TODO: Permission checking
+class GradingSubmitView(WithSubmit, WithSubmitList, FormView, ContestOrganizerRequired):
     template_name = "org/grading/submit.html"
     form_class = GradingForm
 

@@ -26,18 +26,26 @@ class ProblemSetTable(Table):
     def get_links(
         self, object: ProblemSet, context: dict
     ) -> list[tuple[str, str] | tuple[str, str, str]]:
-        return [
+        links = [
             (
                 "mdi:cards",
                 "Úlohy",
                 reverse("org:problem_list", args=[object.id]),
             ),
-            (
-                "mdi:pencil",
-                "Upraviť",
-                reverse("org:problemset_update", args=[object.id]),
-            ),
         ]
+
+        if context["is_contest_administrator"]:
+            links.append(
+                (
+                    "mdi:pencil",
+                    "Upraviť",
+                    reverse(
+                        "org:problemset_update", args=[object.contest_id, object.id]
+                    ),
+                ),
+            )
+
+        return links
 
 
 class ProblemTable(Table):
@@ -54,7 +62,7 @@ class ProblemTable(Table):
     def get_links(
         self, object: Problem, context: dict
     ) -> list[tuple[str, str] | tuple[str, str, str]]:
-        return [
+        links = [
             (
                 "mdi:comment-arrow-left",
                 "Opravovanie",
@@ -63,18 +71,23 @@ class ProblemTable(Table):
                     args=[object.id],
                 ),
             ),
-            (
-                "mdi:pencil",
-                "Upraviť",
-                reverse(
-                    "org:problem_update",
-                    args=[
-                        object.problem_set_id,
-                        object.id,
-                    ],
-                ),
-            ),
         ]
+        if context["is_contest_administrator"]:
+            links.append(
+                (
+                    "mdi:pencil",
+                    "Upraviť",
+                    reverse(
+                        "org:problem_update",
+                        args=[
+                            object.problem_set.contest_id,
+                            object.problem_set_id,
+                            object.id,
+                        ],
+                    ),
+                ),
+            )
+        return links
 
 
 class PageTable(Table):
@@ -105,6 +118,9 @@ class PostTable(Table):
     def get_links(
         self, object: Page, context: dict
     ) -> list[tuple[str, str] | tuple[str, str, str]]:
+        if not context["is_contest_administrator"]:
+            return []
+
         return [
             (
                 "mdi:pencil",
