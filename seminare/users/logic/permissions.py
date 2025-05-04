@@ -49,7 +49,7 @@ def is_contest_administrator(user: User, contest: Contest) -> bool:
     return has_contest_role(user, contest, ContestRole.Role.ADMINISTRATOR)
 
 
-def is_contest_oragniazer(user: User, contest: Contest) -> bool:
+def is_contest_organizer(user: User, contest: Contest) -> bool:
     """
     Checks whether `user` is an organizer or administrator of `contest`.
     """
