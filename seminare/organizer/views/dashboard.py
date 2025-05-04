@@ -6,17 +6,16 @@ from django.views.generic import TemplateView
 
 from seminare.contests.models import Contest
 from seminare.organizer.views import WithContest
+from seminare.users.mixins.permissions import ContestOrganizerRequired
 
 
 class ContestSwitchView(TemplateView):
-    # TODO: Permission check
-
     template_name = "org/contest_switch.html"
 
     @cached_property
     def contests(self):
         site = get_current_site(self.request)
-        return Contest.objects.filter(site=site).all()
+        return Contest.objects.filter(site=site).for_admin(self.request.user).all()
 
     def get(self, *args, **kwargs):
         if len(self.contests) == 1:
@@ -32,5 +31,5 @@ class ContestSwitchView(TemplateView):
         return ctx
 
 
-class ContestDashboardView(WithContest, TemplateView):
+class ContestDashboardView(WithContest, TemplateView, ContestOrganizerRequired):
     template_name = "org/contest_dashboard.html"

@@ -10,6 +10,11 @@ from seminare.organizer.views.generic import (
     GenericFormView,
     GenericTableView,
 )
+from seminare.users.logic.permissions import is_contest_administrator
+from seminare.users.mixins.permissions import (
+    ContestAdminRequired,
+    ContestOrganizerRequired,
+)
 
 
 class WithPostQuerySet(WithContest, MixinProtocol):
@@ -17,32 +22,40 @@ class WithPostQuerySet(WithContest, MixinProtocol):
         return Post.objects.filter(contests__id=self.contest.id).distinct()
 
 
-class PostListView(WithPostQuerySet, GenericTableView):
-    # TODO: Permission checking
-
+class PostListView(WithPostQuerySet, GenericTableView, ContestOrganizerRequired):
     paginate_by = 50
     table_class = PostTable
     table_title = "Zoznam príspevkov"
 
     def get_table_links(self):
-        return [
-            (
-                "green",
-                "mdi:plus",
-                "Pridať",
-                reverse("org:post_create", args=[self.contest.id]),
-            ),
+        links = []
+        if is_contest_administrator(self.request.user, self.contest):
+            links.append(
+                (
+                    "green",
+                    "mdi:plus",
+                    "Pridať",
+                    reverse("org:post_create", args=[self.contest.id]),
+                ),
+            )
+
+        return links + [
             ("default", "mdi:eye", "Pozrieť na stránke", reverse("post_list")),
         ]
 
     def get_table_context(self):
-        return {"contest": self.contest}
+        return {
+            "contest": self.contest,
+            "is_contest_administrator": is_contest_administrator(
+                self.request.user, self.contest
+            ),
+        }
 
     def get_breadcrumbs(self) -> list[tuple[str, str]]:
         return [("Príspevky", "")]
 
 
-class PostCreateView(WithContest, GenericFormView, CreateView):
+class PostCreateView(WithContest, GenericFormView, CreateView, ContestAdminRequired):
     form_title = "Nový príspevok"
     form_class = PostForm
 
@@ -62,7 +75,9 @@ class PostCreateView(WithContest, GenericFormView, CreateView):
         ]
 
 
-class PostUpdateView(WithPostQuerySet, GenericFormView, UpdateView):
+class PostUpdateView(
+    WithPostQuerySet, GenericFormView, UpdateView, ContestAdminRequired
+):
     form_title = "Upraviť príspevok"
     form_class = PostForm
 
@@ -83,7 +98,7 @@ class PostUpdateView(WithPostQuerySet, GenericFormView, UpdateView):
         ]
 
 
-class PostDeleteView(WithPostQuerySet, GenericDeleteView):
+class PostDeleteView(WithPostQuerySet, GenericDeleteView, ContestAdminRequired):
     def get_success_url(self) -> str:
         return reverse("org:post_list", args=[self.contest.id])
 
