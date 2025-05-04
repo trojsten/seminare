@@ -3,18 +3,17 @@
   "version": "0.1.0",
   "dependencies": {
     "@hotwired/stimulus": "^3.2.2",
-    "@tailwindcss/forms": "^0.5.9",
-    "@tailwindcss/typography": "^0.5.15",
-    "htmx.org": "^2.0.3",
-    "iconify-icon": "^2.1.0",
-    "sass": "^1.82.0",
+    "@tailwindcss/forms": "^0.5.10",
+    "@tailwindcss/typography": "^0.5.16",
+    "htmx.org": "^2.0.4",
+    "iconify-icon": "^2.3.0",
     "stimulus-use": "^0.52.3",
-    "tailwindcss": "^3.4.14",
+    "tailwindcss": "^3.4.17",
     "tippy.js": "^6.3.7"
   },
   "scripts": {
-    "build": "tailwindcss -i seminare/style/app.css -o seminare/style/static/app2.min.css --minify && sass seminare/style/css/app.scss:seminare/style/static/app.min.css && node seminare/style/build.mjs",
-    "watch": "npm run build && concurrently \"tailwindcss -i seminare/style/app.css -o seminare/style/static/app2.min.css --watch\" \"sass seminare/style/css/app.scss:seminare/style/static/app.min.css --watch\" \"node seminare/style/build.mjs watch\""
+    "build": "tailwindcss -i seminare/style/app.css -o seminare/style/static/app.min.css --minify && node seminare/style/build.mjs",
+    "watch": "npm run build && concurrently \"tailwindcss -i seminare/style/app.css -o seminare/style/static/app.min.css --watch\" \"node seminare/style/build.mjs watch\""
   },
   "devDependencies": {
     "concurrently": "^8.2.2",

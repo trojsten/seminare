@@ -5,10 +5,10 @@
 @tailwind utilities;
 
 .theme-math {
-    --primary-dark: oklch(51.72% 0.1589 269.14);
-    --primary: oklch(61.72% 0.1589 269.14);
-    --primary-light: oklch(71.72% 0.1589 269.14);
-    --primary-text: white;
+  --primary-dark: oklch(51.72% 0.1589 269.14);
+  --primary: oklch(61.72% 0.1589 269.14);
+  --primary-light: oklch(71.72% 0.1589 269.14);
+  --primary-text: white;
 }
 
 .btn {
@@ -40,25 +40,25 @@
 }
 
 .input {
-    @apply w-full rounded px-3 py-2 text-sm border border-gray-300 inline-flex;
+  @apply w-full rounded px-3 py-2 text-sm border border-gray-300 inline-flex;
 }
 
 .checkbox {
-    @apply rounded;
+  @apply rounded;
 }
 
 .input:disabled {
-    @apply cursor-not-allowed bg-gray-100;
+  @apply cursor-not-allowed bg-gray-100;
 }
 
 .link {
-    @apply text-blue-600 hover:text-blue-900 underline;
+  @apply text-blue-600 hover:text-blue-900 underline;
 }
 
 iconify-icon {
-    display: inline-block;
-    width: 1em;
-    height: 1em;
+  display: inline-block;
+  width: 1em;
+  height: 1em;
 }
 
 .simple-table {
