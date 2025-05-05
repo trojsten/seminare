@@ -2,54 +2,6 @@
 {% load markdownify %}
 {% load ui %}
 
-{% block head %}
-  <script>
-    // TODO: Turn into Stimulus controller
-    const submits = [];
-    const setFiles = () => {
-      const b = new DataTransfer();
-      for (const file of submits) b.items.add(file);
-      document.getElementById('filepicker').files = b.files;
-    };
-
-    const onSubmitDelete = (filename) => {
-      for (let i = 0; i < submits.length; i++) {
-        if (submits[i].name === filename) {
-          submits.splice(i, 1);
-          if (submits.length === 0) {
-            document.getElementById('form').classList.add('hidden');
-          }
-          setFiles();
-          return;
-        }
-      }
-    };
-
-    const onFileSubmit = () => {
-      const filepicker = document.getElementById('filepicker');
-      for (const file of filepicker.files) {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => {
-          filepicker.insertAdjacentHTML("beforebegin", `
-            <div class="p-2 text-xs rounded-md bg-gray-100 relative">
-              <div class="absolute right-3 top-3 hover:bg-black/20 rounded-full p-1 flex" onclick="document.getElementById('form').removeChild(this.parentElement); onSubmitDelete('${file.name}')">
-                <iconify-icon class="size-5" width="none" icon="mdi:close"></iconify-icon>
-              </div>
-              <img src="${reader.result}" class="rounded">
-              <div class="mt-1">
-                ${file.name}
-              </div>
-            </div>`);
-        };
-      }
-      submits.push(...filepicker.files);
-      setFiles();
-      document.getElementById('form').classList.remove('hidden');
-    };
-  </script>
-{% endblock %}
-
 {% block title %}{{ problem.name }} {{ block.super }}{% endblock %}
 
 {% block body_container %}
@@ -60,12 +12,12 @@
 </div>
 
 <div data-controller="submit--cta">
-  <div class="flex flex-col md:flex-row" data-controller="toggle" data-toggle-toggle-class="hidden">
+  <div class="flex flex-col lg:flex-row" data-controller="toggle" data-toggle-toggle-class="hidden">
     {% include "problems/_sidebar.html" %}
 
-    <div class="flex-1 p-4 md:py-8">
+    <div class="flex-1 p-4 lg:py-8">
       <div class="mx-auto max-w-prose">
-        <a href="#" class="mb-2 flex justify-end items-center text-blue-700 hover:text-blue-900 md:hidden"
+        <a href="#" class="mb-2 flex justify-end items-center text-blue-700 hover:text-blue-900 lg:hidden"
             data-action="click->toggle#click">
           Zoznam úloh
           <iconify-icon icon="mdi:chevron-down" class="ml-1"></iconify-icon>
@@ -78,64 +30,64 @@
     </div>
 
     <div class="shrink-0 w-full p-4 md:border-l md:w-80">
-      {% if user.is_authenticated and problem.number == 1 %}
-        <div class="flex items-center text-amber-600 bg-amber-100 rounded-md py-2 px-3 mb-4 text-sm">
-          <iconify-icon icon="mdi:warning" width="none" class="shrink-0 mr-3 size-4"></iconify-icon>
-          Za túto úlohu nedostávaš v svojej kategórií body.
-        </div>
-      {% endif %}
-
-      <div data-submit--cta-target="submitForm" id="submit">
-        <div class="font-bold text-2xl mb-1">Odovzdať popis</div>
-
-        {% if not user.is_authenticated %}
+      {% if not user.is_authenticated %}
         <div class="flex items-center text-red-600 bg-red-100 rounded-md py-2 px-3 mb-4 text-sm">
           <iconify-icon icon="mdi:warning" width="none" class="shrink-0 mr-3 size-4"></iconify-icon>
           <span>
             Pre odovzdávanie sa musíš <a href="{% url "oidc_authentication_init" %}?next={{ request.path_info|urlencode }}" class="underline hover:text-red-700">prihlásiť</a>.
           </span>
         </div>
-        {% else %}
-        <div class="bg-gray-100 rounded-md text-gray-700 text-center p-4 cursor-pointer hover:bg-gray-200" onclick="document.getElementById('filepicker').click()">
-          <iconify-icon icon="mdi:upload" width="none" class="size-8"></iconify-icon>
-          <p>Vyber alebo presuň tvoje riešenie sem</p>
+      {# TODO: actual logic #}
+      {% elif problem.number == 1 %}
+        <div class="flex items-center text-amber-600 bg-amber-100 rounded-md py-2 px-3 mb-4 text-sm">
+          <iconify-icon icon="mdi:warning" width="none" class="shrink-0 mr-3 size-4"></iconify-icon>
+          Za túto úlohu nedostávaš v svojej kategórií body.
         </div>
+      {% else %}
+        <div data-controller="submit--submit" data-submit--cta-target="submitForm" id="submit">
 
-        <form method="POST" enctype="multipart/form-data" action="{% url "file_submit" problem.id %}" id="form" class="hidden mt-2">
-          {% csrf_token %}
-          <input type="file" name="files" multiple accept="image/jpeg, image/png" class="hidden"
-                  id="filepicker"
-                  onchange="onFileSubmit()">
-          <button class="btn btn-blue mt-2">Odovzdať</button>
-        </form>
+          {% if problem.file_points > 0 %}
+            <div class="font-bold text-2xl mb-1">Odovzdať popis</div>
 
-        <div class="font-bold text-xl mb-1 mt-4">Odovzdané riešenia</div>
+            <div class="bg-gray-100 rounded-md text-gray-700 text-center p-4 cursor-pointer hover:bg-gray-200" data-action="click->submit--submit#openFilePicker">
+              <iconify-icon icon="mdi:upload" width="none" class="size-8"></iconify-icon>
+              <p>Vyber alebo presuň tvoje riešenie sem</p>
+            </div>
 
-        <div class="mb-10 text-sm space-y-1">
-          {% for submit in submits.file %}
-            <a href="{% url "submit_detail" submit.submit_id %}" class="flex items-center gap-1 py-1 px-2 rounded-md {% if submit.score is not None %}text-green-800 bg-green-100 hover:bg-green-200{% else %}hover:bg-gray-200{% endif %}">
-              <iconify-icon icon="mdi:file-text"></iconify-icon>
-              <span>{{ submit.created_at|date:"d.m.Y" }} {{ submit.created_at|time:"H:i" }}</span>
+            <form method="POST" enctype="multipart/form-data" action="{% url "file_submit" problem.id %}" id="form" class="hidden mt-2" data-submit--submit-target="fileForm">
+              {% csrf_token %}
+              <input type="file" name="files" multiple accept="image/jpeg, image/png" class="hidden" id="filepicker" data-submit--submit-target="filePicker" data-action="change->submit--submit#onFileSubmit">
+              <button class="btn btn-blue mt-2">Odovzdať</button>
+            </form>
 
-              <span class="ml-auto {% if submit.score is None %}text-xs text-gray-500{% endif %}">
-                {% if submit.score is not None %}
-                  {{ submit.score|floatformat:"g" }} b
-                {% else %}
-                  (neopravené)
-                {% endif %}
-              </span>
-            </a>
-          {% empty %}
-            <div class="text-gray-600">Zatiaľ si nič neodovzdal/a.</div>
-          {% endfor %}
+            <div class="font-bold text-xl mb-1 mt-4">Odovzdané riešenia</div>
+
+            <div class="mb-10 text-sm space-y-1">
+              {% for submit in submits.file %}
+                <a href="{% url "submit_detail" submit.submit_id %}" class="flex items-center gap-1 py-1 px-2 rounded-md {% if submit.score is not None %}text-green-800 bg-green-100 hover:bg-green-200{% else %}hover:bg-gray-200{% endif %}">
+                  <iconify-icon icon="mdi:file-text"></iconify-icon>
+                  <span>{{ submit.created_at|date:"d.m.Y" }} {{ submit.created_at|time:"H:i" }}</span>
+
+                  <span class="ml-auto {% if submit.score is None %}text-xs text-gray-500{% endif %}">
+                    {% if submit.score is not None %}
+                      {{ submit.score|floatformat:"g" }} b
+                    {% else %}
+                      (neopravené)
+                    {% endif %}
+                  </span>
+                </a>
+              {% empty %}
+                <div class="text-gray-600">Zatiaľ si nič neodovzdal/a.</div>
+              {% endfor %}
+            </div>
+          {% endif %}
         </div>
-        {% endif %}
-      </div>
+      {% endif %}
     </div>
   </div>
 
   <div class="fixed inset-x bottom-0 z-30 w-full p-4 flex items-center md:hidden" data-submit--cta-target="cta">
-    <button type="button" data-action="submit--cta#scroll" class="flex items-center gap-2 px-4 py-2 rounded-full bg-gray-800 text-white mx-auto w-auto shadow-lg" id="scroll" onclick="document.getElementById('scroll').classList.add('hidden')">
+    <button type="button" data-action="submit--cta#scroll" class="flex items-center gap-2 px-4 py-2 rounded-full bg-gray-800 text-white mx-auto w-auto shadow-lg" id="scroll">
       Odovzdávanie
       <iconify-icon icon="mdi:arrow-down"></iconify-icon>
     </button>
