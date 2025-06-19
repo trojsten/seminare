@@ -2,6 +2,8 @@ from django import template
 from django.utils.safestring import mark_safe
 from markdown import markdown
 
+from seminare.style.markdown_extensions import SeminareExtension
+
 register = template.Library()
 
 
@@ -19,6 +21,7 @@ def markdownify(content):
                 "sane_lists",
                 "tables",
                 "smarty",
+                SeminareExtension(),
             ],
         )
     )
