@@ -11,7 +11,7 @@ COPY tailwind.config.js ./
 RUN pnpm run build
 CMD ["pnpm", "run", "watch"]
 
-FROM ghcr.io/trojsten/django-docker:v5
+FROM ghcr.io/trojsten/django-docker:v6
 
 COPY pyproject.toml uv.lock ./
 RUN uv sync --frozen
