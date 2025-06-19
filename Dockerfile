@@ -19,5 +19,6 @@ RUN uv sync --frozen
 COPY --chown=appuser:appuser ./ /app
 COPY --from=cssbuild /app/seminare/style/static/* /app/seminare/style/static/
 
+RUN uv run pygmentize -S monokai -f html -a .codehilite >/app/seminare/style/static/code.css
 RUN DATABASE_URL=sqlite://:memory: JUDGE_TOKEN=dummy python manage.py collectstatic --no-input
 ENV BASE_START=/app/entrypoint.sh

@@ -77,6 +77,10 @@ iconify-icon {
   @apply whitespace-nowrap p-3 text-sm text-gray-700;
 }
 
+.codehilite {
+  @apply rounded-xl
+}
+
 /** I/O table in problem statements **/
 .io {
   @apply grid grid-cols-1 lg:grid-cols-2 gap-x-4;
