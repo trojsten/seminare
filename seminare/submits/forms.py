@@ -21,3 +21,11 @@ class MultipleFileField(forms.FileField):
 
 class FileFieldForm(forms.Form):
     files = MultipleFileField()
+
+
+class JudgeSubmitForm(forms.Form):
+    program = forms.FileField()
+
+
+class TextSubmitForm(forms.Form):
+    text = forms.CharField()

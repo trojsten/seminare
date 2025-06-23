@@ -15,6 +15,7 @@ services:
       - "8000:8000"
     volumes:
       - ./seminare:/app/seminare
+      - ./uploads:/app/uploads
     environment:
       - DEBUG=True
       - DATABASE_URL=psql://postgres:postgres@db/postgres

@@ -1,14 +1,14 @@
 import { Controller } from "@hotwired/stimulus";
 
 export default class extends Controller {
-    static targets = ["filePicker", "fileForm"]
+    static targets = ["fileInput", "form"]
 
     fileSubmits = []
 
     setFiles() {
         const b = new DataTransfer();
         for (const file of this.fileSubmits) b.items.add(file);
-        this.filePickerTarget.files = b.files;
+        this.fileInputTarget.files = b.files;
     }
 
     deleteFileSubmit(event) {
@@ -19,7 +19,7 @@ export default class extends Controller {
             if (this.fileSubmits[i].name === filename) {
                 this.fileSubmits.splice(i, 1);
                 if (this.fileSubmits.length === 0) {
-                    this.fileFormTarget.classList.add('hidden');
+                    this.formTarget.classList.add('hidden');
                 }
                 this.setFiles();
                 return;
@@ -27,14 +27,14 @@ export default class extends Controller {
         }
     }
 
-    onFileSubmit() {
-        for (const file of this.filePickerTarget.files) {
+    onInputChange() {
+        for (const file of this.fileInputTarget.files) {
             const reader = new FileReader();
             reader.readAsDataURL(file);
             reader.onload = () => {
-                this.filePickerTarget.insertAdjacentHTML("beforebegin", `
+                this.fileInputTarget.insertAdjacentHTML("beforebegin", `
                     <div class="p-2 text-xs rounded-md bg-gray-100 relative">
-                        <div class="absolute right-3 top-3 bg-white/60 hover:bg-white/80 rounded-full p-1 flex cursor-pointer" data-action="click->submit--submit#deleteFileSubmit" data-submit--submit-filename-param="${file.name}">
+                        <div class="absolute right-3 top-3 bg-white/60 hover:bg-white/80 rounded-full p-1 flex cursor-pointer" data-action="click->submit--file-submit#deleteFileSubmit" data-submit--file-submit-filename-param="${file.name}">
                             <iconify-icon class="size-5" width="none" icon="mdi:close"></iconify-icon>
                         </div>
                         <img src="${reader.result}" class="rounded">
@@ -44,12 +44,12 @@ export default class extends Controller {
                     </div>`);
             };
         }
-        this.fileSubmits.push(...this.filePickerTarget.files);
+        this.fileSubmits.push(...this.fileInputTarget.files);
         this.setFiles();
-        this.fileFormTarget.classList.remove('hidden');
+        this.formTarget.classList.remove('hidden');
     }
 
     openFilePicker() {
-        this.filePickerTarget.click()
+        this.fileInputTarget.click()
     }
 }
