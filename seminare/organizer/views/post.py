@@ -22,7 +22,7 @@ class WithPostQuerySet(WithContest, MixinProtocol):
         return Post.objects.filter(contests__id=self.contest.id).distinct()
 
 
-class PostListView(WithPostQuerySet, GenericTableView, ContestOrganizerRequired):
+class PostListView(ContestOrganizerRequired, WithPostQuerySet, GenericTableView):
     paginate_by = 50
     table_class = PostTable
     table_title = "Zoznam príspevkov"
@@ -55,7 +55,7 @@ class PostListView(WithPostQuerySet, GenericTableView, ContestOrganizerRequired)
         return [("Príspevky", "")]
 
 
-class PostCreateView(WithContest, GenericFormView, CreateView, ContestAdminRequired):
+class PostCreateView(ContestAdminRequired, WithContest, GenericFormView, CreateView):
     form_title = "Nový príspevok"
     form_class = PostForm
 
@@ -76,7 +76,7 @@ class PostCreateView(WithContest, GenericFormView, CreateView, ContestAdminRequi
 
 
 class PostUpdateView(
-    WithPostQuerySet, GenericFormView, UpdateView, ContestAdminRequired
+    ContestAdminRequired, WithPostQuerySet, GenericFormView, UpdateView
 ):
     form_title = "Upraviť príspevok"
     form_class = PostForm
@@ -98,7 +98,7 @@ class PostUpdateView(
         ]
 
 
-class PostDeleteView(WithPostQuerySet, GenericDeleteView, ContestAdminRequired):
+class PostDeleteView(ContestAdminRequired, WithPostQuerySet, GenericDeleteView):
     def get_success_url(self) -> str:
         return reverse("org:post_list", args=[self.contest.id])
 

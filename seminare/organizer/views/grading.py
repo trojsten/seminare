@@ -74,7 +74,7 @@ class WithSubmitList(WithContest, MixinProtocol):
 
 
 class GradingOverviewView(
-    WithSubmitList, WithBreadcrumbs, TemplateView, ContestOrganizerRequired
+    ContestOrganizerRequired, WithSubmitList, WithBreadcrumbs, TemplateView
 ):
     template_name = "org/grading/overview.html"
 
@@ -106,7 +106,7 @@ class GradingOverviewView(
         ]
 
 
-class GradingSubmitView(WithSubmit, WithSubmitList, FormView, ContestOrganizerRequired):
+class GradingSubmitView(ContestOrganizerRequired, WithSubmit, WithSubmitList, FormView):
     template_name = "org/grading/submit.html"
     form_class = GradingForm
 

@@ -20,7 +20,7 @@ from seminare.users.mixins.permissions import (
 )
 
 
-class ProblemSetListView(WithContest, GenericTableView, ContestOrganizerRequired):
+class ProblemSetListView(ContestOrganizerRequired, WithContest, GenericTableView):
     table_class = ProblemSetTable
     table_title = "Sady úloh"
 
@@ -54,7 +54,7 @@ class ProblemSetListView(WithContest, GenericTableView, ContestOrganizerRequired
 
 
 class ProblemSetCreateView(
-    WithContest, GenericFormView, CreateView, ContestAdminRequired
+    ContestAdminRequired, WithContest, GenericFormView, CreateView
 ):
     form_class = ProblemSetForm
     form_title = "Nová sada úloh"
@@ -76,7 +76,7 @@ class ProblemSetCreateView(
 
 
 class ProblemSetUpdateView(
-    WithContest, GenericFormTableView, UpdateView, ContestAdminRequired
+    ContestAdminRequired, WithContest, GenericFormTableView, UpdateView
 ):
     form_class = ProblemSetForm
     table_class = ProblemTable
