@@ -31,5 +31,5 @@ class ContestSwitchView(TemplateView):
         return ctx
 
 
-class ContestDashboardView(WithContest, TemplateView, ContestOrganizerRequired):
+class ContestDashboardView(ContestOrganizerRequired, WithContest, TemplateView):
     template_name = "org/contest_dashboard.html"
