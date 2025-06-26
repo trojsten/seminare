@@ -1,6 +1,7 @@
 from io import BytesIO
 from pathlib import Path
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.files import File
 from django.core.files.base import ContentFile
@@ -9,8 +10,6 @@ from PIL import Image
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.utils import ImageReader
 from reportlab.pdfgen import canvas
-
-from seminare.settings import JUDGE_TOKEN, JUDGE_URL
 
 
 def combine_images_into_pdf(files):
@@ -55,7 +54,7 @@ def combine_images_into_pdf(files):
 
 
 def enqueue_judge_submit(namespace: str, task: str, user: User, file: File) -> Submit:
-    judge = JudgeClient(judge_token=JUDGE_TOKEN, judge_url=JUDGE_URL)
+    judge = JudgeClient(judge_token=settings.JUDGE_TOKEN, judge_url=settings.JUDGE_URL)
 
     return judge.submit(
         namespace=namespace,
