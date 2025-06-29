@@ -83,7 +83,7 @@ iconify-icon {
 
 /** I/O table in problem statements **/
 .io {
-  @apply grid grid-cols-1 lg:grid-cols-2 gap-x-4;
+  @apply grid grid-cols-1 lg:grid-cols-2 gap-4 my-5;
 }
 
 .io h3 {
@@ -99,7 +99,7 @@ iconify-icon {
 }
 
 .io pre {
-  @apply mt-0;
+  @apply m-0;
 }
 
 .katex {
