@@ -33,8 +33,23 @@ class GradingForm(forms.Form):
 class ProblemForm(forms.ModelForm):
     class Meta:
         model = Problem
-        fields = ["name", "number"]
-        labels = {"name": "Názov", "number": "Číslo"}
+        fields = [
+            "name",
+            "number",
+            "file_points",
+            "judge_points",
+            "text_points",
+            "judge_namespace",
+            "judge_task",
+            "text_answer",
+        ]
+        labels = {
+            "name": "Názov",
+            "number": "Číslo",
+            "file_points": "Body za popis",
+            "judge_points": "Body za program",
+            "text_points": "Body za odpoveď",
+        }
 
     def __init__(self, *args, **kwargs):
         self.problem_set = kwargs.pop("problem_set")
@@ -66,6 +81,7 @@ class ProblemForm(forms.ModelForm):
                 Text.objects.update_or_create(
                     type=text_type, problem=problem, defaults={"text": value}
                 )
+
         return problem
 
 

@@ -1,5 +1,8 @@
 {# Render submit #}
 {% if submit.type == "file" %}
   {% include "submits/content/file.html" %}
+{% elif submit.type == "judge" %}
+  {% include "submits/content/judge.html" %}
+{% elif submit.type == "text" %}
+  {% include "submits/content/text.html" %}
 {% endif %}
-{# TODO: Remaining submit types #}

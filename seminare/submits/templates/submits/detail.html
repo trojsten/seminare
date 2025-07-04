@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load ui %}
+{% load markdownify %}
 
 {% block title %}
   Riešenie {{ block.super }}
@@ -28,28 +29,37 @@
     </div>
 
     {% if submit.score is not None %}
-    <div class="px-4 py-3 flex space-x-3">
-      <div class="shrink-0">
-        <a href="{{ submit.scored_by.profile_url }}">
-          <img class="inline-block size-10 rounded-full" src="{{ submit.scored_by.avatar_url }}" alt="{{ submit.scored_by.get_full_name }}">
-        </a>
-      </div>
-      <div class="flex-1 text-sm">
-        <div class="font-semibold mb-1">{{ submit.scored_by.display_name }}:</div>
-
-        <div class="prose max-w-none prose-sm">
-          {# TODO: Markdown? #}
-          {{ submit.comment }}
+      <div class="px-4 py-3 flex space-x-3">
+        <div class="shrink-0">
+          {% if submit.scored_by %}
+            <a href="{{ submit.scored_by.profile_url }}">
+              <img class="inline-block size-10 rounded-full" src="{{ submit.scored_by.avatar_url }}" alt="{{ submit.scored_by.get_full_name }}">
+            </a>
+          {% else %}
+            <span>
+              <div class="inline-block size-10 rounded-full bg-gray-300 p-2">
+                <iconify-icon icon="mdi:user" width="none" class="size-6"></iconify-icon>
+              </div>
+            </span>
+          {% endif %}
         </div>
+        <div class="flex-1 text-sm">
+          <div class="font-semibold">{{ submit.scored_by.display_name|default:"Server" }}:</div>
+          <div class="font-semibold text-base text-green-600">{{ submit.score|floatformat:"g" }} b</div>
 
-        <div class="font-semibold mt-2 text-base text-green-600">{{ submit.score|floatformat:"g" }} b</div>
+        </div>
       </div>
-    </div>
+      {% if submit.comment %}
+        <div class="prose max-w-none prose-sm bg-gray-200 rounded-lg p-2">
+          <h3>Komentár</h3>
+          {{ submit.comment|markdownify }}
+        </div>
+      {% endif %}
     {% else %}
-    <div class="px-4 py-3 text-gray-600 text-center text-sm">
-      <iconify-icon icon="mdi:emoticon-sad-outline" width="none" class="size-8"></iconify-icon>
-      <p>Toto riešenie zatiaľ nebolo ohodnotené.</p>
-    </div>
+      <div class="px-4 py-3 text-gray-600 text-center text-sm">
+        <iconify-icon icon="mdi:emoticon-sad-outline" width="none" class="size-8"></iconify-icon>
+        <p>Toto riešenie zatiaľ nebolo ohodnotené.</p>
+      </div>
     {% endif %}
   </div>
 </div>

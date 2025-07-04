@@ -1,9 +1,12 @@
 from datetime import datetime, time
 
+from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.db.models import UniqueConstraint
 from django.urls import reverse
 from django.utils import timezone
+
+from seminare.submits.models import BaseSubmit
 
 
 class ProblemSetQuerySet(models.QuerySet):
@@ -46,6 +49,19 @@ class Problem(models.Model):
     )
     problem_set_id: int
 
+    file_points = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    judge_points = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    text_points = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+
+    accepted_submit_types = ArrayField(
+        models.CharField(choices=BaseSubmit.SubmitType.choices), default=list
+    )
+
+    judge_namespace = models.CharField(max_length=256, blank=True)
+    judge_task = models.CharField(max_length=256, blank=True)
+
+    text_answer = models.CharField(blank=True, max_length=256)
+
     class Meta:
         ordering = ["problem_set", "number"]
 
@@ -76,7 +92,7 @@ class Text(models.Model):
         SUSI_LARGE_HINT = "SLH", "Susi large hint"
 
     text = models.TextField(blank=True)
-    type = models.CharField(choices=Type, max_length=3)
+    type = models.CharField(choices=Type.choices, max_length=3)
     problem = models.ForeignKey(
         Problem, on_delete=models.CASCADE, related_name="text_set"
     )

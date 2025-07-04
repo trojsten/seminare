@@ -109,6 +109,9 @@ LOGIN_URL = "oidc_authentication_init"
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/"
 
+JUDGE_URL: str = env("JUDGE_URL", default="https://judge.ksp.sk")
+JUDGE_TOKEN: str = env("JUDGE_TOKEN")
+
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 

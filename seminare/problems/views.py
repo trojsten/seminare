@@ -4,7 +4,7 @@ from django.views.generic import DetailView, ListView
 
 from seminare.problems.logic import inject_user_score
 from seminare.problems.models import Problem, ProblemSet
-from seminare.submits.models import FileSubmit
+from seminare.submits.models import FileSubmit, JudgeSubmit, TextSubmit
 
 
 class ProblemSetListView(ListView):
@@ -62,7 +62,13 @@ class ProblemDetailView(DetailView):
         return {
             "file": FileSubmit.objects.filter(
                 enrollment__user=self.request.user, problem=self.object
-            )
+            ),
+            "judge": JudgeSubmit.objects.filter(
+                enrollment__user=self.request.user, problem=self.object
+            ),
+            "text": TextSubmit.objects.filter(
+                enrollment__user=self.request.user, problem=self.object
+            ),
         }
 
     def get_context_data(self, **kwargs):

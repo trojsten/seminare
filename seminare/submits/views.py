@@ -1,88 +1,109 @@
+import json
 import os.path
-from io import BytesIO
+from decimal import Decimal
 
 from django.core.exceptions import PermissionDenied
-from django.core.files.base import ContentFile
-from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
-from django.views.generic import DetailView
-from PIL import Image
-from reportlab.lib.pagesizes import A4
-from reportlab.lib.utils import ImageReader
-from reportlab.pdfgen import canvas
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
+from django.views.generic import DetailView, View
+from django.views.generic.edit import FormView
 
+from seminare import settings
 from seminare.problems.models import Problem
-from seminare.submits.forms import FileFieldForm
-from seminare.submits.models import BaseSubmit, FileSubmit
+from seminare.submits.forms import FileFieldForm, JudgeSubmitForm, TextSubmitForm
+from seminare.submits.models import BaseSubmit, FileSubmit, JudgeSubmit, TextSubmit
+from seminare.submits.utils import combine_images_into_pdf, enqueue_judge_submit
 from seminare.users.logic.enrollment import get_enrollment
 
 
-def file_submit_create_view(request: HttpRequest, **kwargs):
-    # TODO: Refactor
-    problem = get_object_or_404(Problem, id=kwargs["problem"])
-    if not request.user.is_authenticated:
-        raise PermissionDenied("You must be logged in to perform this action.")
+class FileSubmitCreateView(FormView):
+    form_class = FileFieldForm
 
-    if request.method == "POST":
-        form = FileFieldForm(request.POST, request.FILES)
-        if form.is_valid():
-            files = form.cleaned_data["files"]
-            final_file = files[0]
-            _, ext = os.path.splitext(files[0].name)
-            if len(files) > 1 or ext.lower() in [".jpg", ".jpeg", ".png"]:
-                final_file = combine_images_into_pdf(files)
-            file_submit = FileSubmit(
-                file=final_file,
-                problem=problem,
-                enrollment=get_enrollment(request.user, problem.problem_set),
-            )
-            file_submit.save()
-        return HttpResponseRedirect(
-            reverse("submit_detail", args=[file_submit.submit_id])
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            raise PermissionDenied("You must be logged in to perform this action.")
+        self.problem = get_object_or_404(Problem, id=kwargs["problem"])
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        files = form.cleaned_data["files"]
+        final_file = files[0]
+        _, ext = os.path.splitext(files[0].name)
+        if len(files) > 1 or ext.lower() in [".jpg", ".jpeg", ".png"]:
+            final_file = combine_images_into_pdf(files)
+        file_submit = FileSubmit(
+            file=final_file,
+            problem=self.problem,
+            enrollment=get_enrollment(self.request.user, self.problem.problem_set),
         )
-    return HttpResponse(status=405, content=f"Method {request.method} not allowed")
+        file_submit.save()
+        self.file_submit = file_submit
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse("submit_detail", args=[self.file_submit.submit_id])
 
 
-def combine_images_into_pdf(files):
-    """
-    Combines multiple image files into a single PDF.
-    Assumes all files are images; validation should be handled in the form.
-    """
-    try:
-        output = BytesIO()
-        pdf_canvas = canvas.Canvas(output, pagesize=A4)
-        width, height = A4
+class JudgeSubmitCreateView(FormView):
+    form_class = JudgeSubmitForm
 
-        for file in files:
-            img = Image.open(file)
-            img = img.convert("RGB")  # Convert to RGB mode
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            raise PermissionDenied("You must be logged in to perform this action.")
+        self.problem = get_object_or_404(Problem, id=kwargs["problem"])
+        return super().dispatch(request, *args, **kwargs)
 
-            # Scale the image to fit the page
-            img_width, img_height = img.size
-            scale = min(width / img_width, height / img_height)
-            scaled_width = img_width * scale
-            scaled_height = img_height * scale
-            x_offset = (width - scaled_width) / 2
-            y_offset = (height - scaled_height) / 2
+    def form_valid(self, form):
+        program = form.cleaned_data["program"]
 
-            # Draw the image on the PDF canvas
-            img_path = BytesIO()
-            img.save(img_path, format="JPEG")
-            img_path.seek(0)
-            pdf_canvas.drawImage(
-                ImageReader(img_path), x_offset, y_offset, scaled_width, scaled_height
-            )
-            pdf_canvas.showPage()  # Start a new page
+        submit = enqueue_judge_submit(
+            self.problem.judge_namespace,
+            self.problem.judge_task,
+            self.request.user,
+            program,
+        )
 
-        pdf_canvas.save()
+        judge_submit = JudgeSubmit(
+            program=program,
+            problem=self.problem,
+            judge_id=submit.public_id,
+            protocol_key=submit.protocol_key,
+            enrollment=get_enrollment(self.request.user, self.problem.problem_set),
+        )
+        judge_submit.save()
+        self.judge_submit = judge_submit
+        return super().form_valid(form)
 
-        # Create a Django ContentFile from the output PDF
-        output.seek(0)
-        pdf_content = ContentFile(output.read(), name="combined_files.pdf")
-        return pdf_content
-    except Exception as e:
-        raise RuntimeError(f"Failed to combine files into a PDF: {e}")
+    def get_success_url(self):
+        return reverse("submit_detail", args=[self.judge_submit.submit_id])
+
+
+class TextSubmitCreateView(FormView):
+    form_class = TextSubmitForm
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            raise PermissionDenied("You must be logged in to perform this action.")
+        self.problem = get_object_or_404(Problem, id=kwargs["problem"])
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        text = form.cleaned_data["text"]
+
+        text_submit = TextSubmit(
+            value=text,
+            problem=self.problem,
+            enrollment=get_enrollment(self.request.user, self.problem.problem_set),
+        )
+        text_submit.save()
+        self.text_submit = text_submit
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse("submit_detail", args=[self.text_submit.submit_id])
 
 
 class SubmitDetailView(DetailView):
@@ -92,3 +113,34 @@ class SubmitDetailView(DetailView):
 
     def get_object(self, queryset=...):
         return BaseSubmit.get_submit_by_id(self.kwargs["submit_id"])
+
+
+@method_decorator(csrf_exempt, name="dispatch")
+class JudgeReportView(View):
+    def post(self, request, *args, **kwargs):
+        if not settings.JUDGE_TOKEN:
+            return JsonResponse(
+                {"errors": "Judge not configured.", "ok": False}, status=403
+            )
+
+        json_data = json.loads(request.body)
+
+        if json_data["token"] != settings.JUDGE_TOKEN:
+            return JsonResponse(
+                {"errors": "Wrong access token.", "ok": False}, status=403
+            )
+
+        submit: JudgeSubmit = get_object_or_404(
+            JudgeSubmit, judge_id=json_data["public_id"]
+        )
+
+        submit.protocol = json_data["protocol"]
+
+        if "final_score" in submit.protocol:
+            # TODO: get maximum points from RuleEngine (to the time of submit)
+            max_points = submit.problem.judge_points
+            submit.score = Decimal(str(submit.protocol["final_score"])) * max_points
+
+        submit.save()
+
+        return JsonResponse({"ok": True})

@@ -1,6 +1,6 @@
 {% load widget_tweaks %}
 
-<div>
+<div class="{% if field.field.widget.template_name == "django/forms/widgets/textarea.html" %}col-span-2{% endif %}">
 {% if field.field.widget.input_type == "checkbox" %}
     <label class="flex items-baseline gap-1.5">
       <div>

@@ -7,12 +7,24 @@ from django.db import models
 
 def submit_file_filepath(instance: "BaseSubmit", filename):
     _, ext = os.path.splitext(filename)
-    rnd_str = secrets.token_hex(8)
-    return f"submits/{instance.problem_id}/{instance.enrollment.user_id}_{rnd_str}{ext}"
+    rnd_str = secrets.token_hex(16)
+    return f"submits/{instance.problem_id}/file/{instance.enrollment.user_id}_{rnd_str}{ext}"
+
+
+def submit_judge_filepath(instance: "BaseSubmit", filename):
+    _, ext = os.path.splitext(filename)
+    rnd_str = secrets.token_hex(16)
+    return f"submits/{instance.problem_id}/judge/{instance.enrollment.user_id}_{rnd_str}{ext}"
 
 
 class BaseSubmit(models.Model):
+    class SubmitType(models.TextChoices):
+        FILE = "file", "File submit"
+        JUDGE = "judge", "Judge submit"
+        TEXT = "text", "Text submit"
+
     id: int
+
     enrollment = models.ForeignKey("users.Enrollment", on_delete=models.CASCADE)
     enrollment_id: int
     problem = models.ForeignKey("problems.Problem", on_delete=models.CASCADE)
@@ -25,6 +37,7 @@ class BaseSubmit(models.Model):
     )
     scored_by_id: int
     comment = models.TextField(blank=True)
+
     type: str
 
     class Meta:
@@ -62,7 +75,7 @@ class BaseSubmit(models.Model):
 class FileSubmit(BaseSubmit):
     file = models.FileField(upload_to=submit_file_filepath)
     comment_file = models.FileField(upload_to=submit_file_filepath, blank=True)
-    type = "file"
+    type = BaseSubmit.SubmitType.FILE
 
     @property
     def submit_id(self):
@@ -76,21 +89,29 @@ class FileSubmit(BaseSubmit):
 
 
 class JudgeSubmit(BaseSubmit):
-    program = models.TextField(blank=True)
+    program = models.FileField(upload_to=submit_judge_filepath)
     protocol = models.JSONField(blank=True, default=dict)
     judge_id = models.CharField(max_length=255, unique=True)
     protocol_key = models.CharField(max_length=255, blank=True)
-    type = "judge"
+    type = BaseSubmit.SubmitType.JUDGE
 
     @property
     def submit_id(self):
         return f"J-{self.id}"
 
+    @property
+    def judge_url(self):
+        return settings.JUDGE_URL
+
 
 class TextSubmit(BaseSubmit):
     value = models.TextField(blank=True)
-    type = "text"
+    type = BaseSubmit.SubmitType.TEXT
 
     @property
     def submit_id(self):
         return f"T-{self.id}"
+
+    @property
+    def tooltip(self):
+        return f"Odpoveď: {self.value}"
