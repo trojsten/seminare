@@ -2,11 +2,8 @@ name: Build and deploy Docker image
 
 on:
   push:
-    # tags:
-    #   - "*"
-    # TODO: switch to tags when more stable
-    branches:
-      - master
+    tags:
+      - "*"
   workflow_dispatch:
 
 env:
