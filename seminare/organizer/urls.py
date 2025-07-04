@@ -1,6 +1,6 @@
 from django.urls import include, path
 
-from seminare.organizer.views import dashboard, grading, page, problem, problemset, post
+from seminare.organizer.views import dashboard, grading, page, post, problem, problemset
 
 app_name = "org"
 
