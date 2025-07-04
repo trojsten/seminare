@@ -8,10 +8,16 @@ from seminare.organizer.tables import ProblemTable
 from seminare.organizer.views import WithContest, WithProblemSet
 from seminare.organizer.views.generic import GenericFormView, GenericTableView
 from seminare.problems.models import Problem
+from seminare.users.logic.permissions import is_contest_administrator
+from seminare.users.mixins.permissions import (
+    ContestAdminRequired,
+    ContestOrganizerRequired,
+)
 
 
-class ProblemListView(WithContest, WithProblemSet, GenericTableView):
-    # TODO: Permission checking
+class ProblemListView(
+    ContestOrganizerRequired, WithContest, WithProblemSet, GenericTableView
+):
     table_class = ProblemTable
     table_title = "Úlohy"
 
@@ -26,6 +32,9 @@ class ProblemListView(WithContest, WithProblemSet, GenericTableView):
         ]
 
     def get_table_links(self):
+        if not is_contest_administrator(self.request.user, self.contest):
+            return []
+
         return [
             (
                 "green",
@@ -37,10 +46,17 @@ class ProblemListView(WithContest, WithProblemSet, GenericTableView):
             )
         ]
 
+    def get_table_context(self):
+        return {
+            "is_contest_administrator": is_contest_administrator(
+                self.request.user, self.contest
+            ),
+        }
 
-class ProblemCreateView(WithContest, WithProblemSet, GenericFormView, CreateView):
-    # TODO: Permission checking
 
+class ProblemCreateView(
+    ContestAdminRequired, WithContest, WithProblemSet, GenericFormView, CreateView
+):
     form_class = ProblemForm
     form_title = "Nová úloha"
 
@@ -66,9 +82,9 @@ class ProblemCreateView(WithContest, WithProblemSet, GenericFormView, CreateView
         ]
 
 
-class ProblemUpdateView(WithContest, WithProblemSet, GenericFormView, UpdateView):
-    # TODO: Permission checking
-
+class ProblemUpdateView(
+    ContestAdminRequired, WithContest, WithProblemSet, GenericFormView, UpdateView
+):
     form_class = ProblemForm
     form_title = "Upraviť úlohu"
 
