@@ -1,0 +1,41 @@
+{% extends "org/base.html" %}
+{% load markdownify %}
+{% load ui %}
+{% block title %}{{ problem.name }} {{ block.super }}{% endblock %}
+
+{% block body %}
+    {% if breadcrumbs %}
+        <div class="mb-2">
+            {% breadcrumbs breadcrumbs %}
+        </div>
+    {% endif %}
+    <div class="md:flex md:items-center md:justify-between mb-6">
+        <div class="min-w-0 flex-1">
+            <h2 class="font-bold text-gray-900 text-2xl md:text-3xl">
+                Problem: {{ problem.name }}
+            </h2>
+            <p class="font-semibold text-gray-600 text-lg md:text-xl">Problem number: {{ problem.number }}</p>
+        </div>
+        <div class="mt-4 flex md:ml-4 md:mt-0 gap-2">
+            {% for link in links %}
+                {% if link|length == 3 %}
+                    <a href="{{ link.2 }}" class="btn btn-{{ link.0 }}">{{ link.1 }}</a>
+                {% else %}
+                    <a href="{{ link.3 }}" class="btn btn-{{ link.0 }}">
+                        <iconify-icon icon="{{ link.1 }}" class="mr-1"></iconify-icon>
+                        {{ link.2 }}
+                    </a>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+    <div class="flex-1 p-4 md:py-8">
+        <div class="mx-auto max-w-prose">
+
+            <div class="prose">
+                {{ texts.PS.text|markdownify }}
+            </div>
+        </div>
+    </div>
+{% endblock body %}
+

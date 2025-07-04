@@ -37,6 +37,11 @@ class ProblemSetTable(Table):
                 "Upraviť",
                 reverse("org:problemset_update", args=[object.contest_id, object.id]),
             ),
+            (
+                "mdi:eye",
+                "Pozrieť na stránke",
+                reverse("problem_set_detail", args=[object.id]),
+            ),
         ]
 
 
@@ -71,6 +76,18 @@ class ProblemTable(Table):
                     args=[
                         object.problem_set.contest_id,
                         object.problem_set_id,
+                        object.id,
+                    ],
+                ),
+            ),
+            (
+                "mdi:eye",
+                "Detail",
+                reverse(
+                    "org:problem_detail",
+                    args=[
+                        object.problem_set.contest_id,
+                        object.problem_set.id,
                         object.id,
                     ],
                 ),

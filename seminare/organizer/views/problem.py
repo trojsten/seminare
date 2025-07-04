@@ -1,11 +1,12 @@
+from django.contrib.sites.shortcuts import get_current_site
 from django.db.models import QuerySet
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
-from django.views.generic import CreateView, UpdateView
+from django.views.generic import CreateView, DetailView, UpdateView
 
 from seminare.organizer.forms import ProblemForm
 from seminare.organizer.tables import ProblemTable
-from seminare.organizer.views import WithContest, WithProblemSet
+from seminare.organizer.views import WithBreadcrumbs, WithContest, WithProblemSet
 from seminare.organizer.views.generic import GenericFormView, GenericTableView
 from seminare.problems.models import Problem
 
@@ -93,6 +94,60 @@ class ProblemUpdateView(WithContest, WithProblemSet, GenericFormView, UpdateView
                     "org:problem_list", args=[self.contest.id, self.problem_set.id]
                 ),
             ),
-            (self.object, ""),
+            (
+                self.object,
+                reverse(
+                    "org:problem_detail",
+                    args=[self.contest.id, self.problem_set.id, self.object.id],
+                ),
+            ),
             ("Upraviť", ""),
+        ]
+
+
+class ProblemDetailView(WithContest, WithProblemSet, WithBreadcrumbs, DetailView):
+    template_name = "org/problem_detail.html"
+    context_object_name = "problem"
+    links: list[tuple] = []
+
+    def get_object(self, queryset=None):
+        site = get_current_site(self.request)
+        return get_object_or_404(
+            Problem,
+            id=self.kwargs["problem_id"],
+            problem_set_id=self.kwargs["problem_set_id"],
+            problem_set__contest__site=site,
+        )
+
+    def get_links(self):
+        return [
+            (
+                "green",
+                "mdi:pencil",
+                "Upraviť",
+                reverse(
+                    "org:problem_update",
+                    args=[self.contest.id, self.problem_set.id, self.object.id],
+                ),
+            )
+        ]
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        self.object: Problem
+        ctx["texts"] = self.object.get_texts()
+        ctx["links"] = self.get_links()
+        return ctx
+
+    def get_breadcrumbs(self):
+        return [
+            ("Sady úloh", reverse("org:problemset_list", args=[self.contest.id])),
+            (self.problem_set, ""),
+            (
+                "Úlohy",
+                reverse(
+                    "org:problem_list", args=[self.contest.id, self.problem_set.id]
+                ),
+            ),
+            (self.object, ""),
         ]
