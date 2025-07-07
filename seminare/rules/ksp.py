@@ -16,5 +16,3 @@ class KSPRules(RuleEngine):
             visible.add(Text.Type.EXAMPLE_SOLUTION)
 
         return visible
-
-    pass

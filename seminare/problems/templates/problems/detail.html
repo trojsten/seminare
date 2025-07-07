@@ -23,9 +23,11 @@
           <iconify-icon icon="mdi:chevron-down" class="ml-1"></iconify-icon>
         </a>
 
+        {% if texts.PS.is_visible %}
         <div class="prose">
           {{ texts.PS.text|markdownify }}
         </div>
+        {% endif %}
       </div>
     </div>
 

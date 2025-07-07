@@ -1,5 +1,5 @@
 from datetime import datetime, time
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, TypedDict
 
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
@@ -50,6 +50,11 @@ class ProblemSet(models.Model):
         return datetime.combine(self.end_date, time(hour=23, minute=59, second=59))
 
 
+class ProblemText(TypedDict):
+    text: str
+    is_visible: bool
+
+
 class Problem(models.Model):
     id: int
     name = models.CharField(blank=True, max_length=256)
@@ -86,24 +91,21 @@ class Problem(models.Model):
             kwargs={"problem_set_id": self.problem_set_id, "number": self.number},
         )
 
-    def get_all_texts(self) -> "dict[Text.Type, Text]":
+    def get_all_texts(self) -> "dict[Text.Type, ProblemText]":
         texts = self.text_set.all()
+        visible = self.get_visible_texts()
 
         output = {}
         for text in texts:
-            output[text.type] = text
+            output[text.type] = {
+                "text": text.text,
+                "is_visible": text.type in visible,
+            }
 
         return output
 
-    def get_visible_texts(self) -> "dict[Text.Type, Text]":
-        visible = self.problem_set.get_rule_engine().get_visible_texts(self)
-
-        output = {}
-        for type_, text in self.get_all_texts().items():
-            if type_ in visible:
-                output[type_] = text
-
-        return output
+    def get_visible_texts(self) -> "set[Text.Type]":
+        return self.problem_set.get_rule_engine().get_visible_texts(self)
 
 
 class Text(models.Model):

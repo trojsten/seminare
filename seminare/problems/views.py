@@ -78,7 +78,7 @@ class ProblemDetailView(DetailView):
         ctx = super().get_context_data(**kwargs)
         assert isinstance(self.request.user, User | AnonymousUser)
 
-        ctx["texts"] = self.object.get_visible_texts()
+        ctx["texts"] = self.object.get_all_texts()
         ctx["sidebar_problems"] = inject_user_score(
             Problem.objects.filter(problem_set_id=self.kwargs["problem_set_id"]),
             self.request.user,
