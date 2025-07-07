@@ -33,11 +33,11 @@
   <script src="{% static 'app.min.js' %}" defer></script>
 
   {# TODO: Read title from site #}
-  <title>{% block title %}| Korešpondenčný Matematický Seminár{% endblock %}</title>
+  <title>{% block title %}| {{ contest.name }}{% endblock %}</title>
   {% block head %}
   {% endblock %}
 </head>
-<body class="{% block root_body_class %}theme-math{% endblock %}" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+<body class="{% block root_body_class %}{{ contest.theme_name }}{% endblock %}" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
   {% block root_body %}{% endblock %}
 </body>
 </html>
