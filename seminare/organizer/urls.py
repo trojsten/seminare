@@ -50,8 +50,7 @@ contest_patterns = [
 
 
 urlpatterns = [
-    path("", dashboard.ContestSwitchView.as_view(), name="home"),
-    path("contests/<int:contest_id>/", include(contest_patterns)),
+    path("contests/", include(contest_patterns)),
     path("pages/", page.PageListView.as_view(), name="page_list"),
     path("pages/<int:pk>/", page.PageUpdateView.as_view(), name="page_update"),
     path("pages/<int:pk>/delete/", page.PageDeleteView.as_view(), name="page_delete"),

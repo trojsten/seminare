@@ -30,12 +30,12 @@ class ProblemSetTable(Table):
             (
                 "mdi:cards",
                 "Úlohy",
-                reverse("org:problem_list", args=[object.contest_id, object.id]),
+                reverse("org:problem_list", args=[object.id]),
             ),
             (
                 "mdi:pencil",
                 "Upraviť",
-                reverse("org:problemset_update", args=[object.contest_id, object.id]),
+                reverse("org:problemset_update", args=[object.id]),
             ),
         ]
 
@@ -60,7 +60,7 @@ class ProblemTable(Table):
                 "Opravovanie",
                 reverse(
                     "org:grading_overview",
-                    args=[object.problem_set.contest_id, object.id],
+                    args=[object.id],
                 ),
             ),
             (
@@ -69,7 +69,6 @@ class ProblemTable(Table):
                 reverse(
                     "org:problem_update",
                     args=[
-                        object.problem_set.contest_id,
                         object.problem_set_id,
                         object.id,
                     ],

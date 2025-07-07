@@ -20,7 +20,7 @@ class Contest(models.Model):
     id: int
     name = models.CharField(max_length=100)
     short_name = models.CharField(max_length=50)
-    site = models.ForeignKey("sites.Site", on_delete=models.CASCADE)
+    site = models.OneToOneField("sites.Site", on_delete=models.CASCADE)
     site_id: int
     order = models.IntegerField(default=0)
 

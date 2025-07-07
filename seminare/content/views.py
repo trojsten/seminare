@@ -10,7 +10,7 @@ class PageDetailView(DetailView):
 
     def get_object(self, queryset=...):
         site = get_current_site(self.request)
-        return get_object_or_404(Page, slug=self.kwargs["slug"], site=site)
+        return get_object_or_404(Page, slug=self.kwargs["slug"], contest__site=site)
 
 
 class PostListView(ListView):

@@ -5,7 +5,7 @@ from seminare.content.models import MenuGroup, MenuItem, Page, Post
 
 @admin.register(Page)
 class PageAdmin(admin.ModelAdmin):
-    list_filter = ["site"]
+    list_filter = ["contest"]
 
 
 @admin.register(Post)

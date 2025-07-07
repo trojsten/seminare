@@ -1,6 +1,7 @@
 from django import forms
 
 from seminare.content.models import Page, Post
+from seminare.contests.models import Contest
 from seminare.problems.models import Problem, ProblemSet, Text
 from seminare.style.forms import DateInput
 
@@ -97,14 +98,14 @@ class PageForm(forms.ModelForm):
 
     def __init__(self, *, site, **kwargs):
         super().__init__(**kwargs)
-        self.site = site
+        self.contest = Contest.objects.filter(site=site).first()
 
     def clean_slug(self):
         slug = self.cleaned_data["slug"]
-        if not self.site:
+        if not self.contest:
             return slug
 
-        obj = Page.objects.filter(site=self.site, slug=slug)
+        obj = Page.objects.filter(contest=self.contest, slug=slug)
         if self.instance.id:
             obj = obj.exclude(id=self.instance.id)
 
@@ -114,8 +115,8 @@ class PageForm(forms.ModelForm):
         return slug
 
     def save(self, commit: bool = True) -> Page:
-        page = super().save(commit=False)
-        page.site = self.site
+        page: Page = super().save(commit=False)
+        page.contest = self.contest
         if commit:
             page.save()
         return page

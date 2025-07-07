@@ -30,7 +30,7 @@ class WithContest(MixinProtocol):
     @cached_property
     def contest(self) -> Contest:
         site = get_current_site(self.request)
-        return get_object_or_404(Contest, site=site, id=self.kwargs["contest_id"])
+        return get_object_or_404(Contest, site=site)
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
@@ -41,7 +41,6 @@ class WithContest(MixinProtocol):
 class WithProblemSet(MixinProtocol):
     @cached_property
     def problem_set(self) -> ProblemSet:
-        # site = get_current_site(self.request)
         return get_object_or_404(ProblemSet, id=self.kwargs["problem_set_id"])
 
     def get_context_data(self, **kwargs):
@@ -53,7 +52,6 @@ class WithProblemSet(MixinProtocol):
 class WithProblem(MixinProtocol):
     @cached_property
     def problem(self) -> ProblemSet:
-        # site = get_current_site(self.request)
         return get_object_or_404(ProblemSet, id=self.kwargs["problem_id"])
 
     def get_context_data(self, **kwargs):
