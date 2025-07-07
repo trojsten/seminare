@@ -6,6 +6,7 @@ from django.db.models import UniqueConstraint
 from django.urls import reverse
 from django.utils import timezone
 
+from seminare.rules import RuleEngine, get_rule_engine_class
 from seminare.submits.models import BaseSubmit
 
 
@@ -26,6 +27,7 @@ class ProblemSet(models.Model):
     start_date = models.DateField()
     end_date = models.DateField()
     is_public = models.BooleanField(default=False)
+    rule_engine = models.CharField(max_length=512)
 
     objects = ProblemSetQuerySet.as_manager()
 
@@ -34,6 +36,10 @@ class ProblemSet(models.Model):
 
     def __str__(self):
         return self.name
+
+    def get_rule_engine(self) -> RuleEngine:
+        class_ = get_rule_engine_class(self.rule_engine)
+        return class_(self)
 
     @property
     def end_date_time(self):
