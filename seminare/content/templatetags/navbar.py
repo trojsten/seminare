@@ -31,7 +31,7 @@ def navbar_menu(context):
                     group=group,
                     title="Organizátorské rozhranie",
                     icon="mdi:account-tie",
-                    url=reverse("org:home"),
+                    url=reverse("org:contest_dashboard"),
                 )
             )
 
