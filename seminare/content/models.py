@@ -1,27 +1,27 @@
 from django.conf import settings
-from django.contrib.sites.models import Site
 from django.db import models
 
 
 class Page(models.Model):
     id: int
-    site = models.ForeignKey(Site, on_delete=models.CASCADE)
-    site_id: int
+    contest = models.ForeignKey("contests.Contest", on_delete=models.CASCADE)
+    contest_id: int
     slug = models.SlugField()
     title = models.CharField(max_length=256)
     content = models.TextField(blank=True)
 
     class Meta:
         constraints = [
-            models.UniqueConstraint("site", "slug", name="page__unique_slug")
+            models.UniqueConstraint("contest", "slug", name="page__unique_slug")
         ]
-        ordering = ["site", "slug"]
+        ordering = ["contest", "slug"]
 
     def __str__(self):
         return self.title
 
 
 class Post(models.Model):
+    id: int
     contests = models.ManyToManyField("contests.Contest", related_name="+")
     title = models.CharField(max_length=256)
     content = models.TextField(blank=True)
@@ -36,7 +36,9 @@ class Post(models.Model):
 
 
 class MenuGroup(models.Model):
-    site = models.ForeignKey(Site, on_delete=models.CASCADE)
+    id: int
+    contest = models.ForeignKey("contests.Contest", on_delete=models.CASCADE)
+    contest_id: int
     title = models.CharField(max_length=256)
     order = models.IntegerField()
 
@@ -44,10 +46,11 @@ class MenuGroup(models.Model):
         ordering = ["order"]
 
     def __str__(self):
-        return f"{self.title} ({self.site})"
+        return f"{self.title} ({self.contest})"
 
 
 class MenuItem(models.Model):
+    id: int
     group = models.ForeignKey(MenuGroup, on_delete=models.CASCADE)
     title = models.CharField(max_length=256)
     order = models.IntegerField()

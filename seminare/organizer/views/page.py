@@ -16,7 +16,7 @@ from seminare.organizer.views.generic import (
 class WithPageQuerySet(MixinProtocol):
     def get_queryset(self):
         site = get_current_site(self.request)
-        return Page.objects.filter(site=site)
+        return Page.objects.filter(contest__site=site)
 
 
 class PageListView(WithPageQuerySet, GenericTableView):

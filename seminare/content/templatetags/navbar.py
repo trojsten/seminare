@@ -10,7 +10,7 @@ register = template.Library()
 @register.inclusion_tag("navbar/menu.html", takes_context=True)
 def navbar_menu(context):
     site = get_current_site(context["request"])
-    items = list(MenuItem.objects.filter(group__site=site).all())
+    items = list(MenuItem.objects.filter(group__contest__site=site).all())
 
     context["items"] = items
 

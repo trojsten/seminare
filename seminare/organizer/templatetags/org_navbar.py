@@ -1,6 +1,5 @@
 from django import template
 from django.contrib.sites.shortcuts import get_current_site
-from django.core.exceptions import MultipleObjectsReturned
 from django.urls import reverse
 
 from seminare.contests.models import Contest
@@ -12,18 +11,8 @@ register = template.Library()
 def org_navbar(context):
     sections = []
 
-    contest_id = None
-    if hasattr(context["request"], "resolver_match"):
-        contest_id = context["request"].resolver_match.kwargs.get("contest_id")
-
     site = get_current_site(context["request"])
-    if not contest_id:
-        try:
-            contest = Contest.objects.get(site=site)
-        except (Contest.DoesNotExist, MultipleObjectsReturned):
-            contest = None
-    else:
-        contest = Contest.objects.filter(id=contest_id, site=site).first()
+    contest = Contest.objects.filter(site=site).first()
 
     if contest:
         sections.append(
