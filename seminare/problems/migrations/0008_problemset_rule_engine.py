@@ -4,16 +4,15 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('problems', '0007_problem_accepted_submit_types'),
+        ("problems", "0007_problem_accepted_submit_types"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='problemset',
-            name='rule_engine',
-            field=models.CharField(default='', max_length=512),
+            model_name="problemset",
+            name="rule_engine",
+            field=models.CharField(default="", max_length=512),
             preserve_default=False,
         ),
     ]
