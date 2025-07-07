@@ -1,4 +1,5 @@
 from datetime import datetime, time
+from typing import TYPE_CHECKING
 
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
@@ -8,6 +9,9 @@ from django.utils import timezone
 
 from seminare.rules import RuleEngine, get_rule_engine_class
 from seminare.submits.models import BaseSubmit
+
+if TYPE_CHECKING:
+    from django.db.models.fields.related_descriptors import RelatedManager
 
 
 class ProblemSetQuerySet(models.QuerySet):
@@ -68,6 +72,8 @@ class Problem(models.Model):
 
     text_answer = models.CharField(blank=True, max_length=256)
 
+    text_set: "RelatedManager[Text]"
+
     class Meta:
         ordering = ["problem_set", "number"]
 
@@ -80,14 +86,24 @@ class Problem(models.Model):
             kwargs={"problem_set_id": self.problem_set_id, "number": self.number},
         )
 
-    def get_texts(self):
+    def get_all_texts(self) -> "dict[Text.Type, Text]":
         texts = self.text_set.all()
-        text_types = {}
 
+        output = {}
         for text in texts:
-            text_types[text.type] = text
+            output[text.type] = text
 
-        return text_types
+        return output
+
+    def get_visible_texts(self) -> "dict[Text.Type, Text]":
+        visible = self.problem_set.get_rule_engine().get_visible_texts(self)
+
+        output = {}
+        for type_, text in self.get_all_texts().items():
+            if type_ in visible:
+                output[type_] = text
+
+        return output
 
 
 class Text(models.Model):

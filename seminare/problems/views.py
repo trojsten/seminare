@@ -1,3 +1,4 @@
+from django.contrib.auth.models import AnonymousUser
 from django.contrib.sites.shortcuts import get_current_site
 from django.shortcuts import get_object_or_404
 from django.views.generic import DetailView, ListView
@@ -5,6 +6,7 @@ from django.views.generic import DetailView, ListView
 from seminare.problems.logic import inject_user_score
 from seminare.problems.models import Problem, ProblemSet
 from seminare.submits.models import FileSubmit, JudgeSubmit, TextSubmit
+from seminare.users.models import User
 
 
 class ProblemSetListView(ListView):
@@ -45,6 +47,7 @@ class ProblemSetDetailView(DetailView):
 
 class ProblemDetailView(DetailView):
     template_name = "problems/detail.html"
+    object: Problem
 
     def get_object(self, queryset=None):
         site = get_current_site(self.request)
@@ -73,8 +76,9 @@ class ProblemDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        self.object: Problem
-        ctx["texts"] = self.object.get_texts()
+        assert isinstance(self.request.user, User | AnonymousUser)
+
+        ctx["texts"] = self.object.get_visible_texts()
         ctx["sidebar_problems"] = inject_user_score(
             Problem.objects.filter(problem_set_id=self.kwargs["problem_set_id"]),
             self.request.user,
