@@ -68,7 +68,7 @@ class ProblemCreateView(
 
     def get_breadcrumbs(self):
         return [
-            ("Sady úloh", reverse("org:problemset_list", args=[])),
+            ("Sady úloh", reverse("org:problemset_list")),
             (self.problem_set, ""),
             (
                 "Úlohy",
