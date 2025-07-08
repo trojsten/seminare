@@ -3,9 +3,11 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.shortcuts import get_object_or_404
 from django.views.generic import DetailView, ListView
 
+from seminare.contests.utils import get_current_contest
 from seminare.problems.logic import inject_user_score
 from seminare.problems.models import Problem, ProblemSet
 from seminare.submits.models import FileSubmit, JudgeSubmit, TextSubmit
+from seminare.users.logic.permissions import is_contest_organizer
 from seminare.users.models import User
 
 
@@ -83,5 +85,9 @@ class ProblemDetailView(DetailView):
             Problem.objects.filter(problem_set_id=self.kwargs["problem_set_id"]),
             self.request.user,
         )
+        if isinstance(self.request.user, User):
+            ctx["is_organizer"] = is_contest_organizer(
+                self.request.user, get_current_contest(self.request)
+            )
         ctx["submits"] = self.get_submits()
         return ctx
