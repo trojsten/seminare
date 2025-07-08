@@ -8,6 +8,11 @@ def label(message, color="gray", *, icon="", help=""):
     return {"message": message, "color": color, "icon": icon, "help": help}
 
 
+@register.inclusion_tag("_ui/message.html")
+def message(message, type="info"):
+    return {"message": message, "type": type}
+
+
 @register.inclusion_tag("_ui/breadcrumbs.html")
 def breadcrumbs(*args):
     if isinstance(args[0], list):

@@ -23,7 +23,10 @@
           <iconify-icon icon="mdi:chevron-down" class="ml-1"></iconify-icon>
         </a>
 
-        {% if texts.PS.is_visible %}
+        {% if texts.PS.is_visible or is_organizer %}
+          {% if is_organizer %}
+            {% message "Túto sekciu vidíš, lebo si organizátor" "warning" %}
+          {% endif %}
         <div class="prose">
           {{ texts.PS.text|markdownify }}
         </div>
