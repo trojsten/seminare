@@ -53,7 +53,7 @@ def get_best_text_submits(
 def inject_user_score(
     problems: Iterable[Problem], user: User | AnonymousUser
 ) -> Iterable[Problem]:
-    if not user.is_authenticated:
+    if isinstance(user, AnonymousUser):
         return problems
 
     file_submits = get_best_file_submits(problems, user)
@@ -78,8 +78,8 @@ def inject_user_score(
                 else:
                     score += problem_submit.score
 
-        problem.users_score = score
-        problem.users_score_pending = pending_submits
+        setattr(problem, "users_score", score)
+        setattr(problem, "users_score_pending", pending_submits)
         injected.append(problem)
 
     return injected

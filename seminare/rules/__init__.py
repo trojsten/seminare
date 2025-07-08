@@ -2,12 +2,15 @@ from importlib import import_module
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from seminare.problems.models import ProblemSet
+    from seminare.problems.models import Problem, ProblemSet, Text
 
 
 class RuleEngine:
     def __init__(self, problem_set: "ProblemSet") -> None:
         self.problem_set = problem_set
+
+    def get_visible_texts(self, problem: "Problem") -> "set[Text.Type]":
+        raise NotImplementedError()
 
 
 def get_rule_engine_class(path: str) -> type[RuleEngine]:
