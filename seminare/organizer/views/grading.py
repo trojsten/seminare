@@ -87,7 +87,7 @@ class GradingOverviewView(
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx["problem"] = self.problem
-        ctx["users"] = self.get_users_with_submits()
+        ctx["users"] = self.get_users_with_submits(self.problem.accepted_submit_types)
         return ctx
 
     def get_breadcrumbs(self):
