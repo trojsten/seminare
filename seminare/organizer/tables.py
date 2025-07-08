@@ -116,9 +116,6 @@ class PostTable(Table):
     def get_links(
         self, object: Page, context: dict
     ) -> list[tuple[str, str] | tuple[str, str, str]]:
-        if not context["is_contest_administrator"]:
-            return []
-
         return [
             (
                 "mdi:pencil",

@@ -43,12 +43,7 @@ class PostListView(ContestOrganizerRequired, WithPostQuerySet, GenericTableView)
         ]
 
     def get_table_context(self):
-        return {
-            "contest": self.contest,
-            "is_contest_administrator": is_contest_administrator(
-                self.request.user, self.contest
-            ),
-        }
+        return {"contest": self.contest}
 
     def get_breadcrumbs(self) -> list[tuple[str, str]]:
         return [("Príspevky", "")]
