@@ -8,10 +8,16 @@ from seminare.organizer.tables import ProblemTable
 from seminare.organizer.views import WithContest, WithProblemSet
 from seminare.organizer.views.generic import GenericFormView, GenericTableView
 from seminare.problems.models import Problem
+from seminare.users.logic.permissions import is_contest_administrator
+from seminare.users.mixins.permissions import (
+    ContestAdminRequired,
+    ContestOrganizerRequired,
+)
 
 
-class ProblemListView(WithContest, WithProblemSet, GenericTableView):
-    # TODO: Permission checking
+class ProblemListView(
+    ContestOrganizerRequired, WithContest, WithProblemSet, GenericTableView
+):
     table_class = ProblemTable
     table_title = "Úlohy"
 
@@ -20,27 +26,35 @@ class ProblemListView(WithContest, WithProblemSet, GenericTableView):
 
     def get_breadcrumbs(self):
         return [
-            ("Sady úloh", reverse("org:problemset_list", args=[self.contest.id])),
+            ("Sady úloh", reverse("org:problemset_list")),
             (self.problem_set, ""),
             ("Úlohy", ""),
         ]
 
     def get_table_links(self):
+        if not is_contest_administrator(self.request.user, self.contest):
+            return []
+
         return [
             (
                 "green",
                 "mdi:plus",
                 "Pridať",
-                reverse(
-                    "org:problem_create", args=[self.contest.id, self.problem_set.id]
-                ),
+                reverse("org:problem_create", args=[self.problem_set.id]),
             )
         ]
 
+    def get_table_context(self):
+        return {
+            "is_contest_administrator": is_contest_administrator(
+                self.request.user, self.contest
+            ),
+        }
 
-class ProblemCreateView(WithContest, WithProblemSet, GenericFormView, CreateView):
-    # TODO: Permission checking
 
+class ProblemCreateView(
+    ContestAdminRequired, WithContest, WithProblemSet, GenericFormView, CreateView
+):
     form_class = ProblemForm
     form_title = "Nová úloha"
 
@@ -50,25 +64,23 @@ class ProblemCreateView(WithContest, WithProblemSet, GenericFormView, CreateView
         return kw
 
     def get_success_url(self) -> str:
-        return reverse("org:problem_list", args=[self.contest.id, self.problem_set.id])
+        return reverse("org:problem_list", args=[self.problem_set.id])
 
     def get_breadcrumbs(self):
         return [
-            ("Sady úloh", reverse("org:problemset_list", args=[self.contest.id])),
+            ("Sady úloh", reverse("org:problemset_list")),
             (self.problem_set, ""),
             (
                 "Úlohy",
-                reverse(
-                    "org:problem_list", args=[self.contest.id, self.problem_set.id]
-                ),
+                reverse("org:problem_list", args=[self.problem_set.id]),
             ),
             ("Nová", ""),
         ]
 
 
-class ProblemUpdateView(WithContest, WithProblemSet, GenericFormView, UpdateView):
-    # TODO: Permission checking
-
+class ProblemUpdateView(
+    ContestAdminRequired, WithContest, WithProblemSet, GenericFormView, UpdateView
+):
     form_class = ProblemForm
     form_title = "Upraviť úlohu"
 
@@ -81,17 +93,15 @@ class ProblemUpdateView(WithContest, WithProblemSet, GenericFormView, UpdateView
         return get_object_or_404(Problem, id=self.kwargs.get("problem_id"))
 
     def get_success_url(self) -> str:
-        return reverse("org:problem_list", args=[self.contest.id, self.problem_set.id])
+        return reverse("org:problem_list", args=[self.problem_set.id])
 
     def get_breadcrumbs(self):
         return [
-            ("Sady úloh", reverse("org:problemset_list", args=[self.contest.id])),
+            ("Sady úloh", reverse("org:problemset_list")),
             (self.problem_set, ""),
             (
                 "Úlohy",
-                reverse(
-                    "org:problem_list", args=[self.contest.id, self.problem_set.id]
-                ),
+                reverse("org:problem_list", args=[self.problem_set.id]),
             ),
             (self.object, ""),
             ("Upraviť", ""),

@@ -13,11 +13,14 @@ from seminare.organizer.views.generic import (
     GenericTableView,
 )
 from seminare.problems.models import Problem, ProblemSet
+from seminare.users.logic.permissions import is_contest_administrator
+from seminare.users.mixins.permissions import (
+    ContestAdminRequired,
+    ContestOrganizerRequired,
+)
 
 
-class ProblemSetListView(WithContest, GenericTableView):
-    # TODO: Permission checking
-
+class ProblemSetListView(ContestOrganizerRequired, WithContest, GenericTableView):
     table_class = ProblemSetTable
     table_title = "Sady úloh"
 
@@ -30,25 +33,35 @@ class ProblemSetListView(WithContest, GenericTableView):
         return [("Sady úloh", "")]
 
     def get_table_links(self):
+        if not is_contest_administrator(self.request.user, self.contest):
+            return []
+
         return [
             (
                 "green",
                 "mdi:plus",
                 "Pridať",
-                reverse("org:problemset_create", args=[self.contest.id]),
+                reverse("org:problemset_create"),
             )
         ]
 
+    def get_table_context(self):
+        return {
+            "is_contest_administrator": is_contest_administrator(
+                self.request.user, self.contest
+            ),
+        }
 
-class ProblemSetCreateView(WithContest, GenericFormView, CreateView):
-    # TODO: Permission checking
 
+class ProblemSetCreateView(
+    ContestAdminRequired, WithContest, GenericFormView, CreateView
+):
     form_class = ProblemSetForm
     form_title = "Nová sada úloh"
 
     def get_breadcrumbs(self):
         return [
-            ("Sady úloh", reverse("org:problemset_list", args=[self.contest.id])),
+            ("Sady úloh", reverse("org:problemset_list")),
             ("Nová sada úloh", ""),
         ]
 
@@ -59,19 +72,19 @@ class ProblemSetCreateView(WithContest, GenericFormView, CreateView):
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self) -> str:
-        return reverse("problemset_list", args=[self.contest.id])
+        return reverse("problemset_list")
 
 
-class ProblemSetUpdateView(WithContest, GenericFormTableView, UpdateView):
-    # TODO: Permission checking
-
+class ProblemSetUpdateView(
+    ContestAdminRequired, WithContest, GenericFormTableView, UpdateView
+):
     form_class = ProblemSetForm
     table_class = ProblemTable
     form_table_title = "Upraviť sadu úloh"
 
     def get_breadcrumbs(self):
         return [
-            ("Sady úloh", reverse("org:problemset_list", args=[self.contest.id])),
+            ("Sady úloh", reverse("org:problemset_list")),
             (self.object, ""),
             ("Upraviť", ""),
         ]
@@ -83,7 +96,7 @@ class ProblemSetUpdateView(WithContest, GenericFormTableView, UpdateView):
         return Problem.objects.filter(problem_set=self.get_object()).order_by("number")
 
     def get_success_url(self) -> str:
-        return reverse("problemset_list", args=[self.contest.id])
+        return reverse("problemset_list")
 
     def get_form_table_links(self):
         return [
@@ -91,8 +104,6 @@ class ProblemSetUpdateView(WithContest, GenericFormTableView, UpdateView):
                 "green",
                 "mdi:plus",
                 "Pridať úlohu",
-                reverse(
-                    "org:problem_create", args=[self.contest.id, self.get_object().id]
-                ),
+                reverse("org:problem_create", args=[self.get_object().id]),
             )
         ]

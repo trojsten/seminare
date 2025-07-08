@@ -16,6 +16,7 @@ from seminare.organizer.views import (
 )
 from seminare.problems.models import Problem
 from seminare.submits.models import BaseSubmit, FileSubmit, JudgeSubmit, TextSubmit
+from seminare.users.mixins.permissions import ContestOrganizerRequired
 from seminare.users.models import User
 
 
@@ -72,8 +73,9 @@ class WithSubmitList(WithContest, MixinProtocol):
         return data
 
 
-class GradingOverviewView(WithSubmitList, WithBreadcrumbs, TemplateView):
-    # TODO: Permission checking
+class GradingOverviewView(
+    ContestOrganizerRequired, WithSubmitList, WithBreadcrumbs, TemplateView
+):
     template_name = "org/grading/overview.html"
 
     @cached_property
@@ -90,13 +92,13 @@ class GradingOverviewView(WithSubmitList, WithBreadcrumbs, TemplateView):
 
     def get_breadcrumbs(self):
         return [
-            ("Sady úloh", reverse("org:problemset_list", args=[self.contest.id])),
+            ("Sady úloh", reverse("org:problemset_list")),
             (self.problem.problem_set, ""),
             (
                 "Úlohy",
                 reverse(
                     "org:problem_list",
-                    args=[self.contest.id, self.problem.problem_set.id],
+                    args=[self.problem.problem_set.id],
                 ),
             ),
             (self.problem, ""),
@@ -104,8 +106,7 @@ class GradingOverviewView(WithSubmitList, WithBreadcrumbs, TemplateView):
         ]
 
 
-class GradingSubmitView(WithSubmit, WithSubmitList, FormView):
-    # TODO: Permission checking
+class GradingSubmitView(ContestOrganizerRequired, WithSubmit, WithSubmitList, FormView):
     template_name = "org/grading/submit.html"
     form_class = GradingForm
 
@@ -139,6 +140,4 @@ class GradingSubmitView(WithSubmit, WithSubmitList, FormView):
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self):
-        return reverse(
-            "org:grading_submit", args=[self.contest.id, self.submit.submit_id]
-        )
+        return reverse("org:grading_submit", args=[self.submit.submit_id])

@@ -26,18 +26,24 @@ class ProblemSetTable(Table):
     def get_links(
         self, object: ProblemSet, context: dict
     ) -> list[tuple[str, str] | tuple[str, str, str]]:
-        return [
+        links = [
             (
                 "mdi:cards",
                 "Úlohy",
                 reverse("org:problem_list", args=[object.id]),
             ),
-            (
-                "mdi:pencil",
-                "Upraviť",
-                reverse("org:problemset_update", args=[object.id]),
-            ),
         ]
+
+        if context["is_contest_administrator"]:
+            links.append(
+                (
+                    "mdi:pencil",
+                    "Upraviť",
+                    reverse("org:problemset_update", args=[object.id]),
+                ),
+            )
+
+        return links
 
 
 class ProblemTable(Table):
@@ -54,7 +60,7 @@ class ProblemTable(Table):
     def get_links(
         self, object: Problem, context: dict
     ) -> list[tuple[str, str] | tuple[str, str, str]]:
-        return [
+        links = [
             (
                 "mdi:comment-arrow-left",
                 "Opravovanie",
@@ -63,18 +69,23 @@ class ProblemTable(Table):
                     args=[object.id],
                 ),
             ),
-            (
-                "mdi:pencil",
-                "Upraviť",
-                reverse(
-                    "org:problem_update",
-                    args=[
-                        object.problem_set_id,
-                        object.id,
-                    ],
-                ),
-            ),
         ]
+        if context["is_contest_administrator"]:
+            links.append(
+                (
+                    "mdi:pencil",
+                    "Upraviť",
+                    reverse(
+                        "org:problem_update",
+                        args=[
+                            object.problem_set.contest_id,
+                            object.problem_set_id,
+                            object.id,
+                        ],
+                    ),
+                ),
+            )
+        return links
 
 
 class PageTable(Table):
@@ -109,11 +120,11 @@ class PostTable(Table):
             (
                 "mdi:pencil",
                 "Upraviť",
-                reverse("org:post_update", args=[context["contest"].id, object.id]),
+                reverse("org:post_update", args=[object.id]),
             ),
             (
                 "mdi:delete",
                 "Vymazať",
-                reverse("org:post_delete", args=[context["contest"].id, object.id]),
+                reverse("org:post_delete", args=[object.id]),
             ),
         ]
