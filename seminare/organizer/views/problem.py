@@ -26,7 +26,7 @@ class ProblemListView(
 
     def get_breadcrumbs(self):
         return [
-            ("Sady úloh", reverse("org:problemset_list", args=[self.contest.id])),
+            ("Sady úloh", reverse("org:problemset_list")),
             (self.problem_set, ""),
             ("Úlohy", ""),
         ]
@@ -40,9 +40,7 @@ class ProblemListView(
                 "green",
                 "mdi:plus",
                 "Pridať",
-                reverse(
-                    "org:problem_create", args=[self.contest.id, self.problem_set.id]
-                ),
+                reverse("org:problem_create", args=[self.problem_set.id]),
             )
         ]
 
@@ -66,17 +64,15 @@ class ProblemCreateView(
         return kw
 
     def get_success_url(self) -> str:
-        return reverse("org:problem_list", args=[self.contest.id, self.problem_set.id])
+        return reverse("org:problem_list", args=[self.problem_set.id])
 
     def get_breadcrumbs(self):
         return [
-            ("Sady úloh", reverse("org:problemset_list", args=[self.contest.id])),
+            ("Sady úloh", reverse("org:problemset_list", args=[])),
             (self.problem_set, ""),
             (
                 "Úlohy",
-                reverse(
-                    "org:problem_list", args=[self.contest.id, self.problem_set.id]
-                ),
+                reverse("org:problem_list", args=[self.problem_set.id]),
             ),
             ("Nová", ""),
         ]
@@ -97,17 +93,15 @@ class ProblemUpdateView(
         return get_object_or_404(Problem, id=self.kwargs.get("problem_id"))
 
     def get_success_url(self) -> str:
-        return reverse("org:problem_list", args=[self.contest.id, self.problem_set.id])
+        return reverse("org:problem_list", args=[self.problem_set.id])
 
     def get_breadcrumbs(self):
         return [
-            ("Sady úloh", reverse("org:problemset_list", args=[self.contest.id])),
+            ("Sady úloh", reverse("org:problemset_list")),
             (self.problem_set, ""),
             (
                 "Úlohy",
-                reverse(
-                    "org:problem_list", args=[self.contest.id, self.problem_set.id]
-                ),
+                reverse("org:problem_list", args=[self.problem_set.id]),
             ),
             (self.object, ""),
             ("Upraviť", ""),

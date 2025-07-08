@@ -41,7 +41,7 @@ class ProblemSetListView(ContestOrganizerRequired, WithContest, GenericTableView
                 "green",
                 "mdi:plus",
                 "Pridať",
-                reverse("org:problemset_create", args=[self.contest.id]),
+                reverse("org:problemset_create"),
             )
         ]
 
@@ -61,7 +61,7 @@ class ProblemSetCreateView(
 
     def get_breadcrumbs(self):
         return [
-            ("Sady úloh", reverse("org:problemset_list", args=[self.contest.id])),
+            ("Sady úloh", reverse("org:problemset_list")),
             ("Nová sada úloh", ""),
         ]
 
@@ -72,7 +72,7 @@ class ProblemSetCreateView(
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self) -> str:
-        return reverse("problemset_list", args=[self.contest.id])
+        return reverse("problemset_list")
 
 
 class ProblemSetUpdateView(
@@ -84,7 +84,7 @@ class ProblemSetUpdateView(
 
     def get_breadcrumbs(self):
         return [
-            ("Sady úloh", reverse("org:problemset_list", args=[self.contest.id])),
+            ("Sady úloh", reverse("org:problemset_list")),
             (self.object, ""),
             ("Upraviť", ""),
         ]
@@ -96,7 +96,7 @@ class ProblemSetUpdateView(
         return Problem.objects.filter(problem_set=self.get_object()).order_by("number")
 
     def get_success_url(self) -> str:
-        return reverse("problemset_list", args=[self.contest.id])
+        return reverse("problemset_list")
 
     def get_form_table_links(self):
         return [
@@ -104,8 +104,6 @@ class ProblemSetUpdateView(
                 "green",
                 "mdi:plus",
                 "Pridať úlohu",
-                reverse(
-                    "org:problem_create", args=[self.contest.id, self.get_object().id]
-                ),
+                reverse("org:problem_create", args=[self.get_object().id]),
             )
         ]

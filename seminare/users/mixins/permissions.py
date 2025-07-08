@@ -5,6 +5,7 @@ from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.http import HttpRequest
 
+from seminare.contests.utils import get_current_contest
 from seminare.users.logic.permissions import has_contest_role
 from seminare.users.models import ContestRole, User
 
@@ -36,6 +37,11 @@ class ContestAccessMixin(AccessMixin):
     required_role = None
 
     def get_permission_contest(self):
+        contest = get_current_contest(self.request)
+
+        if contest:
+            return contest
+
         if hasattr(self, "contest"):
             return getattr(self, "contest")
 

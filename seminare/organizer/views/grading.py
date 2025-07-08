@@ -92,13 +92,13 @@ class GradingOverviewView(
 
     def get_breadcrumbs(self):
         return [
-            ("Sady úloh", reverse("org:problemset_list", args=[self.contest.id])),
+            ("Sady úloh", reverse("org:problemset_list")),
             (self.problem.problem_set, ""),
             (
                 "Úlohy",
                 reverse(
                     "org:problem_list",
-                    args=[self.contest.id, self.problem.problem_set.id],
+                    args=[self.problem.problem_set.id],
                 ),
             ),
             (self.problem, ""),
@@ -140,6 +140,4 @@ class GradingSubmitView(ContestOrganizerRequired, WithSubmit, WithSubmitList, Fo
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self):
-        return reverse(
-            "org:grading_submit", args=[self.contest.id, self.submit.submit_id]
-        )
+        return reverse("org:grading_submit", args=[self.submit.submit_id])

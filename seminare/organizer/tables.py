@@ -39,9 +39,7 @@ class ProblemSetTable(Table):
                 (
                     "mdi:pencil",
                     "Upraviť",
-                    reverse(
-                        "org:problemset_update", args=[object.contest_id, object.id]
-                    ),
+                    reverse("org:problemset_update", args=[object.id]),
                 ),
             )
 
@@ -125,11 +123,11 @@ class PostTable(Table):
             (
                 "mdi:pencil",
                 "Upraviť",
-                reverse("org:post_update", args=[context["contest"].id, object.id]),
+                reverse("org:post_update", args=[object.id]),
             ),
             (
                 "mdi:delete",
                 "Vymazať",
-                reverse("org:post_delete", args=[context["contest"].id, object.id]),
+                reverse("org:post_delete", args=[object.id]),
             ),
         ]

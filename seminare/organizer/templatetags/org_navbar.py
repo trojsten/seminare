@@ -22,7 +22,7 @@ def org_navbar(context):
                     (
                         "mdi:abacus",
                         "Sady úloh",
-                        reverse("org:problemset_list", args=[contest.id]),
+                        reverse("org:problemset_list"),
                     ),
                 ],
             )
@@ -36,9 +36,7 @@ def org_navbar(context):
         )
     ]
     if contest:
-        content_section.append(
-            ("mdi:newspaper", "Príspevky", reverse("org:post_list", args=[contest.id]))
-        )
+        content_section.append(("mdi:newspaper", "Príspevky", reverse("org:post_list")))
 
     if content_section:
         sections.append(("Obsah", content_section))

@@ -11,6 +11,7 @@ from seminare.organizer.views.generic import (
     GenericFormView,
     GenericTableView,
 )
+from seminare.users.mixins.permissions import ContestOrganizerRequired
 
 
 class WithPageQuerySet(MixinProtocol):
@@ -19,9 +20,7 @@ class WithPageQuerySet(MixinProtocol):
         return Page.objects.filter(contest__site=site)
 
 
-class PageListView(WithPageQuerySet, GenericTableView):
-    # TODO: Permission checking
-
+class PageListView(ContestOrganizerRequired, WithPageQuerySet, GenericTableView):
     table_title = "Zoznam stránok"
     table_class = PageTable
     table_links = [("green", "mdi:plus", "Pridať", reverse_lazy("org:page_create"))]
@@ -30,9 +29,9 @@ class PageListView(WithPageQuerySet, GenericTableView):
         return [("Stránky", "")]
 
 
-class PageUpdateView(WithPageQuerySet, GenericFormView, UpdateView):
-    # TODO: Permission checking
-
+class PageUpdateView(
+    ContestOrganizerRequired, WithPageQuerySet, GenericFormView, UpdateView
+):
     form_title = "Upraviť stránku"
     form_class = PageForm
     success_url = reverse_lazy("org:page_list")
@@ -50,9 +49,7 @@ class PageUpdateView(WithPageQuerySet, GenericFormView, UpdateView):
         ]
 
 
-class PageCreateView(GenericFormView, CreateView):
-    # TODO: Permission checking
-
+class PageCreateView(ContestOrganizerRequired, GenericFormView, CreateView):
     form_title = "Nová stránka"
     form_class = PageForm
     success_url = reverse_lazy("org:page_list")
@@ -69,9 +66,7 @@ class PageCreateView(GenericFormView, CreateView):
         ]
 
 
-class PageDeleteView(WithPageQuerySet, GenericDeleteView):
-    # TODO: Permission checking
-
+class PageDeleteView(ContestOrganizerRequired, WithPageQuerySet, GenericDeleteView):
     success_url = reverse_lazy("org:page_list")
 
     def get_breadcrumbs(self) -> list[tuple[str, str]]:
