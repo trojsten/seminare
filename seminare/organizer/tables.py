@@ -78,7 +78,6 @@ class ProblemTable(Table):
                     reverse(
                         "org:problem_update",
                         args=[
-                            object.problem_set.contest_id,
                             object.problem_set_id,
                             object.id,
                         ],

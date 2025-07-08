@@ -1,5 +1,5 @@
 {# Grading form #}
-<form class="gap-y-4 text-sm flex-1 flex flex-col" method="post" action="{% url 'org:grading_submit' contest.id submit.submit_id %}" hx-boost="true">
+<form class="gap-y-4 text-sm flex-1 flex flex-col" method="post" action="{% url 'org:grading_submit' submit.submit_id %}" hx-boost="true">
   <textarea name="comment" class="input flex-1 {% if form.comment.errors %}border-red-600 placeholder-red-600{% endif %}" rows=7 placeholder="Komentár">{{ form.comment.value }}</textarea>
 
   <div class="flex items-cemter justify-between gap-4">
