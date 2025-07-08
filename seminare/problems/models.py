@@ -87,8 +87,8 @@ class Problem(models.Model):
         )
 
     @property
-    def accepted_submit_types(self) -> set[BaseSubmit.SubmitType]:
-        types = set()
+    def accepted_submit_types(self) -> list[BaseSubmit.SubmitType]:
+        types = []
 
         type_mapping = [
             ("file_points", BaseSubmit.SubmitType.FILE),
@@ -98,7 +98,7 @@ class Problem(models.Model):
 
         for points, type_ in type_mapping:
             if getattr(self, points) > 0:
-                types.add(type_)
+                types.append(type_)
 
         return types
 
