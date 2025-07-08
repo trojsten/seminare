@@ -4,12 +4,35 @@
 @tailwind components;
 @tailwind utilities;
 
-.theme-math {
+.theme-ksp,
+.theme-prask {
+  --primary-dark: oklch(52.09% 0.1084 117.77);
+  --primary: oklch(62.09% 0.1084 117.77);
+  --primary-light: oklch(72.09% 0.1084 117.77);
+  --primary-text: white;
+}
+
+.theme-kms {
   --primary-dark: oklch(51.72% 0.1589 269.14);
   --primary: oklch(61.72% 0.1589 269.14);
   --primary-light: oklch(71.72% 0.1589 269.14);
   --primary-text: white;
 }
+
+.theme-fks {
+  --primary-dark: oklch(65.17% 0.1373 72.58);
+  --primary: oklch(75.17% 0.1373 72.58);
+  --primary-light: oklch(85.17% 0.1373 72.58);
+  --primary-text: white;
+}
+
+.theme-susi {
+  --primary-dark: oklch(47.01% 0.1828 26.74);
+  --primary: oklch(57.01% 0.1828 26.74);
+  --primary-light: oklch(67.01% 0.1828 26.74);
+  --primary-text: white;
+}
+
 
 .btn {
   @apply inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold shadow-sm;

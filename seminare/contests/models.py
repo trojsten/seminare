@@ -22,12 +22,16 @@ class Contest(models.Model):
     short_name = models.CharField(max_length=50)
     site = models.OneToOneField("sites.Site", on_delete=models.CASCADE)
     site_id: int
-    order = models.IntegerField(default=0)
 
     objects = ContestQuerySet.as_manager()
 
-    class Meta:
-        ordering = ["order", "name"]
-
     def __str__(self):
         return self.name
+
+    @property
+    def theme_name(self):
+        return f"theme-{self.short_name.lower()}"
+
+    @property
+    def logo_path(self):
+        return f"/static/contests/{self.short_name.lower()}/logo.svg"
