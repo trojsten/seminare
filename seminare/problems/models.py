@@ -1,7 +1,6 @@
 from datetime import datetime, time
 from typing import TYPE_CHECKING, TypedDict
 
-from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.db.models import UniqueConstraint
 from django.urls import reverse
@@ -68,10 +67,6 @@ class Problem(models.Model):
     judge_points = models.DecimalField(max_digits=5, decimal_places=2, default=0)
     text_points = models.DecimalField(max_digits=5, decimal_places=2, default=0)
 
-    accepted_submit_types = ArrayField(
-        models.CharField(choices=BaseSubmit.SubmitType.choices), default=list
-    )
-
     judge_namespace = models.CharField(max_length=256, blank=True)
     judge_task = models.CharField(max_length=256, blank=True)
 
@@ -90,6 +85,22 @@ class Problem(models.Model):
             "problem_detail",
             kwargs={"problem_set_id": self.problem_set_id, "number": self.number},
         )
+
+    @property
+    def accepted_submit_types(self) -> list[BaseSubmit.SubmitType]:
+        types = []
+
+        type_mapping = [
+            ("file_points", BaseSubmit.SubmitType.FILE),
+            ("judge_points", BaseSubmit.SubmitType.JUDGE),
+            ("text_points", BaseSubmit.SubmitType.TEXT),
+        ]
+
+        for points, type_ in type_mapping:
+            if getattr(self, points) > 0:
+                types.append(type_)
+
+        return types
 
     def get_all_texts(self) -> "dict[Text.Type, ProblemText]":
         texts = self.text_set.all()

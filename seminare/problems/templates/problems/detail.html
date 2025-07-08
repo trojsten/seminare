@@ -49,7 +49,7 @@
         {% endif %}
         <div data-submit--cta-target="submitForm" id="submit">
 
-          {% if problem.file_points > 0 %}
+          {% if "file" in problem.accepted_submit_types %}
             <div data-controller="submit--file-submit">
               <div class="font-bold text-2xl mb-1 flex justify-between">
                 <span>Odovzdať popis</span>
@@ -71,7 +71,7 @@
               {% include "problems/_submits.html" with submits=submits.file icon="mdi:file-text" %}
             </div>
           {% endif %}
-          {% if problem.judge_points > 0 %}
+          {% if "judge" in problem.accepted_submit_types %}
             <div data-controller="submit--judge-submit">
               <div class="font-bold text-2xl mb-1 flex justify-between">
                 <span>Odovzdať program</span>
@@ -93,7 +93,7 @@
               {% include "problems/_submits.html" with submits=submits.judge icon="mdi:file-code" %}
             </div>
           {% endif %}
-          {% if problem.text_points > 0 %}
+          {% if "text" in problem.accepted_submit_types %}
             <div>
               <div class="font-bold text-2xl mb-1 flex justify-between">
                 <span>Odovzdať odpoveď</span>

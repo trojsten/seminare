@@ -7,14 +7,14 @@
 {% block org_body %}
 <div class="flex w-full h-full max-h-screen">
   <div class="border-r w-80 shrink-0 px-4 py-3 overflow-auto space-y-1" hx-boost="true">
-    <a href="{% url 'org:grading_overview' contest.id submit.problem_id %}#user-{{ submit.enrollment.user_id }}" class="link flex items-center mb-2">
+    <a href="{% url 'org:grading_overview' submit.problem_id %}#user-{{ submit.enrollment.user_id }}" class="link flex items-center mb-2">
       <iconify-icon icon="mdi:arrow-left" class="mr-1"></iconify-icon>
       Späť na hodnotenie úlohy
     </a>
 
     {% for row in other_users %}
     {% if row.submit %}
-    <a href="{% url 'org:grading_submit' contest.id row.submit.submit_id %}" class="block text-gray-800 px-3 py-2 hover:bg-gray-50 {% if row.user.id == submit.enrollment.user_id %}bg-gray-100{% endif %} rounded">
+    <a href="{% url 'org:grading_submit' row.submit.submit_id %}" class="block text-gray-800 px-3 py-2 hover:bg-gray-50 {% if row.user.id == submit.enrollment.user_id %}bg-gray-100{% endif %} rounded">
       <div class="flex items-center justify-between font-semibold">
         <span>{{ row.user.display_name }}</span>
         {% if row.submit.score is not None %}
@@ -43,7 +43,7 @@
     <div class="px-4 pb-3 pt-0 flex-1 overflow-auto space-y-1" hx-boost="true">
       {% for osubmit in other_submits %}
       {# TODO: Add deadline marker, different stages #}
-      <a href="{% url 'org:grading_submit' contest.id osubmit.submit_id %}" class="block text-gray-800 px-3 py-2 hover:bg-gray-50 {% if osubmit == submit %}bg-gray-100{% endif %} rounded">
+      <a href="{% url 'org:grading_submit' osubmit.submit_id %}" class="block text-gray-800 px-3 py-2 hover:bg-gray-50 {% if osubmit == submit %}bg-gray-100{% endif %} rounded">
         <div class="flex items-center justify-between font-semibold gap-1">
           <span class="text-ellipsis overflow-hidden">{{ osubmit.created_at }}</span>
           <span data-submit-score="{{ osubmit.id }}"class="text-green-600 whitespace-nowrap shrink-0 tabular-nums">{% if osubmit.score is not None %}{{ osubmit.score|floatformat:"g" }} b{% endif %}</span>
