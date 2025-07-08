@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load markdownify %}
+{% load tables %}
 
 {% block title %}
     Novinky {{ block.super }}
@@ -9,7 +10,7 @@
     <div class="max-w-prose mx-auto">
         <h1 class="text-4xl font-bold mb-8">Novinky</h1>
 
-        <div class="space-y-8">
+        <div class="space-y-8 mb-8">
         {% for post in object_list %}
             <article class="border shadow-sm p-6 rounded-md">
                 <div class="text-gray-600 mb-1 text-sm">{{ post.created_at|date }}</div>
@@ -31,6 +32,6 @@
         {% endfor %}
         </div>
 
-        {# TODO: Pagination #}
+        {% paginator page_obj %}
     </div>
 {% endblock %}
