@@ -43,13 +43,6 @@
           </span>
         </div>
       {% else %}
-        {# TODO: actual logic #}
-        {% if problem.number == 1 %}
-          <div class="flex items-center text-amber-600 bg-amber-100 rounded-md py-2 px-3 mb-4 text-sm">
-            <iconify-icon icon="mdi:warning" width="none" class="shrink-0 mr-3 size-4"></iconify-icon>
-            Za túto úlohu nedostávaš v svojej kategórií body.
-          </div>
-        {% endif %}
         <div data-submit--cta-target="submitForm" id="submit">
 
           {% if "file" in problem.accepted_submit_types %}
