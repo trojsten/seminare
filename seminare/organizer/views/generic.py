@@ -73,6 +73,9 @@ class GenericFormTableView(WithBreadcrumbs, FormView, ListView):
     def get_form_table_links(self):
         return self.form_table_links
 
+    def get_form_table_context(self):
+        return {}
+
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx["form_multipart"] = self.form_multipart
@@ -85,4 +88,5 @@ class GenericFormTableView(WithBreadcrumbs, FormView, ListView):
         ctx["table"] = self.table_class()
         ctx["form_table_title"] = self.get_form_table_title()
         ctx["form_table_links"] = self.get_form_table_links()
+        ctx["form_table_context"] = self.get_form_table_context()
         return ctx
