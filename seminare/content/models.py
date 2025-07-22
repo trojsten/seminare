@@ -1,12 +1,27 @@
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import models
+
+
+def path_validator(value):
+    if not isinstance(value, str):
+        raise ValidationError("Cesta musí byť reťazec.")
+    if value.startswith("/") or value.endswith("/"):
+        raise ValidationError("Cesta nemôže začínať alebo končit lomítkom.")
+    if "//" in value:
+        raise ValidationError("Cesta nemôže obsahovať po sebe idúce lomítka.")
+
+    if not all(c.isalnum() or c in "-_/" for c in value):
+        raise ValidationError(
+            "Cesta môže obsahovať iba alfanumerické znaky, pomlčky, podčiarkovníky a lomítka."
+        )
 
 
 class Page(models.Model):
     id: int
     contest = models.ForeignKey("contests.Contest", on_delete=models.CASCADE)
     contest_id: int
-    slug = models.SlugField()
+    slug = models.CharField(validators=[path_validator], unique=True, max_length=256)
     title = models.CharField(max_length=256)
     content = models.TextField(blank=True)
 
