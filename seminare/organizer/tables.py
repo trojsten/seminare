@@ -88,10 +88,8 @@ class ProblemTable(Table):
 
 
 class PageTable(Table):
-    fields = ["title"]
-    labels = {
-        "title": "Názov",
-    }
+    fields = ["slug", "title"]
+    labels = {"slug": "URL adresa", "title": "Názov"}
 
     def get_links(
         self, object: Page, context: dict
