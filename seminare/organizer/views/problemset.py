@@ -107,3 +107,10 @@ class ProblemSetUpdateView(
                 reverse("org:problem_create", args=[self.get_object().id]),
             )
         ]
+
+    def get_form_table_context(self):
+        return {
+            "is_contest_administrator": is_contest_administrator(
+                self.request.user, self.contest
+            ),
+        }
