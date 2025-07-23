@@ -96,7 +96,7 @@ class ProblemSetUpdateView(
         return Problem.objects.filter(problem_set=self.get_object()).order_by("number")
 
     def get_success_url(self) -> str:
-        return reverse("problemset_list")
+        return reverse("org:problemset_list")
 
     def get_form_table_links(self):
         return [
@@ -107,6 +107,10 @@ class ProblemSetUpdateView(
                 reverse("org:problem_create", args=[self.get_object().id]),
             )
         ]
+
+    def get_context_data(self, **kwargs):
+        self.object_list = self.get_queryset()
+        return super().get_context_data(**kwargs)
 
     def get_form_table_context(self):
         return {
