@@ -23,10 +23,11 @@ urlpatterns = [
     path("oidc/", include("mozilla_django_oidc.urls")),
     path("", include("seminare.problems.urls")),
     path("", include("seminare.submits.urls")),
-    path("", include("seminare.content.urls")),
     path("org/", include("seminare.organizer.urls")),
     path("__debug__/", include(debug_toolbar.urls)),
     path("", lambda request: render(request, "home.html")),
+    # fallback to pages if nothing else was matched
+    path("", include("seminare.content.urls")),
 ]
 
 if settings.DEBUG:
