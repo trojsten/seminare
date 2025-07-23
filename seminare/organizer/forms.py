@@ -3,6 +3,7 @@ from django import forms
 from seminare.content.models import Page, Post
 from seminare.contests.models import Contest
 from seminare.problems.models import Problem, ProblemSet, Text
+from seminare.rules import get_rule_engine_class
 from seminare.style.forms import DateInput
 
 
@@ -43,13 +44,8 @@ class ProblemSetForm(forms.ModelForm):
         if not data:
             return data
 
-        # validate rule_engine
-        rule_engine = data.get("rule_engine")
         try:
-            if rule_engine:
-                from seminare.rules import get_rule_engine_class
-
-                get_rule_engine_class(rule_engine)
+            rule_engine = get_rule_engine_class(data["rule_engine"])
         except Exception:
             raise forms.ValidationError(
                 {"rule_engine": "Zadaná cesta k triede Rule Engine nie je platná."}
@@ -57,6 +53,16 @@ class ProblemSetForm(forms.ModelForm):
 
         if data.get("rule_engine_options") is None:
             data["rule_engine_options"] = {}
+
+        try:
+            self.instance.rule_engine_options = data["rule_engine_options"]
+            rule_engine(self.instance)
+        except Exception as e:
+            raise forms.ValidationError(
+                {
+                    "rule_engine_options": f"Chyba pri spracovaní nastavení pre Rule Engine: {e}"
+                }
+            )
 
         return data
 
