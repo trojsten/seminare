@@ -1,6 +1,15 @@
 {# Renders a file submit content #}
 {% if submit.is_displayable %}
-<embed src="{{ submit.file.url }}" class="mx-auto max-w-full flex-1">
+<object data="{{ submit.file.url }}" class="mx-auto max-w-full flex-1">
+  <div class="flex justify-center my-8 flex-col text-center gap-4">
+    <p>
+      Tvoj prehliadač nedokáže zobraziť tento súbor, môžeš si ho však stiahnuť.
+    </p>
+    <div>
+      <a href="{{ submit.file.url }}" class="btn btn-primary">Stiahnuť riešenie</a>
+    </div>
+  </div>
+</object>
 {% else %}
 <div class="p-8 text-gray-800 text-center flex-1">
   <iconify-icon icon="mdi:file-alert-outline" width="none" class="size-12"></iconify-icon>
