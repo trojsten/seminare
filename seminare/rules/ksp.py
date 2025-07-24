@@ -23,10 +23,10 @@ class KSPRules(RuleEngine):
         visible = set()
         now = timezone.now()
 
-        if now.date() >= self.problem_set.start_date:
+        if now >= self.problem_set.start_date:
             visible.add(Text.Type.PROBLEM_STATEMENT)
 
-        if now.date() > self.problem_set.end_date:
+        if now > self.problem_set.end_date:
             visible.add(Text.Type.EXAMPLE_SOLUTION)
 
         return visible

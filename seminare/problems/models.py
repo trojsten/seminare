@@ -30,8 +30,8 @@ class ProblemSet(models.Model):
 
     name = models.CharField(max_length=256)
 
-    start_date = models.DateField()
-    end_date = models.DateField()
+    start_date = models.DateTimeField()
+    end_date = models.DateTimeField()
 
     is_public = models.BooleanField(default=False)
 
