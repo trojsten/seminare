@@ -16,10 +16,8 @@ class KSPRules(RuleEngine):
             options.get("doprogramovanie_date", None)
         )
 
-        if not self.doprogramovanie_date:
+        if self.doprogramovanie_date is None:
             raise ValueError("'doprogramovanie_date' je v neplatnom formáte.")
-
-        return
 
     def get_visible_texts(self, problem: "Problem") -> "set[Text.Type]":
         visible = set()

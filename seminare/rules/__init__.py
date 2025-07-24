@@ -11,7 +11,7 @@ class RuleEngine:
         self.parse_options(self.problem_set.rule_engine_options)
 
     def parse_options(self, options: dict) -> None:
-        return
+        pass
 
     def get_visible_texts(self, problem: "Problem") -> "set[Text.Type]":
         raise NotImplementedError()
