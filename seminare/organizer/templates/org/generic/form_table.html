@@ -17,7 +17,7 @@
     </form>
 
     <div class="mt-4">
-    {% render_table table object_list %}
+    {% render_table table object_list extra_context=form_table_context%}
     {% if page_obj %}
         {% paginator page_obj %}
     {% endif %}

@@ -8,6 +8,10 @@ if TYPE_CHECKING:
 class RuleEngine:
     def __init__(self, problem_set: "ProblemSet") -> None:
         self.problem_set = problem_set
+        self.parse_options(self.problem_set.rule_engine_options)
+
+    def parse_options(self, options: dict) -> None:
+        pass
 
     def get_visible_texts(self, problem: "Problem") -> "set[Text.Type]":
         raise NotImplementedError()

@@ -24,13 +24,19 @@ class ProblemSetQuerySet(models.QuerySet):
 
 class ProblemSet(models.Model):
     id: int
+
     contest = models.ForeignKey("contests.Contest", on_delete=models.CASCADE)
     contest_id: int
+
     name = models.CharField(max_length=256)
+
     start_date = models.DateField()
     end_date = models.DateField()
+
     is_public = models.BooleanField(default=False)
+
     rule_engine = models.CharField(max_length=512)
+    rule_engine_options = models.JSONField(default=dict, blank=True)
 
     objects = ProblemSetQuerySet.as_manager()
 

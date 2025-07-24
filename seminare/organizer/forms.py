@@ -3,27 +3,68 @@ from django import forms
 from seminare.content.models import Page, Post
 from seminare.contests.models import Contest
 from seminare.problems.models import Problem, ProblemSet, Text
+from seminare.rules import get_rule_engine_class
 from seminare.style.forms import DateInput
 
 
 class ProblemSetForm(forms.ModelForm):
     class Meta:
         model = ProblemSet
-        fields = ["name", "start_date", "end_date", "is_public"]
+        fields = [
+            "name",
+            "rule_engine",
+            "start_date",
+            "end_date",
+            "is_public",
+            "rule_engine_options",
+        ]
         labels = {
             "name": "Názov",
+            "rule_engine": "Rule Engine",
             "start_date": "Začiatok",
             "end_date": "Koniec",
             "is_public": "Zverejniť",
+            "rule_engine_options": "Nastavenia pre Rule Engine",
         }
         help_texts = {
+            "rule_engine": "Cesta k triede, ktorá implementuje pravidlá a hodnotenie.",
+            "start_date": "Dátum zverejnenia sady úloh.",
             "end_date": "Riešenia bude možné odovzdávať najneskôr v tento deň.",
             "is_public": "Sada úloh sa bude zobrazovať na stránke.",
+            "rule_engine_options": "Špecifické nastavenia pre Rule Engine.",
         }
         widgets = {
             "start_date": DateInput(),
             "end_date": DateInput(),
         }
+
+    def clean(self):
+        data = super().clean()
+
+        if not data:
+            return data
+
+        try:
+            rule_engine = get_rule_engine_class(data["rule_engine"])
+        except Exception:
+            raise forms.ValidationError(
+                {"rule_engine": "Zadaná cesta k triede Rule Engine nie je platná."}
+            )
+
+        if data.get("rule_engine_options") is None:
+            data["rule_engine_options"] = {}
+
+        try:
+            self.instance.rule_engine_options = data["rule_engine_options"]
+            rule_engine(self.instance)
+        except Exception as e:
+            raise forms.ValidationError(
+                {
+                    "rule_engine_options": f"Chyba pri spracovaní nastavení pre Rule Engine: {e}"
+                }
+            )
+
+        return data
 
 
 class GradingForm(forms.Form):
