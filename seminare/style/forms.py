@@ -7,3 +7,10 @@ class DateInput(forms.DateInput):
 
     def format_value(self, value):
         return formats.localize_input(value, "%Y-%m-%d")
+
+
+class DateTimeInput(forms.DateTimeInput):
+    input_type = "datetime-local"
+
+    def format_value(self, value):
+        return formats.localize_input(value, "%Y-%m-%d %H:%M:%S")
