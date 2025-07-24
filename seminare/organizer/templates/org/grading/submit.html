@@ -42,13 +42,23 @@
 
     <div class="px-4 pb-3 pt-0 flex-1 overflow-auto space-y-1" hx-boost="true">
       {% for osubmit in other_submits %}
-      {# TODO: Add deadline marker, different stages #}
-      <a href="{% url 'org:grading_submit' osubmit.submit_id %}" class="block text-gray-800 px-3 py-2 hover:bg-gray-50 {% if osubmit == submit %}bg-gray-100{% endif %} rounded">
-        <div class="flex items-center justify-between font-semibold gap-1">
-          <span class="text-ellipsis overflow-hidden">{{ osubmit.created_at }}</span>
-          <span data-submit-score="{{ osubmit.id }}"class="text-green-600 whitespace-nowrap shrink-0 tabular-nums">{% if osubmit.score is not None %}{{ osubmit.score|floatformat:"g" }} b{% endif %}</span>
-        </div>
-      </a>
+        {% if osubmit.type == "submit" %}
+          {% with submit=osubmit.submit %}
+            <a href="{% url 'org:grading_submit' submit.submit_id %}" class="block text-gray-800 px-3 py-2 hover:bg-gray-50 {% if submit == submit %}bg-gray-100{% endif %} rounded">
+              <div class="flex items-center justify-between font-semibold gap-1">
+                <span class="text-ellipsis overflow-hidden text-sm">{{ submit.created_at }}</span>
+                <span data-submit-score="{{ submit.id }}"class="text-green-600 whitespace-nowrap shrink-0 tabular-nums">{% if submit.score is not None %}{{ submit.score|floatformat:"g" }} b{% endif %}</span>
+              </div>
+            </a>
+          {% endwith %}
+        {% elif osubmit.type == "deadline" %}
+          <div class="block text-white px-3 py-2 bg-primary rounded">
+            <div class="flex items-center justify-between font-semibold flex-col">
+              <span>{{osubmit.label}}</span>
+              <span class="text-gray-200 text-ellipsis overflow-hidden text-sm">{{ osubmit.time }}</span>
+            </div>
+          </div>
+        {% endif %}
       {% endfor %}
     </div>
 
