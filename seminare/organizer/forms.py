@@ -4,7 +4,7 @@ from seminare.content.models import Page, Post
 from seminare.contests.models import Contest
 from seminare.problems.models import Problem, ProblemSet, Text
 from seminare.rules import get_rule_engine_class
-from seminare.style.forms import DateInput
+from seminare.style.forms import DateTimeInput
 
 
 class ProblemSetForm(forms.ModelForm):
@@ -34,8 +34,8 @@ class ProblemSetForm(forms.ModelForm):
             "rule_engine_options": "Špecifické nastavenia pre Rule Engine.",
         }
         widgets = {
-            "start_date": DateInput(),
-            "end_date": DateInput(),
+            "start_date": DateTimeInput(),
+            "end_date": DateTimeInput(),
         }
 
     def clean(self):

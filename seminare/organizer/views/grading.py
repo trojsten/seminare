@@ -116,9 +116,26 @@ class GradingSubmitView(ContestOrganizerRequired, WithSubmit, WithSubmitList, Fo
 
     def get_other_submits(self):
         submit_cls = self.submit.__class__
-        return submit_cls.objects.filter(
+        submits = submit_cls.objects.filter(
             enrollment=self.submit.enrollment, problem=self.submit.problem
         )
+        deadlines = self.problem.problem_set.get_rule_engine().get_important_dates()
+
+        out = []
+        for deadline, label in deadlines:
+            out.append({"type": "deadline", "time": deadline, "label": label})
+        for submit in submits:
+            out.append(
+                {
+                    "type": "submit",
+                    "time": submit.created_at,
+                    "submit": submit,
+                }
+            )
+
+        out.sort(key=lambda x: x["time"])
+
+        return out
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
