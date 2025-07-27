@@ -40,6 +40,8 @@ class ProblemSet(models.Model):
     rule_engine = models.CharField(max_length=512)
     rule_engine_options = models.JSONField(default=dict, blank=True)
 
+    problems: models.Manager["Problem"]
+
     objects = ProblemSetQuerySet.as_manager()
     enrollment_set: "RelatedManager[Enrollment]"
     problems: "RelatedManager[Problem]"
