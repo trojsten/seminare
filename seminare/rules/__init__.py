@@ -1,6 +1,7 @@
 from collections import defaultdict
+from dataclasses import dataclass
 from importlib import import_module
-from typing import TYPE_CHECKING, TypedDict
+from typing import TYPE_CHECKING
 
 from django.db.models import QuerySet
 
@@ -11,20 +12,12 @@ if TYPE_CHECKING:
     from seminare.users.models import User
 
 
-class Chip(TypedDict):
+@dataclass
+class Chip:
     message: str
-    color: str
-    icon: str
-    help: str
-
-    @classmethod  # type: ignore
-    def create(cls, message: str, color: str = "gray", icon: str = "", help: str = ""):
-        return cls(
-            message=message,
-            color=color,
-            icon=icon,
-            help=help,
-        )
+    color: str = "gray"
+    icon: str = ""
+    help: str = ""
 
 
 class RuleEngine:
