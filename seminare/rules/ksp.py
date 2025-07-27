@@ -202,7 +202,7 @@ class KSP2025(LevelRuleEngine):
             for problem in self.problem_set.problems.all():
                 if level > problem.number:
                     chips[problem].append(
-                        Chip.create(
+                        Chip(
                             message="Nebodovaná",
                             color="amber",
                             help="Za túto úlohu nedostávaš vo svojom leveli body",
