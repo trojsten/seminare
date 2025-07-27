@@ -34,7 +34,7 @@ class Chip(TypedDict):
 
 
 class RuleEngine:
-    engine_id: str = "base"
+    engine_id: str
     """Engine ID for RuleData"""
 
     compatible_engines: list[str] = []
@@ -42,6 +42,8 @@ class RuleEngine:
 
     def __init__(self, problem_set: "ProblemSet") -> None:
         self.problem_set = problem_set
+        self.engine_id = f"{self.__class__.__module__}.{self.__class__.__qualname__}"
+
         self.parse_options(self.problem_set.rule_engine_options)
 
     def parse_options(self, options: dict) -> None:

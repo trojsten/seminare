@@ -18,7 +18,7 @@ from seminare.users.logic.permissions import is_contest_organizer, preload_conte
 from seminare.users.models import Enrollment, Grade, User
 
 
-class KSPRules(LevelRuleEngine):
+class KSP2025(LevelRuleEngine):
     engine_id = "ksp-2025"
     doprogramovanie_date: datetime
 
