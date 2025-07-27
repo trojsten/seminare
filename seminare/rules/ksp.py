@@ -6,9 +6,7 @@ from seminare.rules import Chip, LevelRuleEngine
 from seminare.users.models import User
 
 
-class KSPRules(LevelRuleEngine):
-    engine_id = "ksp-2025"
-
+class KSP2025(LevelRuleEngine):
     def parse_options(self, options: dict) -> None:
         super().parse_options(options)
 
@@ -26,10 +24,10 @@ class KSPRules(LevelRuleEngine):
         visible = set()
         now = timezone.now()
 
-        if now.date() >= self.problem_set.start_date:
+        if now >= self.problem_set.start_date:
             visible.add(Text.Type.PROBLEM_STATEMENT)
 
-        if now.date() > self.problem_set.end_date:
+        if now > self.problem_set.end_date:
             visible.add(Text.Type.EXAMPLE_SOLUTION)
 
         return visible
