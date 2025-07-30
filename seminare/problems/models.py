@@ -12,6 +12,8 @@ from seminare.submits.models import BaseSubmit
 if TYPE_CHECKING:
     from django.db.models.fields.related_descriptors import RelatedManager
 
+    from seminare.users.models import Enrollment
+
 
 class ProblemSetQuerySet(models.QuerySet):
     def for_user(self, user):
@@ -39,6 +41,8 @@ class ProblemSet(models.Model):
     rule_engine_options = models.JSONField(default=dict, blank=True)
 
     objects = ProblemSetQuerySet.as_manager()
+    enrollment_set: "RelatedManager[Enrollment]"
+    problems: "RelatedManager[Problem]"
 
     class Meta:
         ordering = ["start_date", "end_date"]

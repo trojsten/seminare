@@ -50,9 +50,12 @@ class Enrollment(models.Model):
         OLD = "OLD", "∞"
 
     problem_set = models.ForeignKey("problems.ProblemSet", on_delete=models.CASCADE)
+    problem_set_id: int
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user_id: int
     school = models.ForeignKey(School, on_delete=models.CASCADE, blank=True, null=True)
-    grade = models.CharField(choices=Grade, max_length=3)
+    school_id: int
+    grade = models.CharField(choices=Grade.choices, max_length=3)
 
     class Meta:
         ordering = ["problem_set", "user"]
