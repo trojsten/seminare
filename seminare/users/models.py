@@ -57,8 +57,11 @@ class School(models.Model):
 
 class Enrollment(models.Model):
     problem_set = models.ForeignKey("problems.ProblemSet", on_delete=models.CASCADE)
+    problem_set_id: int
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user_id: int
     school = models.ForeignKey(School, on_delete=models.CASCADE, blank=True, null=True)
+    school_id: int
     grade = models.CharField(choices=Grade.choices, max_length=3)
 
     class Meta:
