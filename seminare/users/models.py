@@ -49,6 +49,7 @@ class Enrollment(models.Model):
         SS5 = "5SS", "5"
         OLD = "OLD", "∞"
 
+    id: int
     problem_set = models.ForeignKey("problems.ProblemSet", on_delete=models.CASCADE)
     problem_set_id: int
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
