@@ -9,7 +9,8 @@ migrate
 ```shell
 docker compose run --rm web python manage.py migrate
 ```
-load dummy data
-```sh
-docker compose run --rm web python manage.py loaddata dummy-data.json
+
+generate dummy data 
+```shell
+docker compose run --rm web python manage.py generate_dummy_data
 ```
