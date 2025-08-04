@@ -183,7 +183,7 @@ class PostForm(forms.ModelForm):
         if not hasattr(post, "author"):
             post.author = self.user
 
-        if commit:
+        if commit or not post.id:
             post.save()
         post.contests.add(self.contest)
 
