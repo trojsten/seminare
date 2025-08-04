@@ -44,7 +44,7 @@ def get_grade_from_type_year(school_type: str, year: int) -> Grade | None:
     except ValueError:
         return None
 
-    if year < 1 or year > len(map):
+    if year < 0 or year >= len(map):
         return None
 
-    return map[year - 1]
+    return map[year]

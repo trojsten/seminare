@@ -43,19 +43,19 @@ class TrojstenOIDCAB(OIDCAuthenticationBackend):
     def _update_school_info(self, user, school_info):
         if not school_info:
             user.current_school = None
-            user.current_grade = None
+            user.current_grade = ""
             return
 
         end_date = school_info["end_date"]
         is_expired = end_date and date.fromisoformat(end_date) < date.today()
         if is_expired:
             user.current_school = None
-            user.current_grade = None
+            user.current_grade = ""
             return
 
         school_data = school_info["school"]
         school, _ = School.objects.get_or_create(
-            edu_id=school_data["edu_id"],
+            edu_id=school_data["eduid"],
             defaults={
                 "name": school_data["name"],
                 "address": school_data["address"],
@@ -63,6 +63,6 @@ class TrojstenOIDCAB(OIDCAuthenticationBackend):
         )
         user.current_school = school
 
-        school_type = school_data["school_type"]
+        school_type = school_info["school_type"]
         current_year = int(school_info["current_year"])
-        user.current_grade = get_grade_from_type_year(school_type, current_year)
+        user.current_grade = get_grade_from_type_year(school_type, current_year) or ""

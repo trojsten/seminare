@@ -52,7 +52,7 @@ class School(models.Model):
         ordering = ["name"]
 
     def __str__(self):
-        return self.short_name
+        return f"{self.name}, {self.address}"
 
 
 class Enrollment(models.Model):
