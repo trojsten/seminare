@@ -2,13 +2,17 @@
 {% load markdownify %}
 
 {% block title %}
-    {{ object.title }} {{ block.super }}
+  {{ object.title }} {{ block.super }}
 {% endblock %}
 
 {% block body %}
-    <div class="prose mx-auto">
-        <h1>{{ object.title }}</h1>
+  <div class="prose mx-auto">
+    <h1>{{ object.title }}</h1>
 
-        {{ object.content|markdownify }}
-    </div>
+    {{ object.content|markdownify }}
+
+    {% if is_organizer %}
+      <a href="{% url 'org:page_update' pk=object.pk %}" class="btn btn-blue">Upraviť stránku</a>
+    {% endif %}
+  </div>
 {% endblock %}
