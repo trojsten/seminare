@@ -1,9 +1,15 @@
 {% extends "base.html" %}
-{% load markdownify %}
 {% load tables %}
+{% load ui %}
 
 {% block title %}
     Novinky {{ block.super }}
+{% endblock %}
+
+{% block after_menu %}
+<div class="border-b px-4 py-3">
+  {% breadcrumbs "Novinky" post_list_url %}
+</div>
 {% endblock %}
 
 {% block body %}
@@ -12,23 +18,7 @@
 
         <div class="space-y-8 mb-8">
         {% for post in object_list %}
-            <article class="border shadow-sm p-6 rounded-md">
-                <div class="text-gray-600 mb-1 text-sm">{{ post.created_at|date }}</div>
-                <h2 class="text-2xl font-semibold mb-4">{{ post.title }}</h2>
-                <div class="prose prose-sm">
-                    {{ post.content|markdownify }}
-                </div>
-
-                <div class="relative mt-6 flex items-center gap-x-3">
-                    <img src="{{ post.author.avatar_url }}" alt="" class="size-8 rounded-full bg-gray-50">
-                    <div class="text-sm font-semibold">
-                        <a href="{{ post.author.profile_url }}" target="_blank">
-                            <span class="absolute inset-0"></span>
-                            {{ post.author.display_name }}
-                        </a>
-                    </div>
-                </div>
-            </article>
+            {% include "post/_detail.html" with post=post link=True %}
         {% endfor %}
         </div>
 

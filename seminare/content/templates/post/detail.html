@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% load ui %}
+
+{% block title %}
+    {{ post.title }} {{ block.super }}
+{% endblock %}
+
+{% block after_menu %}
+<div class="border-b px-4 py-3">
+  {% url "post_list" as post_list_url %}
+  {% breadcrumbs "Novinky" post_list_url post.title %}
+</div>
+{% endblock %}
+
+{% block body %}
+    <div class="max-w-prose mx-auto">
+        {% include "post/_detail.html" with post=post %}
+    </div>
+{% endblock %}

@@ -166,7 +166,12 @@ class PageForm(forms.ModelForm):
 class PostForm(forms.ModelForm):
     class Meta:
         model = Post
-        fields = ["title", "content"]
+        fields = ["title", "slug", "content"]
+        labels = {
+            "title": "Názov",
+            "slug": "Slug",
+            "content": "Obsah",
+        }
 
     def __init__(self, *, user, contest, **kwargs):
         super().__init__(**kwargs)
@@ -178,7 +183,7 @@ class PostForm(forms.ModelForm):
         if not hasattr(post, "author"):
             post.author = self.user
 
-        if not post.id:
+        if commit or not post.id:
             post.save()
         post.contests.add(self.contest)
 

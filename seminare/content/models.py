@@ -38,6 +38,7 @@ class Page(models.Model):
 class Post(models.Model):
     id: int
     contests = models.ManyToManyField("contests.Contest", related_name="+")
+    slug = models.SlugField()
     title = models.CharField(max_length=256)
     content = models.TextField(blank=True)
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
