@@ -20,3 +20,11 @@ class PostListView(ListView):
     def get_queryset(self):
         site = get_current_site(self.request)
         return Post.objects.filter(contests__site=site)
+
+
+class PostDetailView(DetailView):
+    template_name = "post/detail.html"
+
+    def get_object(self, queryset=...):
+        site = get_current_site(self.request)
+        return get_object_or_404(Post, slug=self.kwargs["slug"], contests__site=site)

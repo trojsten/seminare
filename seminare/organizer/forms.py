@@ -166,7 +166,12 @@ class PageForm(forms.ModelForm):
 class PostForm(forms.ModelForm):
     class Meta:
         model = Post
-        fields = ["title", "content"]
+        fields = ["title", "slug", "content"]
+        labels = {
+            "title": "Názov",
+            "slug": "Slug",
+            "content": "Obsah",
+        }
 
     def __init__(self, *, user, contest, **kwargs):
         super().__init__(**kwargs)
