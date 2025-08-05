@@ -52,10 +52,12 @@
             </a>
           {% endwith %}
         {% elif osubmit.type == "deadline" %}
-          <div class="block text-white px-3 py-2 bg-primary rounded">
-            <div class="flex items-center justify-between font-semibold flex-col">
-              <span>{{osubmit.label}}</span>
-              <span class="text-gray-200 text-ellipsis overflow-hidden text-sm">{{ osubmit.time }}</span>
+          <div class="relative mb-2">
+            <div aria-hidden="true" class="absolute inset-0 flex items-center">
+              <div class="w-full border-t border-gray-300"></div>
+            </div>
+            <div class="relative flex justify-center">
+              <span class="bg-white px-3 text-base font-semibold text-gray-600" data-tippy-content="{{ osubmit.time }}">{{ osubmit.label }}</span>
             </div>
           </div>
         {% endif %}

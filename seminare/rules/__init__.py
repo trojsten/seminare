@@ -19,8 +19,8 @@ class RuleEngine:
 
     def get_important_dates(self) -> list[tuple[datetime, str]]:
         return [
-            (self.problem_set.start_date, "Začiatok sady"),
-            (self.problem_set.end_date, "Koniec sady"),
+            (self.problem_set.start_date, "Začiatok kola"),
+            (self.problem_set.end_date, "Koniec kola"),
         ]
 
 
