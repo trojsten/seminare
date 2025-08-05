@@ -23,95 +23,37 @@
           <iconify-icon icon="mdi:chevron-down" class="ml-1"></iconify-icon>
         </a>
 
+        {% if texts.ES.is_visible or is_organizer %}
+          <details class="p-4 border bg-gray-100 rounded-xl mb-6">
+            <summary>Kolo už skončilo. Tu si môžeš pozrieť vzorové riešenie.</summary>
+            <div class="prose my-6">
+              {% if not texts.ES.is_visible %}
+                {% message "Túto sekciu vidíš, lebo si organizátor" "warning" %}
+              {% endif %}
+              {{ texts.ES.text|markdownify }}
+            </div>
+          </details>
+        {% endif %}
+
         {% if texts.PS.is_visible or is_organizer %}
-          {% if is_organizer %}
+          {% if not texts.PS.is_visible %}
             {% message "Túto sekciu vidíš, lebo si organizátor" "warning" %}
           {% endif %}
-        <div class="prose">
-          {{ texts.PS.text|markdownify }}
-        </div>
+          <div class="prose">
+            {{ texts.PS.text|markdownify }}
+          </div>
         {% endif %}
       </div>
     </div>
 
-    <div class="shrink-0 w-full p-4 md:border-l md:w-80">
-      {% if not user.is_authenticated %}
-        <div class="flex items-center text-red-600 bg-red-100 rounded-md py-2 px-3 mb-4 text-sm">
-          <iconify-icon icon="mdi:warning" width="none" class="shrink-0 mr-3 size-4"></iconify-icon>
-          <span>
-            Pre odovzdávanie sa musíš <a href="{% url "oidc_authentication_init" %}?next={{ request.path_info|urlencode }}" class="underline hover:text-red-700">prihlásiť</a>.
-          </span>
-        </div>
-      {% else %}
-        <div data-submit--cta-target="submitForm" id="submit">
-
-          {% if "file" in problem.accepted_submit_types %}
-            <div data-controller="submit--file-submit">
-              <div class="font-bold text-2xl mb-1 flex justify-between">
-                <span>Odovzdať popis</span>
-                {# TODO: actual max points and maybe also current points #}
-                <div class="flex items-center">{% label problem.file_points %}</div>
-              </div>
-
-              <div class="bg-gray-100 rounded-md text-gray-700 text-center p-4 cursor-pointer hover:bg-gray-200" data-action="click->submit--file-submit#openFilePicker">
-                <iconify-icon icon="mdi:upload" width="none" class="size-8"></iconify-icon>
-                <p>Vyber alebo presuň tvoje riešenie sem</p>
-              </div>
-
-              <form method="POST" enctype="multipart/form-data" action="{% url "file_submit" problem.id %}" id="form" class="hidden mt-2" data-submit--file-submit-target="form">
-                {% csrf_token %}
-                <input type="file" name="files" multiple accept="image/jpeg, image/png" class="hidden" data-submit--file-submit-target="fileInput" data-action="change->submit--file-submit#onInputChange">
-                <button class="btn btn-blue mt-2">Odovzdať</button>
-              </form>
-
-              {% include "problems/_submits.html" with submits=submits.file icon="mdi:file-text" %}
-            </div>
-          {% endif %}
-          {% if "judge" in problem.accepted_submit_types %}
-            <div data-controller="submit--judge-submit">
-              <div class="font-bold text-2xl mb-1 flex justify-between">
-                <span>Odovzdať program</span>
-                {# TODO: actual max points and maybe also current points #}
-                <div class="flex items-center">{% label problem.judge_points %}</div>
-              </div>
-
-              <div class="bg-gray-100 rounded-md text-gray-700 text-center p-4 cursor-pointer hover:bg-gray-200" data-action="click->submit--judge-submit#openFilePicker">
-                <iconify-icon icon="mdi:upload" width="none" class="size-8"></iconify-icon>
-                <p data-submit--judge-submit-target="fileText">Vyber alebo presuň tvoj program sem</p>
-              </div>
-
-              <form method="POST" enctype="multipart/form-data" action="{% url "judge_submit" problem.id %}" id="form" class="hidden mt-2" data-submit--judge-submit-target="form">
-                {% csrf_token %}
-                <input type="file" name="program" class="hidden" data-submit--judge-submit-target="fileInput" data-action="change->submit--judge-submit#onInputChange">
-                <button class="btn btn-blue mt-2">Odovzdať</button>
-              </form>
-
-              {% include "problems/_submits.html" with submits=submits.judge icon="mdi:file-code" %}
-            </div>
-          {% endif %}
-          {% if "text" in problem.accepted_submit_types %}
-            <div>
-              <div class="font-bold text-2xl mb-1 flex justify-between">
-                <span>Odovzdať odpoveď</span>
-                {# TODO: actual max points and maybe also current points #}
-                <div class="flex items-center">{% label problem.text_points %}</div>
-              </div>
-
-              <form method="POST" enctype="multipart/form-data" action="{% url "text_submit" problem.id %}" id="form" class="mt-2 flex gap-2">
-                {% csrf_token %}
-                <input type="text" name="text" class="input">
-                <button class="btn btn-blue" title="Odovzdať"><iconify-icon icon="mdi:send" width="none" class="size-5"></iconify-icon></button>
-              </form>
-
-              {% include "problems/_submits.html" with submits=submits.text icon="mdi:format-text" %}
-            </div>
-          {% endif %}
-        </div>
-      {% endif %}
+    <div class="lg:border-l p-4 shrink-0">
+      <div class="lg:w-80 max-w-prose mx-auto">
+        {% include "problems/_submit_sidebar.html" %}
+      </div>
     </div>
   </div>
 
-  <div class="fixed inset-x bottom-0 z-30 w-full p-4 flex items-center md:hidden" data-submit--cta-target="cta">
+  <div class="fixed inset-x bottom-0 z-30 w-full p-4 flex items-center lg:hidden" data-submit--cta-target="cta">
     <button type="button" data-action="submit--cta#scroll" class="flex items-center gap-2 px-4 py-2 rounded-full bg-gray-800 text-white mx-auto w-auto shadow-lg" id="scroll">
       Odovzdávanie
       <iconify-icon icon="mdi:arrow-down"></iconify-icon>
