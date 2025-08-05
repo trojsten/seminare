@@ -41,13 +41,13 @@ class RuleEngine:
         self,
         submit_cls: type[BaseSubmit],
         enrollments: Iterable[Enrollment],
-        problems: Iterable[Problem],
+        problems: "Iterable[Problem]",
     ) -> QuerySet[BaseSubmit]:
         """Returns a QuerySet of submits that are considered accepted for a given list of enrollments and problems."""
         raise NotImplementedError()
 
     def get_enrollments_problems_scores(
-        self, enrollments: Iterable[Enrollment], problems: Iterable[Problem]
+        self, enrollments: Iterable[Enrollment], problems: "Iterable[Problem]"
     ) -> dict[tuple[int, int], Score]:
         """Returns a mapping (enrollment_id, problem_id) -> Score for given list of enrollments and problems."""
         raise NotImplementedError()
