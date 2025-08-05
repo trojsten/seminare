@@ -12,7 +12,7 @@
     {{ object.content|markdownify }}
 
     {% if is_organizer %}
-      <a href="{% url 'org:page_update' pk=object.pk %}" class="btn btn-blue">Upraviť stránku</a>
+      <a href="{% url 'org:page_update' pk=object.pk %}" class="btn btn-blue not-prose">Upraviť stránku</a>
     {% endif %}
   </div>
 {% endblock %}
