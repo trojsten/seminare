@@ -16,6 +16,8 @@
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.15/dist/katex.min.js" integrity="sha384-bxmi2jLGCvnsEqMuYLKE/KsVCxV3PqmKeK6Y6+lmNXBry6+luFkEOsmp5vD9I/7+" crossorigin="anonymous"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.15/dist/contrib/auto-render.min.js" integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh" crossorigin="anonymous"></script>
 
+  <script defer data-domain="{{ request.get_host|cut:"www." }}" event-user-authenticated="{{ request.user.is_authenticated|lower }}" event-user-staff="{{ request.user.is_staff|lower }}" src="https://analytics.trojsten.sk/js/script.pageview-props.js"></script>
+
   <script>
     document.addEventListener("DOMContentLoaded", function() {
       renderMathInElement(document.body, {
