@@ -104,6 +104,30 @@ iconify-icon {
   @apply whitespace-nowrap p-3;
 }
 
+.simple-tabs-container {
+  @apply flex flex-col w-full h-full;
+}
+
+.simple-tabs-tabs {
+  @apply grid grid-cols-2 border-b divide-x;
+}
+
+.simple-tabs-tab {
+  @apply p-2;
+}
+
+.simple-tabs-tab:hover {
+  @apply bg-gray-50;
+}
+
+.simple-tabs-tab.active {
+  @apply bg-gray-100;
+}
+
+.simple-tabs-content {
+  @apply w-full h-full;
+}
+
 .codehilite {
   @apply rounded-xl
 }
