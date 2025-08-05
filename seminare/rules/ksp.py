@@ -22,7 +22,7 @@ class KSP2025(LevelRuleEngine):
 
     def get_visible_texts(self, problem: "Problem") -> "set[Text.Type]":
         visible = set()
-        now = timezone.now()
+        now = timezone.now().date()
 
         if now >= self.problem_set.start_date:
             visible.add(Text.Type.PROBLEM_STATEMENT)
