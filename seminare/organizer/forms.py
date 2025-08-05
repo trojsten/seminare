@@ -71,6 +71,8 @@ class ProblemSetForm(forms.ModelForm):
 
 class GradingForm(forms.Form):
     comment = forms.CharField(required=False)
+    comment_file = forms.FileField(required=False)
+
     score = forms.DecimalField(required=False)
 
 
