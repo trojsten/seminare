@@ -31,6 +31,7 @@ services:
       target: cssbuild
     volumes:
       - ./seminare:/app/seminare
+      - ./tailwind.config.js:/app/tailwind.config.js
     tty: true
 
 volumes:
