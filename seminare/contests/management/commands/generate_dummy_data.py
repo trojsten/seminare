@@ -1,5 +1,6 @@
 import random
 from datetime import timedelta
+from typing import Iterable
 
 from django.conf import settings
 from django.contrib.sites.models import Site
@@ -120,6 +121,15 @@ class Command(BaseCommand):
         return schools
 
     def create_problem_sets(self, contest: Contest) -> list[ProblemSet]:
+        old_problem_sets = ProblemSet.objects.filter(
+            contest=contest, name__icontains="0. ročník KSP"
+        )
+        if old_problem_sets.exists():
+            self.stdout.write(
+                self.style.WARNING("Old dummy problem sets found. Deleting them.")
+            )
+            old_problem_sets.delete()
+
         problem_sets: list[ProblemSet] = []
 
         now = timezone.now().replace(hour=0, minute=0, second=0, microsecond=0)
@@ -127,36 +137,31 @@ class Command(BaseCommand):
         end = now - timedelta(days=45 * 3 - 1)
         for cast in (1, 2):
             for kolo in (1, 2):
-                problem_set, created = ProblemSet.objects.update_or_create(
+                problem_set = ProblemSet.objects.create(
                     contest=contest,
                     name=f"{kolo}. kolo {cast}. časť 0. ročník KSP",
-                    defaults={
-                        "start_date": start,
-                        "end_date": end,
-                        "is_public": True,
-                        "rule_engine": "seminare.rules.ksp.KSPRules",
-                        "rule_engine_options": {
-                            "doprogramovanie_date": (
-                                end - timedelta(days=15)
-                            ).isoformat(),
-                        },
+                    start_date=start,
+                    end_date=end,
+                    is_public=True,
+                    rule_engine="seminare.rules.ksp.KSPRules",
+                    rule_engine_options={
+                        "doprogramovanie_date": (end - timedelta(days=15)).isoformat(),
                     },
                 )
 
-                if created:
-                    problem_set.problems.bulk_create(
-                        [
-                            Problem(
-                                name=f"Úloha {i + 1}",
-                                number=i + 1,
-                                problem_set=problem_set,
-                                file_points=12 if i != 4 else 10,
-                                judge_points=8 if i != 4 else 0,
-                                text_points=0 if i != 4 else 10,
-                            )
-                            for i in range(8)
-                        ]
-                    )
+                problem_set.problems.bulk_create(
+                    [
+                        Problem(
+                            name=f"Úloha {i + 1}",
+                            number=i + 1,
+                            problem_set=problem_set,
+                            file_points=12 if i != 4 else 10,
+                            judge_points=8 if i != 4 else 0,
+                            text_points=0 if i != 4 else 10,
+                        )
+                        for i in range(8)
+                    ]
+                )
 
                 problem_sets.append(problem_set)
 
@@ -203,27 +208,38 @@ class Command(BaseCommand):
         self,
         enrollments: list[Enrollment],
     ) -> list[BaseSubmit]:
-        submits: list[BaseSubmit] = []
+        submits: tuple[
+            Iterable[FileSubmit], Iterable[JudgeSubmit], Iterable[TextSubmit]
+        ] = ([], [], [])
 
-        for enrollment in enrollments:
-            problems: list[Problem] = enrollment.problem_set.problems.all()
+        # disable create_at auto dates
+        for field in (FileSubmit, JudgeSubmit, TextSubmit):
+            field._meta.get_field("created_at").auto_now_add = False
 
-            if random.random() < 0.9:
-                # Most of the users will submit max 5 problems that they can solve
-                level = random.randint(0, 3)
-                problems = problems[level : 5 + level]
+        try:
+            for enrollment in enrollments:
+                problems: list[Problem] = enrollment.problem_set.problems.all()
 
-            for problem in problems:
-                if (
-                    FileSubmit.type in problem.accepted_submit_types
-                    and random.random() < 0.7
-                ):
-                    submits.extend(
-                        FileSubmit.objects.bulk_create(
+                if random.random() < 0.9:
+                    # Most of the users will submit max 5 problems that they can solve
+                    level = random.randint(0, 3)
+                    problems = problems[level : 5 + level]
+
+                for problem in problems:
+                    if (
+                        FileSubmit.type in problem.accepted_submit_types
+                        and random.random() < 0.7
+                    ):
+                        submits[0].extend(
                             [
                                 FileSubmit(
                                     enrollment=enrollment,
                                     problem=problem,
+                                    created_at=enrollment.problem_set.start_date
+                                    + timedelta(
+                                        days=random.randint(-2, 60),
+                                        seconds=random.randint(0, 60 * 60 * 24),
+                                    ),
                                     file=f"dummy_files/{enrollment.user.username}/{problem.number}/{i}.txt",
                                     score=min(
                                         random.randint(0, int(problem.file_points))
@@ -236,17 +252,20 @@ class Command(BaseCommand):
                                 for i in range(random.randint(0, 10))
                             ]
                         )
-                    )
-                if (
-                    JudgeSubmit.type in problem.accepted_submit_types
-                    and random.random() < 0.7
-                ):
-                    submits.extend(
-                        JudgeSubmit.objects.bulk_create(
+                    if (
+                        JudgeSubmit.type in problem.accepted_submit_types
+                        and random.random() < 0.7
+                    ):
+                        submits[1].extend(
                             [
                                 JudgeSubmit(
                                     enrollment=enrollment,
                                     problem=problem,
+                                    created_at=enrollment.problem_set.start_date
+                                    + timedelta(
+                                        days=random.randint(-2, 60),
+                                        seconds=random.randint(0, 60 * 60 * 24),
+                                    ),
                                     program=f"dummy_programs/{enrollment.user.username}/{problem.number}/{i}.py",
                                     judge_id=f"dummy-judge-{enrollment.id}-{problem.id}-{i}",
                                     score=min(
@@ -260,18 +279,21 @@ class Command(BaseCommand):
                                 for i in range(random.randint(0, 10))
                             ]
                         )
-                    )
 
-                if (
-                    TextSubmit.type in problem.accepted_submit_types
-                    and random.random() < 0.7
-                ):
-                    submits.extend(
-                        TextSubmit.objects.bulk_create(
+                    if (
+                        TextSubmit.type in problem.accepted_submit_types
+                        and random.random() < 0.7
+                    ):
+                        submits[2].extend(
                             [
                                 TextSubmit(
                                     enrollment=enrollment,
                                     problem=problem,
+                                    created_at=enrollment.problem_set.start_date
+                                    + timedelta(
+                                        days=random.randint(-2, 60),
+                                        seconds=random.randint(0, 60 * 60 * 24),
+                                    ),
                                     value="ipsum",
                                     score=0
                                     if i == 0
@@ -282,9 +304,16 @@ class Command(BaseCommand):
                                 for i in range(random.randint(0, 3), -1, -1)
                             ]
                         )
-                    )
 
-        return submits
+            FileSubmit.objects.bulk_create(submits[0])
+            JudgeSubmit.objects.bulk_create(submits[1])
+            TextSubmit.objects.bulk_create(submits[2])
+        finally:
+            # enable create_at auto dates
+            for field in (FileSubmit, JudgeSubmit, TextSubmit):
+                field._meta.get_field("created_at").auto_now_add = True
+
+        return [*submits[0], *submits[1], *submits[2]]
 
     def handle(self, *args, **options):
         if not settings.DEBUG and not options["force"]:
