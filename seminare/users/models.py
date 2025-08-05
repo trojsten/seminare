@@ -88,5 +88,4 @@ class ContestRole(models.Model):
     def __str__(self):
         return f"{self.user}, {self.contest}: {self.get_role_display()}"
 
-    def get_role_display(self) -> str:
-        return self.get_role_display()
+    def get_role_display(self) -> str: ...
