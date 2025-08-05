@@ -1,7 +1,15 @@
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
 from .models import ContestRole, Enrollment, School, User
+
+
+class UserAdmin(BaseUserAdmin):
+    fieldsets = BaseUserAdmin.fieldsets + (
+        ("School", {"fields": ["current_school", "current_grade"]}),
+    )  # pyright:ignore
+    autocomplete_fields = BaseUserAdmin.autocomplete_fields + ("current_school",)  # pyright:ignore
+
 
 admin.site.register(User, UserAdmin)
 
