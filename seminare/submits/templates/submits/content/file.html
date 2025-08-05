@@ -1,19 +1,25 @@
 {# Renders a file submit content #}
-{% if submit.is_displayable %}
-<object data="{{ submit.file.url }}" class="mx-auto max-w-full flex-1">
-  <div class="flex justify-center my-8 flex-col text-center gap-4">
-    <p>
-      Tvoj prehliadač nedokáže zobraziť tento súbor, môžeš si ho však stiahnuť.
-    </p>
-    <div>
-      <a href="{{ submit.file.url }}" class="btn btn-primary">Stiahnuť riešenie</a>
+<div data-controller="tabs" data-tabs-active-value="main" class="w-full overflow-y-auto min-h-full">
+  {% if submit.comment_file %}
+    <div class="simple-tabs-container">
+      <div class="simple-tabs-tabs">
+        <button data-tabs-target="button" data-tab="main" data-action="click->tabs#switch" 
+              class="simple-tabs-tab">
+          Odovzdaný súbor
+        </button>
+        <button data-tabs-target="button" data-tab="comment" data-action="click->tabs#switch" 
+                class="simple-tabs-tab">
+          Opravený súbor
+        </button>
+      </div>
+      <div data-tabs-target="content" data-tab="comment" class="hidden simple-tabs-content">
+        {% include "submits/content/_file.html" with is_displayable=submit.is_comment_displayable file=submit.comment_file %}
+      </div>
+      <div data-tabs-target="content" data-tab="main" class="hidden simple-tabs-content">
+        {% include "submits/content/_file.html" with is_displayable=submit.is_displayable file=submit.file %}
+      </div>
     </div>
-  </div>
-</object>
-{% else %}
-<div class="p-8 text-gray-800 text-center flex-1">
-  <iconify-icon icon="mdi:file-alert-outline" width="none" class="size-12"></iconify-icon>
-  <div class="text-2xl mb-4 mt-2 font-semibold">Tento súbor sa nedá zobraziť</div>
-  <a href="{{ submit.file.url }}" class="btn btn-default">Stiahnuť</a>
+  {% else %}
+    {% include "submits/content/_file.html" with is_displayable=submit.is_displayable file=submit.file %}
+  {% endif %}
 </div>
-{% endif %}
