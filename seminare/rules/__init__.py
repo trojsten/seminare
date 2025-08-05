@@ -1,3 +1,4 @@
+from datetime import datetime
 from importlib import import_module
 from typing import TYPE_CHECKING
 
@@ -15,6 +16,12 @@ class RuleEngine:
 
     def get_visible_texts(self, problem: "Problem") -> "set[Text.Type]":
         raise NotImplementedError()
+
+    def get_important_dates(self) -> list[tuple[datetime, str]]:
+        return [
+            (self.problem_set.start_date, "Začiatok kola"),
+            (self.problem_set.end_date, "Koniec kola"),
+        ]
 
 
 def get_rule_engine_class(path: str) -> type[RuleEngine]:
