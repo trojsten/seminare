@@ -12,7 +12,8 @@ from seminare.rules import RuleEngine
 from seminare.rules.results import Cell, ColumnHeader, Row, Table
 from seminare.rules.scores import Score
 from seminare.submits.models import BaseSubmit
-from seminare.users.models import Enrollment
+from seminare.users.logic.permissions import is_contest_organizer
+from seminare.users.models import Enrollment, Grade
 
 
 class KSPRules(RuleEngine):
@@ -144,11 +145,16 @@ class KSPRules(RuleEngine):
                 else:
                     cells.append(None)
 
+            ghost = is_contest_organizer(
+                enrollment.user,
+                self.problem_set.contest,
+            ) or Grade.is_old(enrollment.grade)
+
             rows.append(
                 Row(
                     rank=None,
                     enrollment=enrollment,
-                    ghost=False,
+                    ghost=ghost,
                     columns=cells,
                     total=self.calculate_total(cells),
                 )
