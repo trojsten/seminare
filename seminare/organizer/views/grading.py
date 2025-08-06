@@ -98,7 +98,7 @@ class GradingOverviewView(
                 "Úlohy",
                 reverse(
                     "org:problem_list",
-                    args=[self.problem.problem_set.id],
+                    args=[self.problem.problem_set.slug],
                 ),
             ),
             (self.problem, ""),

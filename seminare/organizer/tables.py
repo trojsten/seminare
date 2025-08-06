@@ -30,7 +30,7 @@ class ProblemSetTable(Table):
             (
                 "mdi:cards",
                 "Úlohy",
-                reverse("org:problem_list", args=[object.id]),
+                reverse("org:problem_list", args=[object.slug]),
             ),
         ]
 
@@ -39,7 +39,7 @@ class ProblemSetTable(Table):
                 (
                     "mdi:pencil",
                     "Upraviť",
-                    reverse("org:problemset_update", args=[object.id]),
+                    reverse("org:problemset_update", args=[object.slug]),
                 ),
             )
 
@@ -78,7 +78,7 @@ class ProblemTable(Table):
                     reverse(
                         "org:problem_update",
                         args=[
-                            object.problem_set_id,
+                            object.problem_set.slug,
                             object.id,
                         ],
                     ),

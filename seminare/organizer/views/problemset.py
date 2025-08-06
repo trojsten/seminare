@@ -104,7 +104,7 @@ class ProblemSetUpdateView(
                 "green",
                 "mdi:plus",
                 "Pridať úlohu",
-                reverse("org:problem_create", args=[self.get_object().id]),
+                reverse("org:problem_create", args=[self.object.slug]),
             )
         ]
 
