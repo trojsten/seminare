@@ -38,4 +38,18 @@ class Table:
     rows: list[Row]
 
     def sort(self) -> None:
-        self.rows.sort(key=lambda r: r.total)
+        self.rows.sort(key=lambda r: -r.total)
+        self.rank()
+
+    def rank(self):
+        rank = 1
+        last_total = -1
+        for row in self.rows:
+            if row.ghost or row.total == last_total:
+                row.rank = None
+            else:
+                row.rank = rank
+
+            if not row.ghost:
+                rank += 1
+                last_total = row.total
