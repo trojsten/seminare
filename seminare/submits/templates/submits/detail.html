@@ -14,8 +14,8 @@
   <div class="flex-1 flex flex-col">
     <div class="border-b px-4 py-3">
       {% url "problem_set_list" as set_list_url %}
-      {% url "problem_set_detail" submit.problem.problem_set.id as set_url %}
-      {% url "problem_detail" submit.problem.problem_set.id submit.problem.number as problem_url %}
+      {% url "problem_set_detail" submit.problem.problem_set.slug as set_url %}
+      {% url "problem_detail" submit.problem.problem_set.slug submit.problem.number as problem_url %}
       {% breadcrumbs "Zadania" set_list_url submit.problem.problem_set set_url submit.problem problem_url "Odovzdané riešenie" %}
     </div>
     <div class="md:h-full h-80 flex-1 flex">

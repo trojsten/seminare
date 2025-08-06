@@ -56,7 +56,7 @@ class ProblemDetailView(DetailView):
         return get_object_or_404(
             Problem,
             number=self.kwargs["number"],
-            problem_set_id=self.kwargs["problem_set_id"],
+            problem_set__slug=self.kwargs["problem_set_slug"],
             problem_set__contest__site=site,
         )
 
@@ -82,7 +82,7 @@ class ProblemDetailView(DetailView):
 
         ctx["texts"] = self.object.get_all_texts()
         ctx["sidebar_problems"] = inject_user_score(
-            Problem.objects.filter(problem_set_id=self.kwargs["problem_set_id"]),
+            Problem.objects.filter(problem_set=self.object.problem_set),
             self.request.user,
         )
         if isinstance(self.request.user, User):

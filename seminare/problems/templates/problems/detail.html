@@ -7,7 +7,7 @@
 {% block body_container %}
 <div class="border-b px-4 py-3">
   {% url "problem_set_list" as set_list_url %}
-  {% url "problem_set_detail" problem.problem_set.id as set_url %}
+  {% url "problem_set_detail" problem.problem_set.slug as set_url %}
   {% breadcrumbs "Zadania" set_list_url problem.problem_set set_url problem %}
 </div>
 
