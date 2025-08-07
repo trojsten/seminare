@@ -22,7 +22,11 @@ class ProblemListView(
     table_title = "Úlohy"
 
     def get_queryset(self) -> QuerySet[Problem]:
-        return Problem.objects.filter(problem_set=self.problem_set).order_by("number")
+        return (
+            Problem.objects.filter(problem_set=self.problem_set)
+            .order_by("number")
+            .select_related("problem_set")
+        )
 
     def get_breadcrumbs(self):
         return [
@@ -40,7 +44,7 @@ class ProblemListView(
                 "green",
                 "mdi:plus",
                 "Pridať",
-                reverse("org:problem_create", args=[self.problem_set.id]),
+                reverse("org:problem_create", args=[self.problem_set.slug]),
             )
         ]
 
@@ -64,7 +68,7 @@ class ProblemCreateView(
         return kw
 
     def get_success_url(self) -> str:
-        return reverse("org:problem_list", args=[self.problem_set.id])
+        return reverse("org:problem_list", args=[self.problem_set.slug])
 
     def get_breadcrumbs(self):
         return [
@@ -72,7 +76,7 @@ class ProblemCreateView(
             (self.problem_set, ""),
             (
                 "Úlohy",
-                reverse("org:problem_list", args=[self.problem_set.id]),
+                reverse("org:problem_list", args=[self.problem_set.slug]),
             ),
             ("Nová", ""),
         ]
@@ -93,7 +97,7 @@ class ProblemUpdateView(
         return get_object_or_404(Problem, id=self.kwargs.get("problem_id"))
 
     def get_success_url(self) -> str:
-        return reverse("org:problem_list", args=[self.problem_set.id])
+        return reverse("org:problem_list", args=[self.problem_set.slug])
 
     def get_breadcrumbs(self):
         return [
@@ -101,7 +105,7 @@ class ProblemUpdateView(
             (self.problem_set, ""),
             (
                 "Úlohy",
-                reverse("org:problem_list", args=[self.problem_set.id]),
+                reverse("org:problem_list", args=[self.problem_set.slug]),
             ),
             (self.object, ""),
             ("Upraviť", ""),

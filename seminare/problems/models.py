@@ -24,6 +24,7 @@ class ProblemSetQuerySet(models.QuerySet):
 
 class ProblemSet(models.Model):
     id: int
+    slug = models.SlugField(max_length=64, unique=True)
 
     contest = models.ForeignKey("contests.Contest", on_delete=models.CASCADE)
     contest_id: int

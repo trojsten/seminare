@@ -41,7 +41,7 @@ class WithContest(MixinProtocol):
 class WithProblemSet(MixinProtocol):
     @cached_property
     def problem_set(self) -> ProblemSet:
-        return get_object_or_404(ProblemSet, id=self.kwargs["problem_set_id"])
+        return get_object_or_404(ProblemSet, slug=self.kwargs["problem_set_slug"])
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)

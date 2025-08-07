@@ -13,7 +13,7 @@ contest_patterns = [
         name="problemset_create",
     ),
     path(
-        "sets/<int:pk>/",
+        "sets/<slug>/",
         problemset.ProblemSetUpdateView.as_view(),
         name="problemset_update",
     ),
@@ -28,17 +28,17 @@ contest_patterns = [
         name="grading_submit",
     ),
     path(
-        "sets/<int:problem_set_id>/problems/",
+        "sets/<problem_set_slug>/problems/",
         problem.ProblemListView.as_view(),
         name="problem_list",
     ),
     path(
-        "sets/<int:problem_set_id>/problems/<int:problem_id>",
+        "sets/<problem_set_slug>/problems/<int:problem_id>/",
         problem.ProblemUpdateView.as_view(),
         name="problem_update",
     ),
     path(
-        "sets/<int:problem_set_id>/problems/create/",
+        "sets/<problem_set_slug>/problems/create/",
         problem.ProblemCreateView.as_view(),
         name="problem_create",
     ),

@@ -26,7 +26,7 @@
 
   {% for problem_set in object_list %}
     <div class="my-2">
-      <a class="link" href="{% url "problem_set_detail" problem_set.id %}">{{ problem_set.name }}</a>
+      <a class="link" href="{% url "problem_set_detail" problem_set.slug %}">{{ problem_set.name }}</a>
     </div>
   {% endfor %}
 {% endblock %}
