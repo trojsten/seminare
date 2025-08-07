@@ -8,7 +8,7 @@ from django.db.models import QuerySet
 from seminare.rules.results import Cell, Table
 from seminare.rules.scores import Score
 from seminare.submits.models import BaseSubmit
-from seminare.users.models import Enrollment
+from seminare.users.models import Enrollment, User
 
 if TYPE_CHECKING:
     from seminare.problems.models import Problem, ProblemSet, Text
@@ -54,6 +54,14 @@ class RuleEngine:
 
     def get_enrollments(self) -> QuerySet[Enrollment]:
         """Returns a QuerySet of enrollments that are considered part of the competition."""
+        raise NotImplementedError()
+
+    def get_result_tables(self) -> dict[str, str]:
+        """Returns a dict (slug: display_name) for all result tables."""
+        raise NotImplementedError()
+
+    def get_default_result_table(self, user: User | None = None) -> str:
+        """Returns the slug of the default result table for user."""
         raise NotImplementedError()
 
     def calculate_total(self, scores: Iterable[Cell | None]) -> Decimal:

@@ -1,5 +1,4 @@
-from datetime import datetime, time
-from typing import TYPE_CHECKING, TypedDict
+from typing import TYPE_CHECKING, Type, TypedDict
 
 from django.db import models
 from django.db.models import UniqueConstraint
@@ -7,7 +6,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from seminare.rules import RuleEngine, get_rule_engine_class
-from seminare.submits.models import BaseSubmit
+from seminare.submits.models import BaseSubmit, FileSubmit, JudgeSubmit, TextSubmit
 
 if TYPE_CHECKING:
     from django.db.models.fields.related_descriptors import RelatedManager
@@ -55,10 +54,6 @@ class ProblemSet(models.Model):
         class_ = get_rule_engine_class(self.rule_engine)
         return class_(self)
 
-    @property
-    def end_date_time(self):
-        return datetime.combine(self.end_date, time(hour=23, minute=59, second=59))
-
 
 class ProblemText(TypedDict):
     text: str
@@ -105,6 +100,22 @@ class Problem(models.Model):
             ("file_points", BaseSubmit.SubmitType.FILE),
             ("judge_points", BaseSubmit.SubmitType.JUDGE),
             ("text_points", BaseSubmit.SubmitType.TEXT),
+        ]
+
+        for points, type_ in type_mapping:
+            if getattr(self, points) > 0:
+                types.append(type_)
+
+        return types
+
+    @property
+    def accepted_submit_classes(self) -> list[Type[BaseSubmit]]:
+        types = []
+
+        type_mapping = [
+            ("file_points", FileSubmit),
+            ("judge_points", JudgeSubmit),
+            ("text_points", TextSubmit),
         ]
 
         for points, type_ in type_mapping:
