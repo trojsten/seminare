@@ -54,7 +54,7 @@ class WithSubmitList(WithContest, MixinProtocol):
 
     def get_users_with_submits(self, limit_types=None):
         data = []
-        enrollments = self.rule_engine.get_enrollments()
+        enrollments = self.rule_engine.get_enrollments().select_related("user")
         submits = self.get_submits(enrollments, limit_types)
 
         for enrollment in enrollments:
