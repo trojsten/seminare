@@ -10,7 +10,7 @@ from django.utils import timezone
 from seminare.contests.models import Contest
 from seminare.problems.models import Problem, ProblemSet
 from seminare.submits.models import BaseSubmit, FileSubmit, JudgeSubmit, TextSubmit
-from seminare.users.models import Enrollment, School, User
+from seminare.users.models import Enrollment, Grade, School, User
 
 
 class Command(BaseCommand):
@@ -28,63 +28,95 @@ class Command(BaseCommand):
             name="Korešpondenčný seminár z programovania",
             short_name="ksp",
             site=Site.objects.get_or_create(
-                domain="ksp.localhost", name="ksp.localhost"
+                domain="ksp.localhost:8000", name="ksp.localhost:8000"
             )[0],
         )[0]
 
-    def create_users(self, count: int = 80) -> list[User]:
+    def create_users(self, count: int = 300) -> list[User]:
         users: list[User] = []
 
         first_names = [
             "Adam",
+            "Adrián",
             "Anna",
+            "Barbora",
+            "Daniela",
+            "Dominik",
             "Eva",
+            "Filip",
+            "Gabriel",
             "Jakub",
             "Ján",
             "Katarína",
+            "Kristína",
             "Lucia",
             "Lukáš",
+            "Marek",
             "Martin",
             "Michal",
             "Mária",
+            "Nina",
+            "Oliver",
             "Patrícia",
             "Peter",
+            "Richard",
+            "Samuel",
             "Tomáš",
             "Veronika",
+            "Viktória",
             "Zuzana",
+            "Šimon",
         ]
         last_names = [
             "Baláž",
+            "Bartoš",
+            "Bauer",
             "Bielik",
+            "Dvořák",
+            "Hajduk",
             "Horváth",
+            "Hruška",
             "Kiss",
             "Kováč",
+            "Kováčik",
+            "Kováčová",
             "Krajčír",
+            "Kubiš",
+            "Kučera",
+            "Lukáč",
             "Molnár",
             "Nagy",
+            "Novotný",
             "Novák",
+            "Pavlík",
             "Ružička",
             "Szabó",
             "Tóth",
             "Varga",
+            "Čech",
             "Černák",
+            "Černý",
+            "Čáp",
             "Šimko",
         ]
 
         for i in range(count):
             users.append(
-                User.objects.update_or_create(
+                User(
                     username=f"user{i + 1}",
-                    defaults={
-                        "first_name": random.choice(first_names),
-                        "last_name": random.choice(last_names),
-                    },
-                )[0]
+                    first_name=random.choice(first_names),
+                    last_name=random.choice(last_names),
+                )
             )
 
-        return users
+        return User.objects.bulk_create(
+            users,
+            update_conflicts=True,
+            unique_fields=["username"],
+            update_fields=["first_name", "last_name"],
+        )
 
-    def create_schools(self, count: int = 10) -> list[School]:
+    def create_schools(self, count: int = 50) -> list[School]:
         schools: list[School] = []
 
         school_names_1 = [
@@ -96,29 +128,72 @@ class Command(BaseCommand):
 
         school_names_2 = [
             ("A. Bernoláka", "ab"),
-            ("M. R. Štefánika", "mrs"),
-            ("J. A. Komenského", "jak"),
-            ("L. Novomeského", "ln"),
-            ("J. C. Hronského", "jch"),
-            ("M. Kukučína", "mk"),
             ("E. Bellu", "eb"),
+            ("J. A. Komenského", "jak"),
+            ("J. C. Hronského", "jch"),
+            ("J. Kráľa", "jk"),
+            ("J. M. Hurbana", "jmh"),
+            ("K. Medveckej", "km"),
+            ("L. Novomeského", "ln"),
             ("L. Sáru", "ls"),
+            ("M. Kukučína", "mk"),
+            ("M. R. Štefánika", "mrs"),
+            ("M. Rázusa", "mr"),
+            ("P. O. Hviezdoslava", "poh"),
+            ("S. Chalupku", "sch"),
+            ("T. Vansovej", "tv"),
+        ]
+
+        addresses_1 = [
+            "Hlavná",
+            "Horská",
+            "Jabloňová",
+            "Jarná",
+            "Jasná",
+            "Karpatská",
+            "Karpatská",
+            "Kvetinová",
+            "Kvetná",
+            "Mierová",
+            "Námestie slobody",
+            "Slnečná",
+            "Trieda SNP",
+            "Zimná",
+            "Školská",
+        ]
+
+        addresses_2 = [
+            "Bratislava",
+            "Košice",
+            "Prešov",
+            "Nitra",
+            "Trnava",
+            "Žilina",
+            "Banská Bystrica",
+            "Poprad",
+            "Martin",
+            "Trenčín",
+            "Prievidza",
         ]
 
         for i in range(count):
             choice = (random.choice(school_names_1), random.choice(school_names_2))
 
             schools.append(
-                School.objects.update_or_create(
+                School(
                     edu_id=f"EDU-{i + 1:03}",
-                    defaults={
-                        "name": f"{choice[0][0]} {choice[1][0]}",
-                        "short_name": f"{choice[0][1]}-{choice[1][1]}",
-                    },
-                )[0]
+                    name=f"{choice[0][0]} {choice[1][0]}",
+                    short_name=f"{choice[0][1]}-{choice[1][1]}",
+                    address=f"{random.choice(addresses_1)} {random.randint(1, 100)}, {random.choice(addresses_2)}",
+                )
             )
 
-        return schools
+        return School.objects.bulk_create(
+            schools,
+            update_conflicts=True,
+            unique_fields=["edu_id"],
+            update_fields=["name", "short_name", "address"],
+        )
 
     def create_problem_sets(self, contest: Contest) -> list[ProblemSet]:
         old_problem_sets = ProblemSet.objects.filter(
@@ -133,8 +208,8 @@ class Command(BaseCommand):
         problem_sets: list[ProblemSet] = []
 
         now = timezone.now().replace(hour=0, minute=0, second=0, microsecond=0)
-        start = now - timedelta(days=45 * 4 - 1)
-        end = now - timedelta(days=45 * 3 - 1)
+        start = now - timedelta(days=45 * 3 - 1)
+        end = now - timedelta(days=45 * 2 - 1)
         for cast in (1, 2):
             for kolo in (1, 2):
                 problem_set = ProblemSet.objects.create(
@@ -180,7 +255,7 @@ class Command(BaseCommand):
     ) -> list[Enrollment]:
         enrollments: list[Enrollment] = []
 
-        grades = Enrollment.Grade.choices
+        grades = Grade.choices
 
         for user in users:
             school = random.choice(schools)
@@ -192,17 +267,15 @@ class Command(BaseCommand):
                     continue
 
                 enrollments.append(
-                    Enrollment.objects.update_or_create(
+                    Enrollment(
                         user=user,
                         problem_set=problem_set,
-                        defaults={
-                            "school": school,
-                            "grade": grade,
-                        },
-                    )[0]
+                        school=school,
+                        grade=grade,
+                    )
                 )
 
-        return enrollments
+        return Enrollment.objects.bulk_create(enrollments)
 
     def create_submits(
         self,
@@ -220,26 +293,32 @@ class Command(BaseCommand):
             for enrollment in enrollments:
                 problems: list[Problem] = enrollment.problem_set.problems.all()
 
-                if random.random() < 0.9:
+                if random.random() < 0.95:
                     # Most of the users will submit max 5 problems that they can solve
                     level = random.randint(0, 3)
                     problems = problems[level : 5 + level]
 
                 for problem in problems:
+                    if random.random() < 0.2:
+                        # most users will not submit anything for some problems
+                        continue
+
                     if (
                         FileSubmit.type in problem.accepted_submit_types
-                        and random.random() < 0.7
+                        and random.random() < 0.6
                     ):
                         submits[0].extend(
                             [
                                 FileSubmit(
                                     enrollment=enrollment,
                                     problem=problem,
-                                    created_at=enrollment.problem_set.start_date
-                                    + timedelta(
-                                        days=random.randint(-2, 60),
-                                        seconds=random.randint(0, 60 * 60 * 24),
-                                    ),
+                                    created_at=(
+                                        enrollment.problem_set.start_date
+                                        + timedelta(
+                                            days=random.randint(-2, 60),
+                                            seconds=random.randint(0, 60 * 60 * 24),
+                                        )
+                                    ).astimezone(timezone.get_current_timezone()),
                                     file=f"dummy_files/{enrollment.user.username}/{problem.number}/{i}.txt",
                                     score=min(
                                         random.randint(0, int(problem.file_points))
@@ -254,18 +333,20 @@ class Command(BaseCommand):
                         )
                     if (
                         JudgeSubmit.type in problem.accepted_submit_types
-                        and random.random() < 0.7
+                        and random.random() < 0.8
                     ):
                         submits[1].extend(
                             [
                                 JudgeSubmit(
                                     enrollment=enrollment,
                                     problem=problem,
-                                    created_at=enrollment.problem_set.start_date
-                                    + timedelta(
-                                        days=random.randint(-2, 60),
-                                        seconds=random.randint(0, 60 * 60 * 24),
-                                    ),
+                                    created_at=(
+                                        enrollment.problem_set.start_date
+                                        + timedelta(
+                                            days=random.randint(-2, 60),
+                                            seconds=random.randint(0, 60 * 60 * 24),
+                                        )
+                                    ).astimezone(timezone.get_current_timezone()),
                                     program=f"dummy_programs/{enrollment.user.username}/{problem.number}/{i}.py",
                                     judge_id=f"dummy-judge-{enrollment.id}-{problem.id}-{i}",
                                     score=min(
@@ -276,7 +357,7 @@ class Command(BaseCommand):
                                     ),
                                     comment="Dummy submit",
                                 )
-                                for i in range(random.randint(0, 10))
+                                for i in range(random.randint(0, 25))
                             ]
                         )
 
@@ -289,11 +370,13 @@ class Command(BaseCommand):
                                 TextSubmit(
                                     enrollment=enrollment,
                                     problem=problem,
-                                    created_at=enrollment.problem_set.start_date
-                                    + timedelta(
-                                        days=random.randint(-2, 60),
-                                        seconds=random.randint(0, 60 * 60 * 24),
-                                    ),
+                                    created_at=(
+                                        enrollment.problem_set.start_date
+                                        + timedelta(
+                                            days=random.randint(-2, 60),
+                                            seconds=random.randint(0, 60 * 60 * 24),
+                                        )
+                                    ).astimezone(timezone.get_current_timezone()),
                                     value="ipsum",
                                     score=0
                                     if i == 0
@@ -301,7 +384,7 @@ class Command(BaseCommand):
                                     * random.randint(0, 1),
                                     comment="Dummy submit",
                                 )
-                                for i in range(random.randint(0, 3), -1, -1)
+                                for i in range(random.randint(0, 5), -1, -1)
                             ]
                         )
 
