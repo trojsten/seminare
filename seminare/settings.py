@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     "seminare.contests",
     "seminare.content",
     "seminare.organizer",
+    "seminare.legacy",
     #
     "django_probes",
     "debug_toolbar",
