@@ -90,7 +90,9 @@ class ProblemSetUpdateView(
         ]
 
     def get_object(self, queryset=None):
-        return get_object_or_404(ProblemSet, id=self.kwargs["pk"], contest=self.contest)
+        return get_object_or_404(
+            ProblemSet, slug=self.kwargs["slug"], contest=self.contest
+        )
 
     def get_queryset(self) -> QuerySet[Problem]:
         return Problem.objects.filter(problem_set=self.get_object()).order_by("number")

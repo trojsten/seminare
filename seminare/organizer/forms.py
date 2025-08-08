@@ -12,24 +12,26 @@ class ProblemSetForm(forms.ModelForm):
         model = ProblemSet
         fields = [
             "name",
-            "rule_engine",
+            "slug",
             "start_date",
             "end_date",
+            "rule_engine",
             "is_public",
             "rule_engine_options",
         ]
         labels = {
             "name": "Názov",
-            "rule_engine": "Rule Engine",
+            "slug": "URL adresa",
             "start_date": "Začiatok",
             "end_date": "Koniec",
+            "rule_engine": "Rule Engine",
             "is_public": "Zverejniť",
             "rule_engine_options": "Nastavenia pre Rule Engine",
         }
         help_texts = {
-            "rule_engine": "Cesta k triede, ktorá implementuje pravidlá a hodnotenie.",
             "start_date": "Dátum zverejnenia sady úloh.",
             "end_date": "Riešenia bude možné odovzdávať najneskôr v tento deň.",
+            "rule_engine": "Cesta k triede, ktorá implementuje pravidlá a hodnotenie.",
             "is_public": "Sada úloh sa bude zobrazovať na stránke.",
             "rule_engine_options": "Špecifické nastavenia pre Rule Engine.",
         }
