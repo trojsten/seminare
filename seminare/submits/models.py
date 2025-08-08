@@ -91,6 +91,12 @@ class FileSubmit(BaseSubmit):
         _, ext = os.path.splitext(self.file.name)
         return ext.lower()[1:] in {"pdf", "jpg"}
 
+    def is_comment_displayable(self):
+        if not self.comment_file:
+            return False
+        _, ext = os.path.splitext(self.comment_file.name)
+        return ext.lower()[1:] in {"pdf", "jpg"}
+
 
 class JudgeSubmit(BaseSubmit):
     program = models.FileField(upload_to=submit_judge_filepath)

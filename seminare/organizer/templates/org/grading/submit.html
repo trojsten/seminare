@@ -14,7 +14,7 @@
 
     {% for row in other_users %}
     {% if row.submit %}
-    <a href="{% url 'org:grading_submit' row.submit.submit_id %}" class="block text-gray-800 px-3 py-2 hover:bg-gray-50 {% if row.user.id == submit.enrollment.user_id %}bg-gray-100{% endif %} rounded">
+    <a href="{% url 'org:grading_submit' row.submit.submit_id %}" class="block text-gray-800 px-3 py-2 hover:bg-gray-50 {% if row.user.id == submit.enrollment.user_id %}bg-gray-100 scroll-to-me{% endif %} rounded">
       <div class="flex items-center justify-between font-semibold">
         <span>{{ row.user.display_name }}</span>
         {% if row.submit.score is not None %}
@@ -43,11 +43,11 @@
     <div class="px-4 pb-3 pt-0 flex-1 overflow-auto space-y-1" hx-boost="true">
       {% for osubmit in other_submits %}
         {% if osubmit.type == "submit" %}
-          {% with submit=osubmit.submit %}
-            <a href="{% url 'org:grading_submit' submit.submit_id %}" class="block text-gray-800 px-3 py-2 hover:bg-gray-50 {% if submit == submit %}bg-gray-100{% endif %} rounded">
+          {% with other_submit=osubmit.submit %}
+            <a href="{% url 'org:grading_submit' other_submit.submit_id %}" class="block text-gray-800 px-3 py-2 hover:bg-gray-50 {% if other_submit == submit %}bg-gray-100 scroll-to-me{% endif %} rounded">
               <div class="flex items-center justify-between font-semibold gap-1">
                 <span class="text-ellipsis overflow-hidden text-sm">{{ submit.created_at }}</span>
-                <span data-submit-score="{{ submit.id }}"class="text-green-600 whitespace-nowrap shrink-0 tabular-nums">{% if submit.score is not None %}{{ submit.score|floatformat:"g" }} b{% endif %}</span>
+                <span data-submit-score="{{ other_submit.id }}"class="text-green-600 whitespace-nowrap shrink-0 tabular-nums">{% if other_submit.score is not None %}{{ other_submit.score|floatformat:"g" }} b{% endif %}</span>
               </div>
             </a>
           {% endwith %}
@@ -67,7 +67,7 @@
     <div class="px-4 py-3 border-t flex-1 flex flex-col">
       <div class="font-bold text-lg mb-2">Hodnotenie</div>
 
-      {% include "org/grading/_form.html" %}
+      {% include "org/grading/_form.html" with type=submit.type %}
     </div>
   </div>
 </div>
