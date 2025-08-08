@@ -20,7 +20,7 @@ class Cell:
 
     @property
     def display_tooltip(self) -> str | None:
-        raise NotImplementedError()
+        return None
 
     @property
     def ghost(self) -> bool:
@@ -51,6 +51,19 @@ class ScoreCell(Cell):
     @property
     def ghost(self):
         return self.coefficient == 0
+
+
+@dataclass
+class PreviousScoreCell(Cell):
+    points: Decimal
+
+    @property
+    def display_cell(self) -> str:
+        display_string = f"{self.points:.0f}"
+        if not float(self.points).is_integer():
+            display_string = f"{self.points:.1f}"
+
+        return display_string
 
 
 @dataclass
