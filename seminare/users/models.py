@@ -17,6 +17,14 @@ class Grade(models.TextChoices):
     SS5 = "5SS", "5"
     OLD = "OLD", "∞"
 
+    @classmethod
+    def is_old(cls, grade: str) -> bool:
+        return grade == cls.OLD
+
+    @classmethod
+    def is_ss(cls, grade: str) -> bool:
+        return grade.startswith("SS")
+
 
 class User(AbstractUser):
     id: int
@@ -56,9 +64,14 @@ class School(models.Model):
 
 
 class Enrollment(models.Model):
+    id: int
+
     problem_set = models.ForeignKey("problems.ProblemSet", on_delete=models.CASCADE)
+    problem_set_id: int
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user_id: int
     school = models.ForeignKey(School, on_delete=models.CASCADE, blank=True, null=True)
+    school_id: int
     grade = models.CharField(choices=Grade.choices, max_length=3)
 
     class Meta:
@@ -79,6 +92,7 @@ class ContestRole(models.Model):
         ORGANIZER = 1
         ADMINISTRATOR = 2
 
+    id: int
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     user_id: int
     contest = models.ForeignKey("contests.Contest", on_delete=models.CASCADE)

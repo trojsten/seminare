@@ -96,8 +96,12 @@ iconify-icon {
   @apply divide-y divide-gray-200;
 }
 
+.simple-table tr {
+  @apply text-sm text-gray-700;
+}
+
 .simple-table td {
-  @apply whitespace-nowrap p-3 text-sm text-gray-700;
+  @apply whitespace-nowrap p-3;
 }
 
 .codehilite {

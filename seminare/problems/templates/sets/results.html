@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% load ui %}
+
+{% block title %}
+    {{ object }} {{ block.super }}
+{% endblock %}
+
+{% block after_menu %}
+<div class="border-b px-4 py-3">
+  {% url "problem_set_list" as set_list_url %}
+  {% url "problem_set_detail" object.slug as set_url %}
+  {% url "problem_set_results" object.slug as results_url %}
+  {% breadcrumbs "Zadania" set_list_url object set_url "Výsledky" results_url selected_table_name %}
+</div>
+{% endblock %}
+
+{% block body %}
+  {% include "sets/_header.html" with problem_set=object %}
+
+  <div class="flex w-full mb-4">
+    <a class="btn btn-primary" href="{% url "problem_set_detail" object.slug %}">Zadania</a>
+  </div>
+
+  <div class="flex w-full justify-center my-4 border rounded-md divide-x">
+    {% for slug, name in result_tables.items %}
+      <a class="text-center grow p-2 hover:bg-gray-50 {% if slug == selected_table %}bg-gray-100{% endif %}" href="{% url "problem_set_results" object.id slug %}">{{ name }}</a>
+    {% endfor %}
+  </div>
+
+  <div class="overflow-x-auto">
+    <table class="simple-table">
+      {% if not hide_header %}
+        <thead>
+          <tr>
+            <th scope="col" class="w-0">
+              #
+            </th>
+            <th scope="col">
+              Meno
+            </th>
+            <th scope="col" class="w-0">
+              Ročník
+            </th>
+            <th scope="col">
+              Škola
+            </th>
+            {% for column_header in table.columns %}
+              <th scope="col">
+                {% if column_header.link %}
+                  <a href="{{ column_header.link }}" class="link">
+                {% endif %}
+                <span {% if column_header.tooltip %}data-tippy-content="{{ column_header.tooltip }}"{% endif %}>
+                  {{ column_header.title }}
+                </span>
+                {% if column_header.link %}
+                  </a>
+                {% endif %}
+              </th>
+            {% endfor %}
+            <th>
+              ∑
+            </th>
+          </tr>
+        </thead>
+      {% endif %}
+      <tbody>
+        {% for row in table.rows %}
+          <tr class="{% if row.ghost %}!text-gray-400{% endif %} {% if row.enrollment.user == request.user %}bg-gray-50 font-bold{% endif %}">
+            <td>
+              {% if row.rank %}
+                {{ row.rank }}.
+              {% endif %}
+            </td>
+            <td>
+              <a href="{{ row.enrollment.user.profile_url }}">
+                {{ row.enrollment.user.display_name }}
+              </a>
+            </td>
+            <td>
+              {{ row.enrollment.get_grade_display }}
+            </td>
+            <td>
+              <span data-tippy-content="{{ row.enrollment.school }}">
+                {% if row.enrollment.school.short_name %}
+                  {{ row.enrollment.school.short_name }}
+                {% else %}
+                  {{ row.enrollment.school.name }}
+                {% endif %}
+              </span>
+            </td>
+            {% for cell in row.columns %}
+              <td>
+                {% if cell %}
+                  <span {% if cell.display_tooltip %}data-tippy-content="{{ cell.display_tooltip }}"{% endif %} {% if cell.ghost %}class="text-gray-400"{% endif %}>
+                    {{ cell.display_cell }}
+                  </span>
+                {% else %}
+                  -
+                {% endif %}
+              </td>
+            {% endfor %}
+            <td>
+              {{ row.total }}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

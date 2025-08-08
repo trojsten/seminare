@@ -71,6 +71,10 @@ class BaseSubmit(models.Model):
 
         return submit_types[submit_type].objects.filter(id=id, **kwargs).first()
 
+    @classmethod
+    def get_submit_types(cls) -> "list[type[BaseSubmit]]":
+        return [FileSubmit, JudgeSubmit, TextSubmit]
+
 
 class FileSubmit(BaseSubmit):
     file = models.FileField(upload_to=submit_file_filepath)

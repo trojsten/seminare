@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 from django.core.exceptions import SuspiciousOperation
 
 from seminare.contests.models import Contest
@@ -21,6 +23,36 @@ def get_contest_role(user: User, contest: Contest) -> ContestRole | None:
     role_cache[contest.id] = role
     setattr(user, "_contest_role_cache", role_cache)
     return role
+
+
+def get_contest_role_for_users(
+    users: list[User], contest: Contest
+) -> dict[User, ContestRole | None]:
+    """
+    Returns a dictionary mapping each user in `users` to their ContestRole (or None) for `contest`.
+    """
+    out: dict[User, ContestRole | None] = defaultdict(lambda: None)
+    roles = ContestRole.objects.filter(user__in=users, contest=contest)
+
+    for role in roles:
+        out[role.user] = role
+
+    return out
+
+
+def preload_contest_roles(users: list[User], contest: Contest) -> None:
+    """
+    Preloads contest roles for a list of users in a specific contest.
+    This is useful to avoid multiple database queries when checking roles later.
+    """
+    roles = get_contest_role_for_users(users, contest)
+
+    for user in users:
+        setattr(
+            user,
+            "_contest_role_cache",
+            {contest.id: roles[user]},
+        )
 
 
 def has_contest_role(user: User, contest: Contest, role: ContestRole.Role) -> bool:

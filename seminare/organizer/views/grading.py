@@ -1,6 +1,6 @@
 from collections import defaultdict
+from typing import Iterable
 
-from django.db.models import F
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
@@ -15,22 +15,23 @@ from seminare.organizer.views import (
     WithSubmit,
 )
 from seminare.problems.models import Problem
-from seminare.submits.models import BaseSubmit, FileSubmit, JudgeSubmit, TextSubmit
+from seminare.rules import RuleEngine
+from seminare.submits.models import BaseSubmit
 from seminare.users.mixins.permissions import ContestOrganizerRequired
-from seminare.users.models import User
+from seminare.users.models import Enrollment
 
 
 class WithSubmitList(WithContest, MixinProtocol):
     problem: Problem | cached_property
 
-    def get_users(self):
-        return User.objects.filter(enrollment__problem_set=self.problem.problem_set)
-
-    def get_submit_types(self) -> dict[str, type[BaseSubmit]]:
-        return {"judge": JudgeSubmit, "text": TextSubmit, "file": FileSubmit}
+    @cached_property
+    def rule_engine(self) -> RuleEngine:
+        return self.problem.problem_set.get_rule_engine()
 
     def get_submits(
-        self, users, limit_types=None
+        self,
+        enrollments: Iterable[Enrollment],
+        limit_types: Iterable[str] | None = None,
     ) -> dict[int, dict[str, BaseSubmit | None]]:
         """
         Returns one submit of each type for every user.
@@ -38,36 +39,29 @@ class WithSubmitList(WithContest, MixinProtocol):
         """
         submits_user = defaultdict(dict)
 
-        for submit_type, submit_cls in self.get_submit_types().items():
-            if limit_types and submit_type not in limit_types:
+        for submit_cls in BaseSubmit.get_submit_types():
+            if limit_types and submit_cls.type not in limit_types:
                 continue
-            # TODO: Last submit before round end!
-            submit_objs = (
-                submit_cls.objects.filter(
-                    enrollment__user__in=users, problem=self.problem
-                )
-                .order_by(
-                    "enrollment_id", F("score").desc(nulls_last=True), "-created_at"
-                )
-                .distinct("enrollment_id")
-                .select_related("enrollment", "scored_by")
-            )
+
+            submit_objs = self.rule_engine.get_enrollments_problems_effective_submits(
+                submit_cls, enrollments, [self.problem]
+            ).select_related("scored_by")
 
             for submit in submit_objs:
-                submits_user[submit.enrollment.user_id][submit_type] = submit
+                submits_user[submit.enrollment_id][submit_cls.type] = submit
 
         return submits_user
 
     def get_users_with_submits(self, limit_types=None):
         data = []
-        users = self.get_users()
-        submits = self.get_submits(users, limit_types)
+        enrollments = self.rule_engine.get_enrollments().select_related("user")
+        submits = self.get_submits(enrollments, limit_types)
 
-        for user in users:
-            row: dict = {"user": user}
-            row.update(submits[user.id])
+        for enrollment in enrollments:
+            row: dict = {"user": enrollment.user}
+            row.update(submits[enrollment.id])
             if limit_types and len(limit_types) == 1:
-                row["submit"] = submits[user.id].get(limit_types[0])
+                row["submit"] = submits[enrollment.id].get(limit_types[0])
             data.append(row)
 
         return data

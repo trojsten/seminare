@@ -1,8 +1,7 @@
 from django import template
-from django.contrib.sites.shortcuts import get_current_site
 from django.urls import reverse
 
-from seminare.contests.models import Contest
+from seminare.contests.utils import get_current_contest
 
 register = template.Library()
 
@@ -11,8 +10,7 @@ register = template.Library()
 def org_navbar(context):
     sections = []
 
-    site = get_current_site(context["request"])
-    contest = Contest.objects.filter(site=site).first()
+    contest = get_current_contest(context["request"])
 
     if contest:
         sections.append(
