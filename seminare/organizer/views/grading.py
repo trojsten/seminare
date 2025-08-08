@@ -16,7 +16,7 @@ from seminare.organizer.views import (
 )
 from seminare.problems.models import Problem
 from seminare.rules import RuleEngine
-from seminare.submits.models import BaseSubmit
+from seminare.submits.models import BaseSubmit, FileSubmit
 from seminare.users.mixins.permissions import ContestOrganizerRequired
 from seminare.users.models import Enrollment
 
