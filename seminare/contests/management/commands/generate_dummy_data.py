@@ -215,6 +215,7 @@ class Command(BaseCommand):
                 problem_set = ProblemSet.objects.create(
                     contest=contest,
                     name=f"{kolo}. kolo {cast}. časť 0. ročník KSP",
+                    slug=f"r0{'z' if cast == 1 else 'l'}{kolo}",
                     start_date=start,
                     end_date=end,
                     is_public=True,
