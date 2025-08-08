@@ -40,6 +40,8 @@ class ProblemSet(models.Model):
     rule_engine = models.CharField(max_length=512)
     rule_engine_options = models.JSONField(default=dict, blank=True)
 
+    problems: models.Manager["Problem"]
+
     objects = ProblemSetQuerySet.as_manager()
     enrollment_set: "RelatedManager[Enrollment]"
     problems: "RelatedManager[Problem]"
@@ -53,6 +55,13 @@ class ProblemSet(models.Model):
     def get_rule_engine(self) -> RuleEngine:
         class_ = get_rule_engine_class(self.rule_engine)
         return class_(self)
+
+    def close(self):
+        """Closes and finalizes the problem set."""
+
+        self.get_rule_engine().close_problemset()
+
+        # TODO: save that state
 
 
 class ProblemText(TypedDict):

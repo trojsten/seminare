@@ -5,7 +5,7 @@ from django.shortcuts import get_object_or_404
 from django.views.generic import DetailView, ListView
 
 from seminare.contests.utils import get_current_contest
-from seminare.problems.logic import inject_user_score
+from seminare.problems.logic import inject_chips, inject_user_score
 from seminare.problems.models import Problem, ProblemSet
 from seminare.rules import RuleEngine
 from seminare.submits.models import FileSubmit, JudgeSubmit, TextSubmit
@@ -36,6 +36,7 @@ class ProblemSetListView(ListView):
 class ProblemSetDetailView(DetailView):
     queryset = ProblemSet.objects.get_queryset()
     template_name = "sets/detail.html"
+    object: ProblemSet
 
     def get_queryset(self):
         site = get_current_site(self.request)
@@ -43,9 +44,11 @@ class ProblemSetDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        ctx["problems"] = inject_user_score(
-            self.object.problems.all(), self.request.user
+        ctx["problems"] = inject_chips(
+            inject_user_score(self.object.problems.all(), self.request.user),
+            self.object.get_rule_engine().get_chips(self.request.user),
         )
+
         return ctx
 
 
@@ -139,11 +142,17 @@ class ProblemDetailView(DetailView):
         ctx = super().get_context_data(**kwargs)
         assert isinstance(self.request.user, User | AnonymousUser)
 
+        chips = self.object.problem_set.get_rule_engine().get_chips(self.request.user)
+
         ctx["texts"] = self.object.get_all_texts()
-        ctx["sidebar_problems"] = inject_user_score(
-            Problem.objects.filter(problem_set=self.object.problem_set),
-            self.request.user,
+        ctx["sidebar_problems"] = inject_chips(
+            inject_user_score(
+                Problem.objects.filter(problem_set=self.object.problem_set),
+                self.request.user,
+            ),
+            chips,
         )
+        ctx["chips"] = chips[self.object]
         if isinstance(self.request.user, User):
             ctx["is_organizer"] = is_contest_organizer(
                 self.request.user, get_current_contest(self.request)
