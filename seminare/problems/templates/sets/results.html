@@ -23,7 +23,7 @@
 
   <div class="flex w-full justify-center my-4 border rounded-md divide-x">
     {% for slug, name in result_tables.items %}
-      <a class="text-center grow p-2 hover:bg-gray-50 {% if slug == selected_table %}bg-gray-100{% endif %}" href="{% url "problem_set_results" object.id slug %}">{{ name }}</a>
+      <a class="text-center grow p-2 hover:bg-gray-50 {% if slug == selected_table %}bg-gray-100{% endif %}" href="{% url "problem_set_results" object.slug slug %}">{{ name }}</a>
     {% endfor %}
   </div>
 
