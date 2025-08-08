@@ -1,4 +1,3 @@
-import random
 from collections import defaultdict
 from datetime import datetime
 from decimal import Decimal
@@ -9,9 +8,17 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 
-from seminare.problems.models import Problem, Text
+from seminare.problems.models import Problem, ProblemSet, Text
 from seminare.rules import Chip, LevelRuleEngine
-from seminare.rules.results import Cell, ColumnHeader, Row, ScoreCell, Table, TextCell
+from seminare.rules.results import (
+    Cell,
+    ColumnHeader,
+    PreviousScoreCell,
+    Row,
+    ScoreCell,
+    Table,
+    TextCell,
+)
 from seminare.rules.scores import Score
 from seminare.submits.models import BaseSubmit
 from seminare.users.logic.permissions import is_contest_organizer, preload_contest_roles
@@ -20,6 +27,9 @@ from seminare.users.models import Enrollment, Grade, User
 
 class KSP2025(LevelRuleEngine):
     engine_id = "ksp-2025"
+
+    max_level = 4
+
     doprogramovanie_date: datetime
 
     def parse_options(self, options: dict) -> None:
@@ -121,14 +131,19 @@ class KSP2025(LevelRuleEngine):
 
     def calculate_total(self, scores: Iterable[Cell | None]) -> Decimal:
         best: list[Decimal] = []
+        previous = Decimal(0)
         for score in scores:
+            if isinstance(score, PreviousScoreCell):
+                previous = score.points
+                continue
+
             if not isinstance(score, ScoreCell):
                 continue
             best.append(score.score.points * score.coefficient)
 
         best.sort(reverse=True)
 
-        return Decimal(sum(best[:5]))
+        return sum(best[:5]) + previous
 
     def get_coefficient_for_problem(
         self, problem_number: int, table: str | None = None
@@ -138,12 +153,30 @@ class KSP2025(LevelRuleEngine):
         return Decimal(1)
 
     def get_result_table(self, table: str, **kwargs) -> Table:
+        previous_data = None
+        if self.problem_set.slug.endswith("2"):
+            previous_problem_set = ProblemSet.objects.filter(
+                contest=self.problem_set.contest,
+                slug=f"{self.problem_set.slug[:-1]}1",
+            ).first()
+            if previous_problem_set:
+                previous_data = previous_problem_set.get_rule_engine().get_result_table(
+                    table, **kwargs
+                )
+
         problems = self.problem_set.problems.order_by("number").all()
-        # TODO: only enrollements with enrollment_level <= table_level
         enrollments = self.get_enrollments().select_related("user", "school")
-        scores = self.get_enrollments_problems_scores(enrollments, problems)
 
         columns = [ColumnHeader("Level", None, None)]
+        if previous_data:
+            columns.append(
+                ColumnHeader(
+                    "P",
+                    None,
+                    "Body z predchádzajúceho kola",
+                )
+            )
+
         for problem in problems:
             columns.append(
                 ColumnHeader(
@@ -157,14 +190,35 @@ class KSP2025(LevelRuleEngine):
 
         # Preload contest roles for enrollments to avoid multiple queries later
         # in is_contest_organizer
-        preload_contest_roles(
-            list(e.user for e in enrollments), self.problem_set.contest
-        )
+        users = list(e.user for e in enrollments)
+        preload_contest_roles(users, self.problem_set.contest)
+
+        levels = self.get_level_for_users(users)
+
+        if table != "all":
+            # Filter enrollments by level
+            level = int(table[1:]) if table.startswith("L") else 0
+            enrollments = [e for e in enrollments if levels[e.user] <= level]
+
+        scores = self.get_enrollments_problems_scores(enrollments, problems)
 
         rows = []
         for enrollment in enrollments:
-            # TODO: real level
-            cells: list[Cell | None] = [TextCell(str(random.randint(1, 4)), None)]
+            cells: list[Cell | None] = [TextCell(str(levels[enrollment.user]), None)]
+            if previous_data:
+                previous_score = next(
+                    (
+                        row
+                        for row in previous_data.rows
+                        if row.enrollment.user == enrollment.user
+                    ),
+                    None,
+                )
+                if previous_score is not None:
+                    cells.append(PreviousScoreCell(previous_score.total))
+                else:
+                    cells.append(None)
+
             for problem in problems:
                 key = (enrollment.user_id, problem.id)
                 if key in scores:
@@ -210,3 +264,30 @@ class KSP2025(LevelRuleEngine):
                     )
 
         return chips
+
+    ### Level stuff
+
+    def should_update_levels(self) -> bool:
+        return self.problem_set.slug.endswith("2")
+
+    def get_new_level(
+        self, user: "User", current_level: int, tables: dict[str, Table]
+    ) -> int:
+        for slug, table in tables.items():
+            if not slug.startswith("L"):
+                continue
+
+            # aspon 150b a top 5 v leveli L => L + 1
+            last_rank = 0
+            for row in table.rows:
+                if row.rank is not None:
+                    last_rank = row.rank
+                    if last_rank > 5:
+                        break
+
+                if row.enrollment.user == user:
+                    if row.total >= 150:
+                        current_level = max(current_level, int(slug[1:]) + 1)
+
+            # TODO: sustredenia
+        return current_level
