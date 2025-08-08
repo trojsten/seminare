@@ -219,7 +219,7 @@ class Command(BaseCommand):
                     start_date=start,
                     end_date=end,
                     is_public=True,
-                    rule_engine="seminare.rules.ksp.KSPRules",
+                    rule_engine="seminare.rules.ksp.KSP2025",
                     rule_engine_options={
                         "doprogramovanie_date": (end - timedelta(days=15)).isoformat(),
                     },
