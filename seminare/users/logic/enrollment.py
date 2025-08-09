@@ -1,5 +1,5 @@
 from seminare.problems.models import ProblemSet
-from seminare.users.models import Enrollment, User
+from seminare.users.models import Enrollment, Grade, User
 
 
 def get_enrollment(user: User, problem_set: ProblemSet) -> Enrollment:
@@ -7,7 +7,7 @@ def get_enrollment(user: User, problem_set: ProblemSet) -> Enrollment:
         user=user,
         problem_set=problem_set,
         defaults={
-            "grade": Enrollment.Grade.OLD,
+            "grade": Grade.OLD,
         },
     )
     return e
