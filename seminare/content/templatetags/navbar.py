@@ -1,16 +1,16 @@
 from django import template
-from django.contrib.sites.shortcuts import get_current_site
 from django.urls import reverse
 
 from seminare.content.models import MenuGroup, MenuItem
+from seminare.contests.utils import get_current_contest
 
 register = template.Library()
 
 
 @register.inclusion_tag("navbar/menu.html", takes_context=True)
 def navbar_menu(context):
-    site = get_current_site(context["request"])
-    items = list(MenuItem.objects.filter(group__contest__site=site).all())
+    contest = get_current_contest(context["request"])
+    items = list(MenuItem.objects.filter(group__contest=contest).all())
 
     context["items"] = items
 
