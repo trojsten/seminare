@@ -65,9 +65,14 @@
                 <p>Vyber alebo presuň tvoje riešenie sem</p>
               </div>
 
+              <div class="hidden items-center text-amber-600 bg-amber-100 rounded-md py-2 px-3 my-4 text-sm" data-submit--file-submit-target="errorContainer">
+                <iconify-icon icon="mdi:warning" width="none" class="shrink-0 mr-3 size-4"></iconify-icon>
+                <span data-submit--file-submit-target="errorMessage"></span>
+              </div>
+
               <form method="POST" enctype="multipart/form-data" action="{% url "file_submit" problem.id %}" id="form" class="hidden mt-2" data-submit--file-submit-target="form">
                 {% csrf_token %}
-                <input type="file" name="files" multiple accept="image/jpeg, image/png" class="hidden" data-submit--file-submit-target="fileInput" data-action="change->submit--file-submit#onInputChange">
+                <input type="file" name="files" multiple accept="image/jpeg, image/png, application/pdf" class="hidden" data-submit--file-submit-target="fileInput" data-action="change->submit--file-submit#onInputChange">
                 <button class="btn btn-blue mt-2">Odovzdať</button>
               </form>
 
