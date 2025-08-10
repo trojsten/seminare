@@ -5,6 +5,8 @@ from django.contrib import admin
 from django.shortcuts import render
 from django.urls import include, path, register_converter
 
+from seminare.organizer.api import router as api_router
+
 
 class SubmitIDConverter:
     regex = "[FJT]-[0-9]+"
@@ -18,9 +20,11 @@ class SubmitIDConverter:
 
 register_converter(SubmitIDConverter, "submit_id")
 
+
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("oidc/", include("mozilla_django_oidc.urls")),
+    path("api/", include(api_router.urls)),
     path("", include("seminare.problems.urls")),
     path("", include("seminare.submits.urls")),
     path("", include("seminare.legacy.urls")),
