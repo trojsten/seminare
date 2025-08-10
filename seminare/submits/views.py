@@ -18,6 +18,7 @@ from seminare.submits.models import BaseSubmit, FileSubmit, JudgeSubmit, TextSub
 from seminare.submits.utils import combine_images_into_pdf, enqueue_judge_submit
 from seminare.users.logic.enrollment import get_enrollment
 from seminare.users.mixins.permissions import ContestOrganizerRequired
+from seminare.users.models import User
 
 
 class SubmitCreateView(FormView):
@@ -99,15 +100,30 @@ class SubmitDetailView(ContestOrganizerRequired, DetailView):
     context_object_name = "submit"
     template_name = "submits/detail.html"
 
+    submit: BaseSubmit | None = None
+
     def check_access(self) -> bool:
+        assert isinstance(self.request.user, User)
         submit = self.get_object()
         if submit is None:
             return False
 
-        return submit.enrollment.user == self.request.user or super().check_access()
+        return (
+            submit.enrollment.user_id == self.request.user.id or super().check_access()
+        )
 
     def get_object(self, queryset=...):
-        return BaseSubmit.get_submit_by_id(self.kwargs["submit_id"])
+        if self.submit is not None:
+            return self.submit
+
+        qs = BaseSubmit.get_submit_by_id_queryset(self.kwargs["submit_id"])
+        if qs is None:
+            return None
+
+        self.submit = qs.select_related(
+            "enrollment", "problem", "problem__problem_set"
+        ).first()
+        return self.submit
 
 
 @method_decorator(csrf_exempt, name="dispatch")

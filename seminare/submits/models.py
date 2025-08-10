@@ -52,13 +52,15 @@ class BaseSubmit(models.Model):
         raise NotImplementedError()
 
     @classmethod
-    def get_submit_by_id(cls, submit_id: str, **kwargs) -> "BaseSubmit|None":
+    def get_submit_by_id_queryset(
+        cls, submit_id: str, **kwargs
+    ) -> "models.QuerySet[BaseSubmit, BaseSubmit]|None":
         try:
             submit_type, id = submit_id.split("-", 1)
         except ValueError:
             return None
 
-        submit_types = {
+        submit_types: dict[str, type[BaseSubmit]] = {
             "F": FileSubmit,
             "J": JudgeSubmit,
             "T": TextSubmit,
@@ -69,7 +71,14 @@ class BaseSubmit(models.Model):
         if not id.isnumeric():
             return None
 
-        return submit_types[submit_type].objects.filter(id=id, **kwargs).first()
+        return submit_types[submit_type].objects.filter(id=id, **kwargs)
+
+    @classmethod
+    def get_submit_by_id(cls, submit_id: str, **kwargs) -> "BaseSubmit|None":
+        if (qs := cls.get_submit_by_id_queryset(submit_id, **kwargs)) is not None:
+            return qs.first()
+
+        return None
 
     @classmethod
     def get_submit_types(cls) -> "list[type[BaseSubmit]]":
