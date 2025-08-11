@@ -129,10 +129,8 @@ class ProblemDetailView(DetailView):
             problem_set=self.object.problem_set, user=self.request.user
         ).first()
 
-        if not enrollment:
-            return {}
-
-        enrollment.user = self.request.user
+        if enrollment is not None:
+            enrollment.user = self.request.user
 
         return {
             id: {

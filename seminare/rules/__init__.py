@@ -110,13 +110,19 @@ class RuleEngine:
         ]
 
     def get_submits_chip(
-        self, submit_cls: type[BaseSubmit], problem: "Problem", enrollment: Enrollment
+        self,
+        submit_cls: type[BaseSubmit],
+        problem: "Problem",
+        enrollment: Enrollment | None,
     ) -> Chip | None:
         """Returns chip to be displayed next to submits for user."""
         return None
 
     def can_submit(
-        self, submit_cls: type[BaseSubmit], problem: "Problem", enrollment: Enrollment
+        self,
+        submit_cls: type[BaseSubmit],
+        problem: "Problem",
+        enrollment: Enrollment | None,
     ) -> bool:
         """Returns True if the user can submit solution to the problem."""
         return True

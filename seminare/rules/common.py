@@ -195,10 +195,16 @@ class LimitedSubmitRuleEngine(RuleEngine):
 
     @cache
     def get_max_submits(
-        self, submit_cls: type[BaseSubmit], problem: Problem, enrollment: Enrollment
+        self,
+        submit_cls: type[BaseSubmit],
+        problem: Problem,
+        enrollment: Enrollment | None,
     ) -> int:
         """Returns the maximum number of submissions allowed for a problem. -1 for unlimited."""
-        if (rule_data := self.get_override(enrollment.user)) is not None:
+        if (
+            enrollment is not None
+            and (rule_data := self.get_override(enrollment.user)) is not None
+        ):
             limit = rule_data.data.get(
                 f"max_{submit_cls.__name__}_submits_{problem.number}"
             )
@@ -216,9 +222,16 @@ class LimitedSubmitRuleEngine(RuleEngine):
         return submit_cls.objects.filter(enrollment=enrollment, problem=problem).count()
 
     def get_submits_chip(
-        self, submit_cls: type[BaseSubmit], problem: "Problem", enrollment: Enrollment
+        self,
+        submit_cls: type[BaseSubmit],
+        problem: "Problem",
+        enrollment: Enrollment | None,
     ) -> Chip | None:
-        submits = self.get_submits_count(submit_cls, problem, enrollment)
+        if enrollment is None:
+            submits = 0
+        else:
+            submits = self.get_submits_count(submit_cls, problem, enrollment)
+
         max_submits = self.get_max_submits(submit_cls, problem, enrollment)
         return Chip(
             f"{submits} / {max_submits}",
@@ -230,13 +243,21 @@ class LimitedSubmitRuleEngine(RuleEngine):
         )
 
     def can_submit(
-        self, submit_cls: type[BaseSubmit], problem: Problem, enrollment: Enrollment
+        self,
+        submit_cls: type[BaseSubmit],
+        problem: Problem,
+        enrollment: Enrollment | None,
     ) -> bool:
         max_submissions = self.get_max_submits(submit_cls, problem, enrollment)
         if max_submissions == -1:
             return True
 
-        if is_contest_organizer(enrollment.user, self.problem_set.contest):
+        if enrollment is not None and is_contest_organizer(
+            enrollment.user, self.problem_set.contest
+        ):
             return True
 
-        return self.get_submits_count(submit_cls, problem, enrollment) < max_submissions
+        if self.get_submits_count(submit_cls, problem, enrollment) >= max_submissions:
+            return False
+
+        return super().can_submit(submit_cls, problem, enrollment)
