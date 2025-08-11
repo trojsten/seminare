@@ -53,7 +53,7 @@ class RuleDataQuerySet(models.QuerySet):
         qs = self.filter(contest=contest, key=key, created_at__lte=effective_date)
 
         if engines is not None:
-            qs = qs.filter(engine__in=engines)
+            qs = qs.filter(engine__in=engines).select_related("user")
 
         return qs.order_by("user", "-created_at").distinct("user")
 
@@ -70,7 +70,7 @@ class RuleDataQuerySet(models.QuerySet):
 
         qs = self.filter(
             contest=contest, key=key, user__in=users, created_at__lte=effective_date
-        )
+        ).select_related("user")
 
         if engines is not None:
             qs = qs.filter(engine__in=engines)
@@ -90,7 +90,7 @@ class RuleDataQuerySet(models.QuerySet):
 
         qs = self.filter(
             contest=contest, key=key, user=user, created_at__lte=effective_date
-        )
+        ).select_related("user")
 
         if engines is not None:
             qs = qs.filter(engine__in=engines)
