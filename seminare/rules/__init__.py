@@ -176,7 +176,7 @@ class RuleEngine:
         return [
             ColumnHeader(
                 str(problem.number),
-                reverse("problem_detail", args=[self.problem_set.id, problem.number]),
+                reverse("problem_detail", args=[self.problem_set.slug, problem.number]),
                 problem.name,
             )
             for problem in context["problems"]
