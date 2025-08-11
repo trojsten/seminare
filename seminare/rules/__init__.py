@@ -6,12 +6,14 @@ from importlib import import_module
 from typing import TYPE_CHECKING, Iterable
 
 from django.db.models import QuerySet
+from django.urls import reverse
 
 from seminare.contests.models import RuleData
-from seminare.rules.results import Cell, Table
+from seminare.rules.results import Cell, ColumnHeader, Row, ScoreCell, Table
 from seminare.rules.scores import Score
 from seminare.submits.models import BaseSubmit
 from seminare.submits.utils import JSON
+from seminare.users.logic.permissions import is_contest_organizer, preload_contest_roles
 from seminare.users.models import Enrollment, User
 
 if TYPE_CHECKING:
@@ -151,13 +153,95 @@ class RuleEngine:
         # TODO: Also pass User or UserData.
         raise NotImplementedError()
 
+    def result_table_get_context(
+        self, table: str, enrollments: QuerySet[Enrollment, Enrollment], context: dict
+    ) -> dict:
+        """
+        Precomputes context for a given result table.
+        Context will be passed to result_table_get_headers and result_table_get_cells.
+        """
+        users = list(e.user for e in enrollments)
+        preload_contest_roles(users, self.problem_set.contest)
+
+        context["problems"] = self.problem_set.problems.order_by("number").all()
+        context["scores"] = self.get_enrollments_problems_scores(
+            enrollments, context["problems"]
+        )
+        return context
+
+    def result_table_get_headers(
+        self, table: str, context: dict, **kwargs
+    ) -> list[ColumnHeader]:
+        """Returns the column headers for a given result table."""
+        return [
+            ColumnHeader(
+                str(problem.number),
+                reverse("problem_detail", args=[self.problem_set.id, problem.number]),
+                problem.name,
+            )
+            for problem in context["problems"]
+        ]
+
+    def result_table_get_cells(
+        self, table: str, enrollment: Enrollment, context: dict, **kwargs
+    ) -> list[Cell | None]:
+        """Returns the row cells for a given result table and enrollment."""
+        cells: list[Cell | None] = []
+
+        for problem in context["problems"]:
+            if (key := (enrollment.user_id, problem.id)) in context["scores"]:
+                score = context["scores"][key]
+                coeff = self.get_coefficient_for_problem(problem.number, table)
+                cells.append(ScoreCell(score, coeff))
+            else:
+                cells.append(None)
+
+        return cells
+
+    def result_table_exclude_enrollment(
+        self, table: str, context: dict, enrollment: Enrollment
+    ) -> bool:
+        """Returns True if the enrollment should be excluded from the result table."""
+        return False
+
+    def result_table_is_ghost(
+        self, table: str, context: dict, enrollment: Enrollment
+    ) -> bool:
+        """Returns True if the enrollment should be marked as ghost in the result table."""
+        return is_contest_organizer(
+            enrollment.user,
+            self.problem_set.contest,
+        )
+
     def get_result_table(self, table: str, **kwargs) -> Table:
         """Calculates given result table."""
-        raise NotImplementedError()
+        enrollments = self.get_enrollments().select_related("user", "school")
 
-    def get_aggregated_results(self, table: str, **kwargs) -> Table:
-        """Returns the given result table aggregated with previous problem sets."""
-        return self.get_result_table(table, **kwargs)
+        context = self.result_table_get_context(table, enrollments, {})
+        columns = self.result_table_get_headers(table, context)
+
+        rows = []
+        for enrollment in enrollments:
+            if self.result_table_exclude_enrollment(table, context, enrollment):
+                continue
+
+            cells: list[Cell | None] = self.result_table_get_cells(
+                table, enrollment, context
+            )
+
+            rows.append(
+                Row(
+                    rank=None,
+                    enrollment=enrollment,
+                    ghost=self.result_table_is_ghost(table, context, enrollment),
+                    columns=cells,
+                    total=self.calculate_total(cells),
+                )
+            )
+
+        table_obj = Table(columns, rows)
+        table_obj.sort()
+        return table_obj
 
     def get_chips(self, user: "User") -> dict["Problem", list[Chip]]:
         return defaultdict(list)
@@ -167,69 +251,6 @@ class RuleEngine:
         # TODO: actually call it
         # TODO: freeze results
         pass
-
-
-class LevelRuleEngine(RuleEngine):
-    default_level: int = 1
-    max_level: int
-
-    def get_level_for_users(self, users: "list[User]") -> dict["User", int]:
-        """Returns levels for multiple users. If no data is found, returns default level."""
-        rule_data = self.get_data_for_users("level", users)
-
-        return defaultdict(
-            lambda: self.default_level,
-            {d.user: d.data for d in rule_data},
-        )
-
-    def get_level_for_user(self, user: "User") -> int:
-        """Returns the level for a single user. If no data is found, returns default level."""
-        rule_data = self.get_data_for_user("level", user)
-        if rule_data is None:
-            return self.default_level
-        return rule_data.data
-
-    def set_levels_for_users(self, data: dict["User", int]):
-        """Sets levels for multiple users. Data is a dict mapping User to level."""
-        return self.set_data_for_users(
-            "level", {user: min(level, self.max_level) for user, level in data.items()}
-        )
-
-    def set_level_for_user(self, user: "User", level: int):
-        """Sets level for a single user. Level is an integer."""
-        return self.set_data_for_user("level", user, min(level, self.max_level))
-
-    def should_update_levels(self) -> bool:
-        """Returns True if levels should be updated on problem set close."""
-        raise NotImplementedError()
-
-    def get_new_level(
-        self, user: "User", current_level: int, tables: dict[str, Table]
-    ) -> int:
-        """Returns the new level for a user based on the result tables."""
-        raise NotImplementedError()
-
-    def close_problemset(self):
-        if not self.should_update_levels():
-            return
-
-        enrollments = list(
-            self.problem_set.enrollment_set.all().prefetch_related("user")
-        )
-        users = [e.user for e in enrollments]
-        levels = self.get_level_for_users(users)
-
-        tables = {
-            table: self.get_result_table(table)
-            for table in self.get_result_tables().keys()
-        }
-
-        for user in users:
-            levels[user] = self.get_new_level(user, levels[user], tables)
-
-        self.set_levels_for_users(levels)
-
-        super().close_problemset()
 
 
 def get_rule_engine_class(path: str) -> type[RuleEngine]:
