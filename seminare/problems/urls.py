@@ -5,6 +5,7 @@ from .views import (
     ProblemSetDetailView,
     ProblemSetListView,
     ProblemSetResultsView,
+    ProblemSolutionView,
 )
 
 urlpatterns = [
@@ -14,6 +15,11 @@ urlpatterns = [
         "kola/<problem_set_slug>/ulohy/<int:number>/",
         ProblemDetailView.as_view(),
         name="problem_detail",
+    ),
+    path(
+        "kola/<problem_set_slug>/ulohy/<int:number>/riesenie/",
+        ProblemSolutionView.as_view(),
+        name="problem_solution",
     ),
     path(
         "kola/<slug>/vysledky/",

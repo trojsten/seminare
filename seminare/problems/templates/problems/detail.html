@@ -8,7 +8,12 @@
 <div class="border-b px-4 py-3">
   {% url "problem_set_list" as set_list_url %}
   {% url "problem_set_detail" problem.problem_set.slug as set_url %}
-  {% breadcrumbs "Zadania" set_list_url problem.problem_set set_url problem %}
+  {% if solution %}
+    {% url "problem_detail" problem.problem_set.slug problem.number as problem_url %}
+    {% breadcrumbs "Zadania" set_list_url problem.problem_set set_url problem problem_url "Riešenie" %}
+  {% else %}
+    {% breadcrumbs "Zadania" set_list_url problem.problem_set set_url problem %}
+  {% endif %}
 </div>
 
 <div data-controller="submit--cta">
@@ -23,25 +28,42 @@
           <iconify-icon icon="mdi:chevron-down" class="ml-1"></iconify-icon>
         </a>
 
-        {% if texts.ES.is_visible or is_organizer %}
-          <details class="p-4 border bg-gray-100 rounded-xl mb-6">
-            <summary>Kolo už skončilo. Tu si môžeš pozrieť vzorové riešenie.</summary>
-            <div class="prose my-6">
-              {% if not texts.ES.is_visible %}
-                {% message "Túto sekciu vidíš, lebo si organizátor" "warning" %}
-              {% endif %}
+        {% if solution %}
+          {% if texts.PS.is_visible or is_organizer %}
+            <details class="py-2 px-4 mb-4 border bg-gray-100 rounded-md mb-6">
+              <summary>Zadanie</summary>
+              <div class="prose my-6">
+                {% if not texts.PS.is_visible %}
+                  {% message "Túto sekciu vidíš, lebo si organizátor" "warning" %}
+                {% endif %}
+                {{ texts.PS.text|markdownify }}
+              </div>
+            </details>
+          {% endif %}
+
+          {% if texts.ES.is_visible or is_organizer %}
+            {% if not texts.ES.is_visible %}
+              {% message "Túto sekciu vidíš, lebo si organizátor" "warning" %}
+            {% endif %}
+            <div class="prose">
               {{ texts.ES.text|markdownify }}
             </div>
-          </details>
-        {% endif %}
-
-        {% if texts.PS.is_visible or is_organizer %}
-          {% if not texts.PS.is_visible %}
-            {% message "Túto sekciu vidíš, lebo si organizátor" "warning" %}
           {% endif %}
-          <div class="prose">
-            {{ texts.PS.text|markdownify }}
-          </div>
+        {% else %}
+          {% if texts.ES.is_visible or is_organizer %}
+            <div class="border rounded items-center py-2 px-4 mb-4 shrink-0 border-blue-700/40 text-blue-700 bg-blue-100">
+              Kolo už skončilo. Môžeš si pozrieť <a class="link" href="{% url "problem_solution" problem.problem_set.slug problem.number %}">vzorové riešenie</a>.
+            </div>
+          {% endif %}
+
+          {% if texts.PS.is_visible or is_organizer %}
+            {% if not texts.PS.is_visible %}
+              {% message "Túto sekciu vidíš, lebo si organizátor" "warning" %}
+            {% endif %}
+            <div class="prose">
+              {{ texts.PS.text|markdownify }}
+            </div>
+          {% endif %}
         {% endif %}
       </div>
     </div>
