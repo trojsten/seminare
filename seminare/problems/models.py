@@ -25,7 +25,7 @@ class ProblemSetQuerySet(models.QuerySet):
 
 class ProblemSet(models.Model):
     id: int
-    slug = models.SlugField(max_length=64, unique=True)
+    slug = models.SlugField(max_length=64)
 
     contest = models.ForeignKey("contests.Contest", on_delete=models.CASCADE)
     contest_id: int
@@ -46,6 +46,9 @@ class ProblemSet(models.Model):
 
     class Meta:
         ordering = ["start_date", "end_date"]
+        constraints = [
+            UniqueConstraint("contest", "slug", name="problemset__contest_slug__unique")
+        ]
 
     def __str__(self):
         return self.name
