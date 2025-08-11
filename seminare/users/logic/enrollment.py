@@ -7,7 +7,8 @@ def get_enrollment(user: User, problem_set: ProblemSet) -> Enrollment:
         user=user,
         problem_set=problem_set,
         defaults={
-            "grade": Grade.OLD,
+            "grade": user.current_grade if user.current_grade else Grade.OLD,
+            "school": user.current_school,
         },
     )
     return e

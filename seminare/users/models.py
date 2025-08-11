@@ -84,7 +84,7 @@ class Enrollment(models.Model):
         ]
 
     def __str__(self):
-        return f"{self.user} ({self.grade})"
+        return f"{self.user} - {self.problem_set} ({self.grade})"
 
 
 class ContestRole(models.Model):
