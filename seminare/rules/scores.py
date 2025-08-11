@@ -17,19 +17,17 @@ class Score:
         return total_score
 
     @property
+    def pending(self):
+        return any(submit.score is None for submit in self.submits)
+
+    @property
     def display(self) -> str:
         points = self.points
         display_string = f"{self.points:.0f}"
         if not float(points).is_integer():
             display_string = f"{self.points:.1f}"
 
-        pending = False
-        for submit in self.submits:
-            if submit.score is None:
-                pending = True
-                break
-
-        if pending:
+        if self.pending:
             display_string += "?"
 
         return display_string

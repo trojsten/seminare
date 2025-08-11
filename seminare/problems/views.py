@@ -25,9 +25,7 @@ class ProblemSetListView(ListView):
 
         current_sets = ProblemSet.objects.for_user(self.request.user).only_current()
         for pset in current_sets:
-            pset.problems_with_score = inject_user_score(
-                pset.problems.all(), self.request.user
-            )
+            pset.problems_with_score = inject_user_score(pset, self.request.user)
 
         ctx["current_sets"] = current_sets
         return ctx
@@ -43,9 +41,7 @@ class ProblemSetDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        ctx["problems"] = inject_user_score(
-            self.object.problems.all(), self.request.user
-        )
+        ctx["problems"] = inject_user_score(self.object, self.request.user)
         return ctx
 
 
@@ -113,7 +109,7 @@ class ProblemDetailView(DetailView):
     def get_object(self, queryset=None):
         site = get_current_site(self.request)
         return get_object_or_404(
-            Problem,
+            Problem.objects.select_related("problem_set"),
             number=self.kwargs["number"],
             problem_set__slug=self.kwargs["problem_set_slug"],
             problem_set__contest__site=site,
@@ -141,7 +137,7 @@ class ProblemDetailView(DetailView):
 
         ctx["texts"] = self.object.get_all_texts()
         ctx["sidebar_problems"] = inject_user_score(
-            Problem.objects.filter(problem_set=self.object.problem_set),
+            self.object.problem_set,
             self.request.user,
         )
         if isinstance(self.request.user, User):
