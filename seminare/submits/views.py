@@ -17,10 +17,12 @@ from seminare.submits.forms import FileFieldForm, JudgeSubmitForm, TextSubmitFor
 from seminare.submits.models import BaseSubmit, FileSubmit, JudgeSubmit, TextSubmit
 from seminare.submits.utils import combine_images_into_pdf, enqueue_judge_submit
 from seminare.users.logic.enrollment import get_enrollment
+from seminare.users.mixins.permissions import ContestOrganizerRequired
+from seminare.users.models import User
 
 
-class FileSubmitCreateView(FormView):
-    form_class = FileFieldForm
+class SubmitCreateView(FormView):
+    submit: BaseSubmit
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
@@ -29,32 +31,34 @@ class FileSubmitCreateView(FormView):
         return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
+        self.submit.save()
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse("submit_detail", args=[self.submit.submit_id])
+
+
+class FileSubmitCreateView(SubmitCreateView):
+    form_class = FileFieldForm
+
+    def form_valid(self, form):
         files = form.cleaned_data["files"]
         final_file = files[0]
         _, ext = os.path.splitext(files[0].name)
-        if len(files) > 1 or ext.lower() in [".jpg", ".jpeg", ".png"]:
+        if len(files) > 1 or ext.lower() in {".jpg", ".jpeg", ".png"}:
             final_file = combine_images_into_pdf(files)
-        file_submit = FileSubmit(
+
+        self.submit = FileSubmit(
             file=final_file,
             problem=self.problem,
             enrollment=get_enrollment(self.request.user, self.problem.problem_set),
         )
-        file_submit.save()
-        self.file_submit = file_submit
+
         return super().form_valid(form)
 
-    def get_success_url(self):
-        return reverse("submit_detail", args=[self.file_submit.submit_id])
 
-
-class JudgeSubmitCreateView(FormView):
+class JudgeSubmitCreateView(SubmitCreateView):
     form_class = JudgeSubmitForm
-
-    def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            raise PermissionDenied("You must be logged in to perform this action.")
-        self.problem = get_object_or_404(Problem, id=kwargs["problem"])
-        return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
         program = form.cleaned_data["program"]
@@ -66,53 +70,60 @@ class JudgeSubmitCreateView(FormView):
             program,
         )
 
-        judge_submit = JudgeSubmit(
+        self.submit = JudgeSubmit(
             program=program,
             problem=self.problem,
             judge_id=submit.public_id,
             protocol_key=submit.protocol_key,
             enrollment=get_enrollment(self.request.user, self.problem.problem_set),
         )
-        judge_submit.save()
-        self.judge_submit = judge_submit
+
         return super().form_valid(form)
 
-    def get_success_url(self):
-        return reverse("submit_detail", args=[self.judge_submit.submit_id])
 
-
-class TextSubmitCreateView(FormView):
+class TextSubmitCreateView(SubmitCreateView):
     form_class = TextSubmitForm
-
-    def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            raise PermissionDenied("You must be logged in to perform this action.")
-        self.problem = get_object_or_404(Problem, id=kwargs["problem"])
-        return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
         text = form.cleaned_data["text"]
 
-        text_submit = TextSubmit(
+        self.submit = TextSubmit(
             value=text,
             problem=self.problem,
             enrollment=get_enrollment(self.request.user, self.problem.problem_set),
         )
-        text_submit.save()
-        self.text_submit = text_submit
+
         return super().form_valid(form)
 
-    def get_success_url(self):
-        return reverse("submit_detail", args=[self.text_submit.submit_id])
 
-
-class SubmitDetailView(DetailView):
-    # TODO: Permission check
+class SubmitDetailView(ContestOrganizerRequired, DetailView):
     context_object_name = "submit"
     template_name = "submits/detail.html"
 
+    submit: BaseSubmit | None = None
+
+    def check_access(self) -> bool:
+        assert isinstance(self.request.user, User)
+        submit = self.get_object()
+        if submit is None:
+            return False
+
+        return (
+            submit.enrollment.user_id == self.request.user.id or super().check_access()
+        )
+
     def get_object(self, queryset=...):
-        return BaseSubmit.get_submit_by_id(self.kwargs["submit_id"])
+        if self.submit is not None:
+            return self.submit
+
+        qs = BaseSubmit.get_submit_by_id_queryset(self.kwargs["submit_id"])
+        if qs is None:
+            return None
+
+        self.submit = qs.select_related(
+            "enrollment", "problem", "problem__problem_set"
+        ).first()
+        return self.submit
 
 
 @method_decorator(csrf_exempt, name="dispatch")

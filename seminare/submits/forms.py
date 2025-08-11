@@ -22,6 +22,26 @@ class MultipleFileField(forms.FileField):
 class FileFieldForm(forms.Form):
     files = MultipleFileField()
 
+    def clean(self, *args, **kwargs):
+        data = super().clean()
+        if data is None:
+            raise forms.ValidationError("Nahraj aspoň jeden súbor.")
+
+        files = data.get("files", [])
+        if len(files) <= 0:
+            raise forms.ValidationError({files: "Nahraj aspoň jeden súbor."})
+
+        if len(files) > 1 and not all(
+            f.name.lower().endswith((".jpg", ".jpeg", ".png")) for f in files
+        ):
+            raise forms.ValidationError(
+                {
+                    files: "Možeš odovzdať iba jeden PDF súbor, alebo viacero obrázkov (.jpg, .jpeg, .png)"
+                }
+            )
+
+        return data
+
 
 class JudgeSubmitForm(forms.Form):
     program = forms.FileField()
