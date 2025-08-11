@@ -1,10 +1,11 @@
 from collections import defaultdict
+from functools import cache
 
 from django.db.models import QuerySet
 from django.utils.functional import cached_property
 
-from seminare.problems.models import ProblemSet
-from seminare.rules import RuleEngine
+from seminare.problems.models import Problem, ProblemSet
+from seminare.rules import Chip, RuleEngine
 from seminare.rules.results import (
     Cell,
     ColumnHeader,
@@ -12,6 +13,8 @@ from seminare.rules.results import (
     Table,
     TextCell,
 )
+from seminare.submits.models import BaseSubmit, FileSubmit, JudgeSubmit, TextSubmit
+from seminare.users.logic.permissions import is_contest_organizer
 from seminare.users.models import Enrollment, User
 
 
@@ -172,3 +175,68 @@ class PreviousProblemSetRuleEngine(RuleEngine):
                 cells.insert(0, None)
 
         return cells
+
+
+class LimitedSubmitRuleEngine(RuleEngine):
+    max_submissions: dict[type[BaseSubmit], int] = {
+        FileSubmit: 5,
+        JudgeSubmit: 30,
+        TextSubmit: 10,
+    }
+
+    def parse_options(self, options: dict) -> None:
+        for submit_cls in BaseSubmit.get_submit_types():
+            if (key := f"max_{submit_cls.__name__}_submits") in options:
+                self.max_submissions[submit_cls] = options[key]
+
+    @cache
+    def get_override(self, user: User):
+        return self.get_data_for_user("max_submits_override", user)
+
+    @cache
+    def get_max_submits(
+        self, submit_cls: type[BaseSubmit], problem: Problem, enrollment: Enrollment
+    ) -> int:
+        """Returns the maximum number of submissions allowed for a problem. -1 for unlimited."""
+        if (rule_data := self.get_override(enrollment.user)) is not None:
+            limit = rule_data.data.get(
+                f"max_{submit_cls.__name__}_submits_{problem.number}"
+            )
+
+            if limit:
+                return limit
+
+        return self.max_submissions.get(submit_cls, -1)
+
+    @cache
+    def get_submits_count(
+        self, submit_cls: type[BaseSubmit], problem: Problem, enrollment: Enrollment
+    ) -> int:
+        """Returns the number of submits for a given enrollment."""
+        return submit_cls.objects.filter(enrollment=enrollment, problem=problem).count()
+
+    def get_submits_chip(
+        self, submit_cls: type[BaseSubmit], problem: "Problem", enrollment: Enrollment
+    ) -> Chip | None:
+        submits = self.get_submits_count(submit_cls, problem, enrollment)
+        max_submits = self.get_max_submits(submit_cls, problem, enrollment)
+        return Chip(
+            f"{submits} / {max_submits}",
+            {0: "red", 1: "amber", 2: "amber"}.get(
+                max(0, max_submits - submits), "gray"
+            ),
+            "",
+            "Limit odovzdaní. Pre navýšenie napíš na info@trojsten.sk",
+        )
+
+    def can_submit(
+        self, submit_cls: type[BaseSubmit], problem: Problem, enrollment: Enrollment
+    ) -> bool:
+        max_submissions = self.get_max_submits(submit_cls, problem, enrollment)
+        if max_submissions == -1:
+            return True
+
+        if is_contest_organizer(enrollment.user, self.problem_set.contest):
+            return True
+
+        return self.get_submits_count(submit_cls, problem, enrollment) < max_submissions

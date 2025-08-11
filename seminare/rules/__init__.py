@@ -109,6 +109,18 @@ class RuleEngine:
             (self.problem_set.end_date, "Koniec kola"),
         ]
 
+    def get_submits_chip(
+        self, submit_cls: type[BaseSubmit], problem: "Problem", enrollment: Enrollment
+    ) -> Chip | None:
+        """Returns chip to be displayed next to submits for user."""
+        return None
+
+    def can_submit(
+        self, submit_cls: type[BaseSubmit], problem: "Problem", enrollment: Enrollment
+    ) -> bool:
+        """Returns True if the user can submit solution to the problem."""
+        return True
+
     def get_effective_submits(
         self, submit_cls: type[BaseSubmit], problem: "Problem"
     ) -> QuerySet[BaseSubmit]:

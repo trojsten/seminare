@@ -2,6 +2,7 @@ from django.contrib.auth.models import AnonymousUser
 from django.contrib.sites.shortcuts import get_current_site
 from django.http.response import Http404
 from django.shortcuts import get_object_or_404
+from django.urls import reverse
 from django.views.generic import DetailView, ListView
 
 from seminare.contests.utils import get_current_contest
@@ -10,7 +11,7 @@ from seminare.problems.models import Problem, ProblemSet
 from seminare.rules import RuleEngine
 from seminare.submits.models import FileSubmit, JudgeSubmit, TextSubmit
 from seminare.users.logic.permissions import is_contest_organizer
-from seminare.users.models import User
+from seminare.users.models import Enrollment, User
 
 
 class ProblemSetListView(ListView):
@@ -111,28 +112,46 @@ class ProblemDetailView(DetailView):
     object: Problem
 
     def get_object(self, queryset=None):
-        site = get_current_site(self.request)
+        self.contest = get_current_contest(self.request)
         return get_object_or_404(
             Problem.objects.select_related("problem_set"),
             number=self.kwargs["number"],
             problem_set__slug=self.kwargs["problem_set_slug"],
-            problem_set__contest__site=site,
+            problem_set__contest=self.contest,
         )
 
     def get_submits(self):
         if not self.request.user.is_authenticated:
             return {}
 
+        rule_engine: RuleEngine = self.object.problem_set.get_rule_engine()
+        enrollment = Enrollment.objects.filter(
+            problem_set=self.object.problem_set, user=self.request.user
+        ).first()
+
+        if not enrollment:
+            return {}
+
+        enrollment.user = self.request.user
+
         return {
-            "file": FileSubmit.objects.filter(
-                enrollment__user=self.request.user, problem=self.object
-            ),
-            "judge": JudgeSubmit.objects.filter(
-                enrollment__user=self.request.user, problem=self.object
-            ),
-            "text": TextSubmit.objects.filter(
-                enrollment__user=self.request.user, problem=self.object
-            ),
+            id: {
+                "icon": icon,
+                "name": name,
+                "action": reverse(f"{id}_submit", args=[self.object.id]),
+                "points": getattr(self.object, f"{id}_points", 0),
+                "chip": rule_engine.get_submits_chip(cls, self.object, enrollment),
+                "can_submit": rule_engine.can_submit(cls, self.object, enrollment),
+                "submits": cls.objects.filter(
+                    enrollment=enrollment, problem=self.object
+                ),
+            }
+            for id, cls, name, icon in (
+                ("file", FileSubmit, "popis", "mdi:file-text"),
+                ("judge", JudgeSubmit, "program", "mdi:file-code"),
+                ("text", TextSubmit, "odpoveď", "mdi:format-text"),
+            )
+            if cls in self.object.accepted_submit_classes
         }
 
     def get_context_data(self, **kwargs):
@@ -151,8 +170,6 @@ class ProblemDetailView(DetailView):
         )
         ctx["chips"] = chips[self.object]
         if isinstance(self.request.user, User):
-            ctx["is_organizer"] = is_contest_organizer(
-                self.request.user, get_current_contest(self.request)
-            )
+            ctx["is_organizer"] = is_contest_organizer(self.request.user, self.contest)
         ctx["submits"] = self.get_submits()
         return ctx
