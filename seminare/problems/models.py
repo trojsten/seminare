@@ -84,6 +84,11 @@ class Problem(models.Model):
     text_set: "RelatedManager[Text]"
 
     class Meta:
+        constraints = [
+            UniqueConstraint(
+                "problem_set", "number", name="problem__problem_set_number__unique"
+            ),
+        ]
         ordering = ["problem_set", "number"]
 
     def __str__(self):
