@@ -94,10 +94,15 @@ class LevelRuleEngine(RuleEngine):
             for table in self.get_result_tables().keys()
         }
 
-        for user in users:
-            levels[user] = self.get_new_level(user, levels[user], tables)
+        new_levels: dict[User, int] = {}
 
-        self.set_levels_for_users(levels)
+        for user in users:
+            if (new_level := self.get_new_level(user, levels[user], tables)) != levels[
+                user
+            ]:
+                new_levels[user] = new_level
+
+        self.set_levels_for_users(new_levels)
 
         super().close_problemset()
 
