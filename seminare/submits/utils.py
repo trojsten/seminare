@@ -1,5 +1,6 @@
 from io import BytesIO
 from pathlib import Path
+from typing import TypeAlias
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -10,6 +11,8 @@ from PIL import Image
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.utils import ImageReader
 from reportlab.pdfgen import canvas
+
+JSON: TypeAlias = dict[str, "JSON"] | list["JSON"] | str | int | float | bool | None
 
 
 def combine_images_into_pdf(files):

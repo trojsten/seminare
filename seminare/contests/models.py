@@ -43,13 +43,14 @@ class RuleDataQuerySet(models.QuerySet):
     def for_contest(
         self,
         contest: Contest,
+        key: str,
         effective_date: datetime | None = None,
         engines: list[str] | None = None,
     ):
         if effective_date is None:
             effective_date = datetime.now()
 
-        qs = self.filter(contest=contest, created_at__lte=effective_date)
+        qs = self.filter(contest=contest, key=key, created_at__lte=effective_date)
 
         if engines is not None:
             qs = qs.filter(engine__in=engines)
@@ -59,6 +60,7 @@ class RuleDataQuerySet(models.QuerySet):
     def for_users(
         self,
         contest: Contest,
+        key: str,
         users: list[User],
         effective_date: datetime | None = None,
         engines: list[str] | None = None,
@@ -67,7 +69,7 @@ class RuleDataQuerySet(models.QuerySet):
             effective_date = datetime.now()
 
         qs = self.filter(
-            contest=contest, user__in=users, created_at__lte=effective_date
+            contest=contest, key=key, user__in=users, created_at__lte=effective_date
         )
 
         if engines is not None:
@@ -78,6 +80,7 @@ class RuleDataQuerySet(models.QuerySet):
     def for_user(
         self,
         contest: Contest,
+        key: str,
         user: User,
         effective_date: datetime | None = None,
         engines: list[str] | None = None,
@@ -85,7 +88,9 @@ class RuleDataQuerySet(models.QuerySet):
         if effective_date is None:
             effective_date = datetime.now()
 
-        qs = self.filter(contest=contest, user=user, created_at__lte=effective_date)
+        qs = self.filter(
+            contest=contest, key=key, user=user, created_at__lte=effective_date
+        )
 
         if engines is not None:
             qs = qs.filter(engine__in=engines)
@@ -109,6 +114,7 @@ class RuleData(models.Model):
     engine = models.CharField(max_length=512)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    key = models.CharField(max_length=32, blank=True, default="")
     data = models.JSONField()
 
     objects = RuleDataQuerySet.as_manager()

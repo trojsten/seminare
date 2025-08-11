@@ -11,6 +11,7 @@ from seminare.contests.models import RuleData
 from seminare.rules.results import Cell, Table
 from seminare.rules.scores import Score
 from seminare.submits.models import BaseSubmit
+from seminare.submits.utils import JSON
 from seminare.users.models import Enrollment, User
 
 if TYPE_CHECKING:
@@ -45,12 +46,14 @@ class RuleEngine:
 
     def get_data_for_users(
         self,
+        key: str,
         users: list["User"],
         engines: list[str] | None = None,
     ) -> "QuerySet[RuleData]":
         """Returns RuleData for multiple users."""
         return RuleData.objects.for_users(
             contest=self.problem_set.contest,
+            key=key,
             users=users,
             effective_date=self.problem_set.start_date,  # TODO: casti
             engines=engines or [self.engine_id, *self.compatible_engines],
@@ -58,23 +61,26 @@ class RuleEngine:
 
     def get_data_for_user(
         self,
+        key: str,
         user: "User",
         engines: list[str] | None = None,
     ) -> "RuleData | None":
         """Returns RuleData for a single user."""
         return RuleData.objects.for_user(
             contest=self.problem_set.contest,
+            key=key,
             user=user,
             effective_date=self.problem_set.start_date,  # TODO: casti
             engines=engines or [self.engine_id, *self.compatible_engines],
         )
 
-    def set_data_for_users(self, data: dict["User", dict]):
+    def set_data_for_users(self, key: str, data: dict["User", JSON]):
         """Sets data for multiple users. Data is a dict mapping User to dict of data."""
         return RuleData.objects.bulk_create(
             [
                 RuleData(
                     contest=self.problem_set.contest,
+                    key=key,
                     user=user,
                     engine=self.engine_id,
                     data=data_dict,
@@ -85,11 +91,12 @@ class RuleEngine:
 
     def set_data_for_user(
         self,
+        key: str,
         user: "User",
-        data: dict,
+        data: JSON,
     ):
         """Sets data for a single user. Data is a dict of data."""
-        return self.set_data_for_users({user: data})
+        return self.set_data_for_users(key, {user: data})
 
     def get_visible_texts(self, problem: "Problem") -> "set[Text.Type]":
         raise NotImplementedError()
@@ -168,32 +175,29 @@ class LevelRuleEngine(RuleEngine):
 
     def get_level_for_users(self, users: "list[User]") -> dict["User", int]:
         """Returns levels for multiple users. If no data is found, returns default level."""
-        data = self.get_data_for_users(users)
+        rule_data = self.get_data_for_users("level", users)
 
         return defaultdict(
             lambda: self.default_level,
-            {data.user: data.data.get("level", self.default_level) for data in data},
+            {d.user: d.data for d in rule_data},
         )
 
     def get_level_for_user(self, user: "User") -> int:
         """Returns the level for a single user. If no data is found, returns default level."""
-        data = self.get_data_for_user(user)
-        if data is None:
+        rule_data = self.get_data_for_user("level", user)
+        if rule_data is None:
             return self.default_level
-        return data.data.get("level", self.default_level)
+        return rule_data.data
 
     def set_levels_for_users(self, data: dict["User", int]):
         """Sets levels for multiple users. Data is a dict mapping User to level."""
         return self.set_data_for_users(
-            {
-                user: {"level": min(level, self.max_level)}
-                for user, level in data.items()
-            }
+            "level", {user: min(level, self.max_level) for user, level in data.items()}
         )
 
     def set_level_for_user(self, user: "User", level: int):
         """Sets level for a single user. Level is an integer."""
-        return self.set_data_for_user(user, {"level": min(level, self.max_level)})
+        return self.set_data_for_user("level", user, min(level, self.max_level))
 
     def should_update_levels(self) -> bool:
         """Returns True if levels should be updated on problem set close."""
