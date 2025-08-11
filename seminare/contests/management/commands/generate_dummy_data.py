@@ -223,6 +223,15 @@ class Command(BaseCommand):
                 )
                 old_problem_set.delete()
 
+            options = {
+                "doprogramovanie_date": (end - timedelta(days=15)).isoformat(),
+            }
+
+            if kolo > 1:
+                options["previous_problem_set"] = (
+                    f"r0{'z' if cast == 1 else 'l'}{kolo - 1}"
+                )
+
             problem_set = ProblemSet.objects.create(
                 contest=contest,
                 name=f"{kolo}. kolo {cast}. časť 0. ročník KSP",
@@ -231,9 +240,7 @@ class Command(BaseCommand):
                 end_date=end,
                 is_public=True,
                 rule_engine="seminare.rules.ksp.KSP2025",
-                rule_engine_options={
-                    "doprogramovanie_date": (end - timedelta(days=15)).isoformat(),
-                },
+                rule_engine_options=options,
             )
 
             problem_set.problems.bulk_create(
