@@ -10,6 +10,6 @@ class ContestAdmin(admin.ModelAdmin):
 
 @admin.register(RuleData)
 class RuleDataAdmin(admin.ModelAdmin):
-    list_display = ["contest", "user", "engine", "created_at"]
-    list_filter = ["contest", "engine"]
-    search_fields = ["user__username", "contest__name"]
+    list_display = ["contest", "key", "user", "engine", "created_at"]
+    list_filter = ["contest", "key", "engine"]
+    search_fields = ["user__username", "key", "contest__name"]
