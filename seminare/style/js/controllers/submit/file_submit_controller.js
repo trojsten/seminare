@@ -35,7 +35,7 @@ export default class extends Controller {
     }
 
     onInputChange() {
-        let pdfs = 0, images = 0, other = 0;
+        let pdfs = 0, images = 0, other = 0, other_name = null;
 
         for (const file of [...this.fileSubmits, ...this.fileInputTarget.files]) {
             if (file.type === 'application/pdf') {
@@ -44,15 +44,20 @@ export default class extends Controller {
                 ++images;
             } else {
                 ++other;
+                if (!other_name) {
+                    other_name = file.name;
+                }
             }
         }
 
         let error = null;
 
-        if (pdfs > 1 || (images > 0 && pdfs > 0))
-            error = "Môžeš odovzdať iba jedno PDF / viacero obrázkov"
-        if (other > 0)
-            error = "Môžeš odovzdať iba PDF alebo obrázky"
+        if (pdfs > 1 || (images > 0 && pdfs > 0)) {
+            error = "Môžeš odovzdať iba jedno PDF alebo viacero obrázkov"
+        }
+        if (other > 0) {
+            error = `Súbor '${other_name}' nie je podporovaný`
+        }
 
         if (error) {
             this.errorContainerTarget.classList.add('flex');
