@@ -1,7 +1,8 @@
 from rest_framework.routers import DefaultRouter
 
-from seminare.organizer.api.problem import ProblemViewSet, TextViewSet
+from seminare.organizer.api.problem import ProblemViewSet
 from seminare.organizer.api.problemset import ProblemSetViewSet
+from seminare.organizer.api.text import TextViewSet
 
 router = DefaultRouter()
 router.register("problemsets", ProblemSetViewSet, basename="problemset")
