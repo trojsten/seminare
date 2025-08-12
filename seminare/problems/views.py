@@ -1,5 +1,4 @@
 from django.contrib.auth.models import AnonymousUser
-from django.contrib.sites.shortcuts import get_current_site
 from django.http.response import Http404
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
@@ -18,8 +17,8 @@ class ProblemSetListView(ListView):
     template_name = "sets/list.html"
 
     def get_queryset(self):
-        site = get_current_site(self.request)
-        return ProblemSet.objects.for_user(self.request.user).filter(contest__site=site)
+        contest = get_current_contest(self.request)
+        return ProblemSet.objects.for_user(self.request.user).filter(contest=contest)
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
@@ -38,8 +37,8 @@ class ProblemSetDetailView(DetailView):
     object: ProblemSet
 
     def get_queryset(self):
-        site = get_current_site(self.request)
-        return ProblemSet.objects.for_user(self.request.user).filter(contest__site=site)
+        contest = get_current_contest(self.request)
+        return ProblemSet.objects.for_user(self.request.user).filter(contest=contest)
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
@@ -56,10 +55,10 @@ class ProblemSetResultsView(DetailView):
     object: ProblemSet
 
     def get_queryset(self):
-        site = get_current_site(self.request)
+        contest = get_current_contest(self.request)
         return (
             ProblemSet.objects.for_user(self.request.user)
-            .filter(contest__site=site)
+            .filter(contest=contest)
             .select_related("contest")
         )
 
@@ -113,11 +112,16 @@ class ProblemDetailView(DetailView):
 
     def get_object(self, queryset=None):
         self.contest = get_current_contest(self.request)
+        self.problem_set = (
+            ProblemSet.objects.for_user(self.request.user)
+            .filter(contest=self.contest, slug=self.kwargs["problem_set_slug"])
+            .select_related("contest")
+        ).first()
+
         return get_object_or_404(
             Problem.objects.select_related("problem_set"),
             number=self.kwargs["number"],
-            problem_set__slug=self.kwargs["problem_set_slug"],
-            problem_set__contest=self.contest,
+            problem_set=self.problem_set,
         )
 
     def get_submits(self):
