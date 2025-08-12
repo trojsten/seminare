@@ -209,7 +209,11 @@ class Command(BaseCommand):
     ) -> list[ProblemSet]:
         problem_sets: list[ProblemSet] = []
 
-        now = timezone.now().replace(hour=0, minute=0, second=0, microsecond=0)
+        now = (
+            timezone.now()
+            .astimezone(timezone.get_current_timezone())
+            .replace(hour=0, minute=0, second=0, microsecond=0)
+        )
         start = now - timedelta(days=days_ago)
         end = now - timedelta(days=days_ago - 45)
         for kolo in (1, 2):
