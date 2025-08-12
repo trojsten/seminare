@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Iterable
 
 from django.db.models import QuerySet
 from django.urls import reverse
+from django.utils import timezone
 
 from seminare.contests.models import RuleData
 from seminare.rules.results import Cell, ColumnHeader, Row, ScoreCell, Table
@@ -125,7 +126,18 @@ class RuleEngine:
         enrollment: Enrollment | None,
     ) -> bool:
         """Returns True if the user can submit solution to the problem."""
-        return True
+        if (
+            self.problem_set.is_public
+            and timezone.now() > problem.problem_set.start_date
+        ):
+            return True
+
+        if enrollment is not None and is_contest_organizer(
+            enrollment.user, self.problem_set.contest
+        ):
+            return True
+
+        return False
 
     def get_effective_submits(
         self, submit_cls: type[BaseSubmit], problem: "Problem"
