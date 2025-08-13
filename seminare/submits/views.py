@@ -31,9 +31,11 @@ class SubmitCreateView(FormView):
             raise PermissionDenied("You must be logged in to perform this action.")
         assert isinstance(request.user, User)
         self.problem = get_object_or_404(
-            Problem.objects.select_related("problem_set"), id=kwargs["problem"]
+            Problem.objects.select_related("problem_set", "problem_set__contest"),
+            id=kwargs["problem"],
         )
         self.enrollment = get_enrollment(request.user, self.problem.problem_set)
+        self.enrollment.user = request.user
 
         rule_engine: RuleEngine = self.problem.problem_set.get_rule_engine()
         if not rule_engine.can_submit(self.submit_type, self.problem, self.enrollment):
