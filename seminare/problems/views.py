@@ -175,3 +175,10 @@ class ProblemDetailView(DetailView):
             ctx["is_organizer"] = is_contest_organizer(self.request.user, self.contest)
         ctx["submits"] = self.get_submits()
         return ctx
+
+
+class ProblemSolutionView(ProblemDetailView):
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["solution"] = True
+        return ctx

@@ -24,7 +24,10 @@ module.exports = {
             },
           },
         },
-      }
+      },
+      maxWidth: {
+        'prose': '75ch',
+      },
     },
   },
   plugins: [
