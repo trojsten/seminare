@@ -43,81 +43,48 @@
           </span>
         </div>
       {% else %}
-        {# TODO: actual logic #}
-        {% if problem.number == 1 %}
-          <div class="flex items-center text-amber-600 bg-amber-100 rounded-md py-2 px-3 mb-4 text-sm">
-            <iconify-icon icon="mdi:warning" width="none" class="shrink-0 mr-3 size-4"></iconify-icon>
-            Za túto úlohu nedostávaš v svojej kategórií body.
-          </div>
-        {% endif %}
         <div data-submit--cta-target="submitForm" id="submit">
-
-          {% if "file" in problem.accepted_submit_types %}
-            <div data-controller="submit--file-submit">
+          {% for id, data in submits.items %}
+            <div data-controller="submit--{{ id }}-submit">
               <div class="font-bold text-2xl mb-1 flex justify-between">
-                <span>Odovzdať popis</span>
+                <span>Odovzdať {{ data.name }}</span>
                 {# TODO: actual max points and maybe also current points #}
-                <div class="flex items-center">{% label problem.file_points %}</div>
+                <div class="flex items-center">{% label data.points %}</div>
               </div>
 
-              <div class="bg-gray-100 rounded-md text-gray-700 text-center p-4 cursor-pointer hover:bg-gray-200" data-action="click->submit--file-submit#openFilePicker">
-                <iconify-icon icon="mdi:upload" width="none" class="size-8"></iconify-icon>
-                <p>Vyber alebo presuň tvoje riešenie sem</p>
-              </div>
+              {% if data.can_submit %}
+                {% if id != "text" %}
+                  <div class="bg-gray-100 rounded-md text-gray-700 text-center p-4 cursor-pointer hover:bg-gray-200" data-action="click->submit--{{ id }}-submit#openFilePicker">
+                    <iconify-icon icon="mdi:upload" width="none" class="size-8"></iconify-icon>
+                    <p data-submit--{{ id }}-submit-target="fileText">Vyber alebo presuň tvoj program sem</p>
+                  </div>
+                {% endif %}
 
-              <div class="hidden items-center text-amber-600 bg-amber-100 rounded-md py-2 px-3 my-4 text-sm" data-submit--file-submit-target="errorContainer">
-                <iconify-icon icon="mdi:warning" width="none" class="shrink-0 mr-3 size-4"></iconify-icon>
-                <span data-submit--file-submit-target="errorMessage"></span>
-              </div>
+                <div class="hidden items-center text-amber-600 bg-amber-100 rounded-md py-2 px-3 my-4 text-sm" data-submit--{{ id }}-submit-target="errorContainer">
+                  <iconify-icon icon="mdi:warning" width="none" class="shrink-0 mr-3 size-4"></iconify-icon>
+                  <span data-submit--{{ id }}-submit-target="errorMessage"></span>
+                </div>
 
-              <form method="POST" enctype="multipart/form-data" action="{% url "file_submit" problem.id %}" id="form" class="hidden mt-2" data-submit--file-submit-target="form">
-                {% csrf_token %}
-                <input type="file" name="files" multiple accept="image/jpeg, image/png, application/pdf" class="hidden" data-submit--file-submit-target="fileInput" data-action="change->submit--file-submit#onInputChange">
-                <button class="btn btn-blue mt-2">Odovzdať</button>
-              </form>
+                <form method="POST" enctype="multipart/form-data" action="{{ data.action }}" id="form" class="{% if id != "text" %}hidden{% else %}flex flex-row gap-2{% endif %} mt-2" data-submit--{{ id }}-submit-target="form">
+                  {% csrf_token %}
+                  {% if id == "file" %}
+                    <input type="file" name="files" multiple accept="image/jpeg, image/png, application/pdf" class="hidden" data-submit--file-submit-target="fileInput" data-action="change->submit--file-submit#onInputChange">
+                    <button class="btn btn-blue mt-2">Odovzdať</button>
+                  {% elif id == "judge" %}
+                    <input type="file" name="program" class="hidden" data-submit--judge-submit-target="fileInput" data-action="change->submit--judge-submit#onInputChange">
+                    <button class="btn btn-blue mt-2">Odovzdať</button>
+                  {% else %}
+                    <input type="text" name="text" class="input">
+                    <button class="btn btn-blue" title="Odovzdať"><iconify-icon icon="mdi:send" width="none" class="size-5"></iconify-icon></button>
+                  {% endif %}
+                </form>
+              {% else %}
+                {% message data.name|title|stringformat:"s momentálne nemôžeš odovzdať" "warning" %}
+              {% endif %}
 
-              {% include "problems/_submits.html" with submits=submits.file icon="mdi:file-text" %}
+              {% include "problems/_submits.html" with submits=data %}
             </div>
-          {% endif %}
-          {% if "judge" in problem.accepted_submit_types %}
-            <div data-controller="submit--judge-submit">
-              <div class="font-bold text-2xl mb-1 flex justify-between">
-                <span>Odovzdať program</span>
-                {# TODO: actual max points and maybe also current points #}
-                <div class="flex items-center">{% label problem.judge_points %}</div>
-              </div>
-
-              <div class="bg-gray-100 rounded-md text-gray-700 text-center p-4 cursor-pointer hover:bg-gray-200" data-action="click->submit--judge-submit#openFilePicker">
-                <iconify-icon icon="mdi:upload" width="none" class="size-8"></iconify-icon>
-                <p data-submit--judge-submit-target="fileText">Vyber alebo presuň tvoj program sem</p>
-              </div>
-
-              <form method="POST" enctype="multipart/form-data" action="{% url "judge_submit" problem.id %}" id="form" class="hidden mt-2" data-submit--judge-submit-target="form">
-                {% csrf_token %}
-                <input type="file" name="program" class="hidden" data-submit--judge-submit-target="fileInput" data-action="change->submit--judge-submit#onInputChange">
-                <button class="btn btn-blue mt-2">Odovzdať</button>
-              </form>
-
-              {% include "problems/_submits.html" with submits=submits.judge icon="mdi:file-code" %}
-            </div>
-          {% endif %}
-          {% if "text" in problem.accepted_submit_types %}
-            <div>
-              <div class="font-bold text-2xl mb-1 flex justify-between">
-                <span>Odovzdať odpoveď</span>
-                {# TODO: actual max points and maybe also current points #}
-                <div class="flex items-center">{% label problem.text_points %}</div>
-              </div>
-
-              <form method="POST" enctype="multipart/form-data" action="{% url "text_submit" problem.id %}" id="form" class="mt-2 flex gap-2">
-                {% csrf_token %}
-                <input type="text" name="text" class="input">
-                <button class="btn btn-blue" title="Odovzdať"><iconify-icon icon="mdi:send" width="none" class="size-5"></iconify-icon></button>
-              </form>
-
-              {% include "problems/_submits.html" with submits=submits.text icon="mdi:format-text" %}
-            </div>
-          {% endif %}
+          {% endfor %}
         </div>
       {% endif %}
     </div>

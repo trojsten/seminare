@@ -57,6 +57,13 @@ class ProblemSet(models.Model):
         class_ = get_rule_engine_class(self.rule_engine)
         return class_(self)
 
+    def close(self):
+        """Closes and finalizes the problem set."""
+
+        self.get_rule_engine().close_problemset()
+
+        # TODO: save that state
+
 
 class ProblemText(TypedDict):
     text: str

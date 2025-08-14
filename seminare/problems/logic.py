@@ -3,6 +3,7 @@ from typing import Iterable
 from django.contrib.auth.models import AnonymousUser
 
 from seminare.problems.models import Problem, ProblemSet
+from seminare.rules import Chip
 from seminare.users.models import Enrollment, User
 
 
@@ -37,3 +38,14 @@ def inject_user_score(
         injected.append(problem)
 
     return injected
+
+
+def inject_chips(
+    problems: Iterable[Problem], chips: dict[Problem, list[Chip]]
+) -> Iterable[Problem]:
+    for problem in problems:
+        if problem in chips:
+            setattr(problem, "chips", chips[problem])
+        else:
+            setattr(problem, "chips", [])
+    return problems

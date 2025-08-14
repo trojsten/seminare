@@ -1,24 +1,33 @@
-import random
 from collections import defaultdict
 from datetime import datetime
 from decimal import Decimal
 from typing import Iterable
 
 from django.db.models import F, QuerySet
-from django.urls import reverse
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 
 from seminare.problems.models import Problem, Text
-from seminare.rules import RuleEngine
-from seminare.rules.results import Cell, ColumnHeader, Row, ScoreCell, Table, TextCell
+from seminare.rules import Chip
+from seminare.rules.common import (
+    LevelRuleEngine,
+    LimitedSubmitRuleEngine,
+    PreviousProblemSetRuleEngine,
+)
+from seminare.rules.results import (
+    Cell,
+    PreviousScoreCell,
+    ScoreCell,
+    Table,
+)
 from seminare.rules.scores import Score
 from seminare.submits.models import BaseSubmit
-from seminare.users.logic.permissions import is_contest_organizer, preload_contest_roles
 from seminare.users.models import Enrollment, Grade, User
 
 
-class KSPRules(RuleEngine):
+class KSP2025(LevelRuleEngine, PreviousProblemSetRuleEngine, LimitedSubmitRuleEngine):
+    max_level = 4
+
     doprogramovanie_date: datetime
 
     def parse_options(self, options: dict) -> None:
@@ -72,6 +81,7 @@ class KSPRules(RuleEngine):
         enrollments: Iterable[Enrollment],
         problems: Iterable[Problem],
     ) -> QuerySet[BaseSubmit]:
+        # TODO: doprogramovavanie
         return (
             submit_cls.objects.filter(
                 problem__in=problems,
@@ -113,21 +123,26 @@ class KSPRules(RuleEngine):
         return self.problem_set.enrollment_set.get_queryset()
 
     def get_result_tables(self) -> dict[str, str]:
-        return {"all": "Spoločná"} | {f"L{x}": f"Level {x}" for x in range(1, 5)}
+        return {"all": "Spoločná"} | {f"L{x}": f"Level {x}" for x in (1, 2, 3, 4)}
 
     def get_default_result_table(self, user: User | None = None) -> str:
         return "all"
 
     def calculate_total(self, scores: Iterable[Cell | None]) -> Decimal:
         best: list[Decimal] = []
+        previous = Decimal(0)
         for score in scores:
+            if isinstance(score, PreviousScoreCell):
+                previous = score.points
+                continue
+
             if not isinstance(score, ScoreCell):
                 continue
             best.append(score.score.points * score.coefficient)
 
         best.sort(reverse=True)
 
-        return Decimal(sum(best[:5]))
+        return sum(best[:5]) + previous
 
     def get_coefficient_for_problem(
         self, problem_number: int, table: str | None = None
@@ -136,58 +151,62 @@ class KSPRules(RuleEngine):
             return Decimal(0)
         return Decimal(1)
 
-    def get_result_table(self, table: str, **kwargs) -> Table:
-        problems = self.problem_set.problems.order_by("number").all()
-        # TODO: only enrollements with enrollment_level <= table_level
-        enrollments = self.get_enrollments().select_related("user", "school")
-        scores = self.get_enrollments_problems_scores(enrollments, problems)
+    def result_table_exclude_enrollment(
+        self, table: str, context: dict, enrollment: Enrollment
+    ) -> bool:
+        level = int(table[1:]) if table.startswith("L") else 0
+        return (
+            level > 0 and context["levels"][enrollment.user] > level
+        ) | super().result_table_exclude_enrollment(table, context, enrollment)
 
-        columns = [ColumnHeader("Level", None, None)]
-        for problem in problems:
-            columns.append(
-                ColumnHeader(
-                    str(problem.number),
-                    reverse(
-                        "problem_detail", args=[self.problem_set.id, problem.number]
-                    ),
-                    problem.name,
-                )
-            )
-
-        # Preload contest roles for enrollments to avoid multiple queries later
-        # in is_contest_organizer
-        preload_contest_roles(
-            list(e.user for e in enrollments), self.problem_set.contest
+    def result_table_is_ghost(
+        self, table: str, context: dict, enrollment: Enrollment
+    ) -> bool:
+        return Grade.is_old(enrollment.grade) | super().result_table_is_ghost(
+            table, context, enrollment
         )
 
-        rows = []
-        for enrollment in enrollments:
-            # TODO: real level
-            cells: list[Cell | None] = [TextCell(str(random.randint(1, 4)), None)]
-            for problem in problems:
-                key = (enrollment.user_id, problem.id)
-                if key in scores:
-                    score = scores[key]
-                    coeff = self.get_coefficient_for_problem(problem.number, table)
-                    cells.append(ScoreCell(score, coeff))
-                else:
-                    cells.append(None)
+    def get_chips(self, user: "User") -> dict[Problem, list[Chip]]:
+        chips = super().get_chips(user)
 
-            ghost = Grade.is_old(enrollment.grade) or is_contest_organizer(
-                enrollment.user,
-                self.problem_set.contest,
-            )
+        if user.is_authenticated:
+            level = self.get_level_for_user(user)
 
-            rows.append(
-                Row(
-                    rank=None,
-                    enrollment=enrollment,
-                    ghost=ghost,
-                    columns=cells,
-                    total=self.calculate_total(cells),
-                )
-            )
+            for problem in self.problem_set.problems.all():
+                if level > problem.number:
+                    chips[problem].append(
+                        Chip(
+                            message="Nebodovaná",
+                            color="amber",
+                            help="Za túto úlohu nedostávaš vo svojom leveli body",
+                        )
+                    )
 
-        table_obj = Table(columns, rows)
-        table_obj.sort()
-        return table_obj
+        return chips
+
+    ### Level stuff
+
+    def should_update_levels(self) -> bool:
+        return self.problem_set.slug.endswith("2")
+
+    def get_new_level(
+        self, user: "User", current_level: int, tables: dict[str, Table]
+    ) -> int:
+        for slug, table in tables.items():
+            if not slug.startswith("L"):
+                continue
+
+            # aspon 150b a top 5 v leveli L => L + 1
+            last_rank = 0
+            for row in table.rows:
+                if row.rank is not None:
+                    last_rank = row.rank
+                    if last_rank > 5:
+                        break
+
+                if row.enrollment.user == user:
+                    if row.total >= 150:
+                        current_level = max(current_level, int(slug[1:]) + 1)
+
+            # TODO: sustredenia
+        return current_level

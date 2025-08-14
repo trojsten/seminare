@@ -13,6 +13,7 @@ from django.views.generic.edit import FormView
 
 from seminare import settings
 from seminare.problems.models import Problem
+from seminare.rules import RuleEngine
 from seminare.submits.forms import FileFieldForm, JudgeSubmitForm, TextSubmitForm
 from seminare.submits.models import BaseSubmit, FileSubmit, JudgeSubmit, TextSubmit
 from seminare.submits.utils import combine_images_into_pdf, enqueue_judge_submit
@@ -23,11 +24,23 @@ from seminare.users.models import User
 
 class SubmitCreateView(FormView):
     submit: BaseSubmit
+    submit_type: type[BaseSubmit]
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
             raise PermissionDenied("You must be logged in to perform this action.")
-        self.problem = get_object_or_404(Problem, id=kwargs["problem"])
+        assert isinstance(request.user, User)
+        self.problem = get_object_or_404(
+            Problem.objects.select_related("problem_set", "problem_set__contest"),
+            id=kwargs["problem"],
+        )
+        self.enrollment = get_enrollment(request.user, self.problem.problem_set)
+        self.enrollment.user = request.user
+
+        rule_engine: RuleEngine = self.problem.problem_set.get_rule_engine()
+        if not rule_engine.can_submit(self.submit_type, self.problem, self.enrollment):
+            raise PermissionDenied()
+
         return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
@@ -40,6 +53,7 @@ class SubmitCreateView(FormView):
 
 class FileSubmitCreateView(SubmitCreateView):
     form_class = FileFieldForm
+    submit_type = FileSubmit
 
     def form_valid(self, form):
         files = form.cleaned_data["files"]
@@ -51,7 +65,7 @@ class FileSubmitCreateView(SubmitCreateView):
         self.submit = FileSubmit(
             file=final_file,
             problem=self.problem,
-            enrollment=get_enrollment(self.request.user, self.problem.problem_set),
+            enrollment=self.enrollment,
         )
 
         return super().form_valid(form)
@@ -59,6 +73,7 @@ class FileSubmitCreateView(SubmitCreateView):
 
 class JudgeSubmitCreateView(SubmitCreateView):
     form_class = JudgeSubmitForm
+    submit_type = JudgeSubmit
 
     def form_valid(self, form):
         program = form.cleaned_data["program"]
@@ -75,7 +90,7 @@ class JudgeSubmitCreateView(SubmitCreateView):
             problem=self.problem,
             judge_id=submit.public_id,
             protocol_key=submit.protocol_key,
-            enrollment=get_enrollment(self.request.user, self.problem.problem_set),
+            enrollment=self.enrollment,
         )
 
         return super().form_valid(form)
@@ -83,6 +98,7 @@ class JudgeSubmitCreateView(SubmitCreateView):
 
 class TextSubmitCreateView(SubmitCreateView):
     form_class = TextSubmitForm
+    submit_type = TextSubmit
 
     def form_valid(self, form):
         text = form.cleaned_data["text"]
@@ -90,7 +106,7 @@ class TextSubmitCreateView(SubmitCreateView):
         self.submit = TextSubmit(
             value=text,
             problem=self.problem,
-            enrollment=get_enrollment(self.request.user, self.problem.problem_set),
+            enrollment=self.enrollment,
         )
 
         return super().form_valid(form)

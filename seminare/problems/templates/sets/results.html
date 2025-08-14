@@ -29,44 +29,42 @@
 
   <div class="overflow-x-auto">
     <table class="simple-table">
-      {% if not hide_header %}
-        <thead>
-          <tr>
-            <th scope="col" class="w-0">
-              #
+      <thead>
+        <tr>
+          <th scope="col" class="w-0">
+            #
+          </th>
+          <th scope="col">
+            Meno
+          </th>
+          <th scope="col" class="w-0">
+            Ročník
+          </th>
+          <th scope="col">
+            Škola
+          </th>
+          {% for column_header in table.columns %}
+            <th scope="col" class="!text-center">
+              {% if column_header.link %}
+                <a href="{{ column_header.link }}" class="link">
+              {% endif %}
+              <span {% if column_header.tooltip %}data-tippy-content="{{ column_header.tooltip }}"{% endif %}>
+                {{ column_header.title }}
+              </span>
+              {% if column_header.link %}
+                </a>
+              {% endif %}
             </th>
-            <th scope="col">
-              Meno
-            </th>
-            <th scope="col" class="w-0">
-              Ročník
-            </th>
-            <th scope="col">
-              Škola
-            </th>
-            {% for column_header in table.columns %}
-              <th scope="col">
-                {% if column_header.link %}
-                  <a href="{{ column_header.link }}" class="link">
-                {% endif %}
-                <span {% if column_header.tooltip %}data-tippy-content="{{ column_header.tooltip }}"{% endif %}>
-                  {{ column_header.title }}
-                </span>
-                {% if column_header.link %}
-                  </a>
-                {% endif %}
-              </th>
-            {% endfor %}
-            <th>
-              ∑
-            </th>
-          </tr>
-        </thead>
-      {% endif %}
+          {% endfor %}
+          <th class="!text-center">
+            ∑
+          </th>
+        </tr>
+      </thead>
       <tbody>
         {% for row in table.rows %}
           <tr class="{% if row.ghost %}!text-gray-400{% endif %} {% if row.enrollment.user == request.user %}bg-gray-50 font-bold{% endif %}">
-            <td>
+            <td class="tabular-nums">
               {% if row.rank %}
                 {{ row.rank }}.
               {% endif %}
@@ -89,7 +87,7 @@
               </span>
             </td>
             {% for cell in row.columns %}
-              <td>
+              <td class="text-center">
                 {% if cell %}
                   <span {% if cell.display_tooltip %}data-tippy-content="{{ cell.display_tooltip }}"{% endif %} {% if cell.ghost %}class="text-gray-400"{% endif %}>
                     {{ cell.display_cell }}
@@ -99,7 +97,7 @@
                 {% endif %}
               </td>
             {% endfor %}
-            <td>
+            <td class="text-center">
               {{ row.total }}
             </td>
           </tr>

@@ -1,5 +1,5 @@
 import random
-from datetime import timedelta
+from datetime import datetime, timedelta
 from typing import Iterable
 
 from django.conf import settings
@@ -7,7 +7,7 @@ from django.contrib.sites.models import Site
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 
-from seminare.contests.models import Contest
+from seminare.contests.models import Contest, RuleData
 from seminare.problems.models import Problem, ProblemSet
 from seminare.submits.models import BaseSubmit, FileSubmit, JudgeSubmit, TextSubmit
 from seminare.users.models import Enrollment, Grade, School, User
@@ -24,13 +24,22 @@ class Command(BaseCommand):
         )
 
     def create_contest(self) -> Contest:
-        return Contest.objects.update_or_create(
+        contest, created = Contest.objects.update_or_create(
             name="Korešpondenčný seminár z programovania",
             short_name="ksp",
             site=Site.objects.get_or_create(
                 domain="ksp.localhost:8000", name="ksp.localhost:8000"
             )[0],
-        )[0]
+        )
+        if not created:
+            self.stdout.write(
+                self.style.WARNING(
+                    "Contest already exists, deleting all existing RuleData associated with it"
+                )
+            )
+            RuleData.objects.filter(contest=contest).delete()
+
+        return contest
 
     def create_users(self, count: int = 300) -> list[User]:
         users: list[User] = []
@@ -195,54 +204,67 @@ class Command(BaseCommand):
             update_fields=["name", "short_name", "address"],
         )
 
-    def create_problem_sets(self, contest: Contest) -> list[ProblemSet]:
-        old_problem_sets = ProblemSet.objects.filter(
-            contest=contest, name__icontains="0. ročník KSP"
-        )
-        if old_problem_sets.exists():
-            self.stdout.write(
-                self.style.WARNING("Old dummy problem sets found. Deleting them.")
-            )
-            old_problem_sets.delete()
-
+    def create_problem_sets(
+        self, contest: Contest, cast: int, days_ago: int
+    ) -> list[ProblemSet]:
         problem_sets: list[ProblemSet] = []
 
-        now = timezone.now().replace(hour=0, minute=0, second=0, microsecond=0)
-        start = now - timedelta(days=45 * 3 - 1)
-        end = now - timedelta(days=45 * 2 - 1)
-        for cast in (1, 2):
-            for kolo in (1, 2):
-                problem_set = ProblemSet.objects.create(
-                    contest=contest,
-                    name=f"{kolo}. kolo {cast}. časť 0. ročník KSP",
-                    slug=f"r0{'z' if cast == 1 else 'l'}{kolo}",
-                    start_date=start,
-                    end_date=end,
-                    is_public=True,
-                    rule_engine="seminare.rules.ksp.KSPRules",
-                    rule_engine_options={
-                        "doprogramovanie_date": (end - timedelta(days=15)).isoformat(),
-                    },
+        now = (
+            timezone.now()
+            .astimezone(timezone.get_current_timezone())
+            .replace(hour=0, minute=0, second=0, microsecond=0)
+        )
+        start = now - timedelta(days=days_ago)
+        end = now - timedelta(days=days_ago - 45)
+        for kolo in (1, 2):
+            slug = f"r0{'z' if cast == 1 else 'l'}{kolo}"
+
+            if old_problem_set := ProblemSet.objects.filter(contest=contest, slug=slug):
+                self.stdout.write(
+                    self.style.WARNING(
+                        f"Old dummy problem set {slug} already exists. Deleting it."
+                    )
+                )
+                old_problem_set.delete()
+
+            options = {
+                "doprogramovanie_date": (end - timedelta(days=15)).isoformat(),
+            }
+
+            if kolo > 1:
+                options["previous_problem_set"] = (
+                    f"r0{'z' if cast == 1 else 'l'}{kolo - 1}"
                 )
 
-                problem_set.problems.bulk_create(
-                    [
-                        Problem(
-                            name=f"Úloha {i + 1}",
-                            number=i + 1,
-                            problem_set=problem_set,
-                            file_points=12 if i != 4 else 10,
-                            judge_points=8 if i != 4 else 0,
-                            text_points=0 if i != 4 else 10,
-                        )
-                        for i in range(8)
-                    ]
-                )
+            problem_set = ProblemSet.objects.create(
+                contest=contest,
+                name=f"{kolo}. kolo {cast}. časť 0. ročník KSP",
+                slug=slug,
+                start_date=start,
+                end_date=end,
+                is_public=True,
+                rule_engine="seminare.rules.ksp.KSP2025",
+                rule_engine_options=options,
+            )
 
-                problem_sets.append(problem_set)
+            problem_set.problems.bulk_create(
+                [
+                    Problem(
+                        name=f"Úloha {i + 1}",
+                        number=i + 1,
+                        problem_set=problem_set,
+                        file_points=12 if i != 4 else 10,
+                        judge_points=8 if i != 4 else 0,
+                        text_points=0 if i != 4 else 10,
+                    )
+                    for i in range(8)
+                ]
+            )
 
-                start += timedelta(days=45)
-                end += timedelta(days=45)
+            problem_sets.append(problem_set)
+
+            start += timedelta(days=45)
+            end += timedelta(days=45)
 
         return problem_sets
 
@@ -294,19 +316,23 @@ class Command(BaseCommand):
             for enrollment in enrollments:
                 problems: list[Problem] = enrollment.problem_set.problems.all()
 
-                if random.random() < 0.95:
+                user_id = int(enrollment.user.username.removeprefix("user"))
+
+                score_coefficient = 1 + ((user_id % 19) - 7) * 0.1
+
+                if random.random() < 0.8:
                     # Most of the users will submit max 5 problems that they can solve
-                    level = random.randint(0, 3)
+                    level = user_id % 4
                     problems = problems[level : 5 + level]
 
                 for problem in problems:
-                    if random.random() < 0.2:
+                    if random.random() < 0.1 / score_coefficient:
                         # most users will not submit anything for some problems
                         continue
 
                     if (
                         FileSubmit.type in problem.accepted_submit_types
-                        and random.random() < 0.6
+                        and random.random() < 0.3 * score_coefficient
                     ):
                         submits[0].extend(
                             [
@@ -323,18 +349,21 @@ class Command(BaseCommand):
                                     file=f"dummy_files/{enrollment.user.username}/{problem.number}/{i}.txt",
                                     score=min(
                                         random.randint(0, int(problem.file_points))
+                                        * score_coefficient
                                         * i
-                                        // 3,
+                                        // 2,
                                         int(problem.file_points),
                                     ),
                                     comment="Dummy submit",
                                 )
-                                for i in range(random.randint(0, 10))
+                                for i in range(
+                                    random.randint(0, int(8 * score_coefficient))
+                                )
                             ]
                         )
                     if (
                         JudgeSubmit.type in problem.accepted_submit_types
-                        and random.random() < 0.8
+                        and random.random() < 0.5 * score_coefficient
                     ):
                         submits[1].extend(
                             [
@@ -352,19 +381,22 @@ class Command(BaseCommand):
                                     judge_id=f"dummy-judge-{enrollment.id}-{problem.id}-{i}",
                                     score=min(
                                         random.randint(0, int(problem.judge_points))
+                                        * score_coefficient
                                         * i
-                                        // 3,
+                                        // 4,
                                         int(problem.judge_points),
                                     ),
                                     comment="Dummy submit",
                                 )
-                                for i in range(random.randint(0, 25))
+                                for i in range(
+                                    random.randint(0, int(20 * score_coefficient))
+                                )
                             ]
                         )
 
                     if (
                         TextSubmit.type in problem.accepted_submit_types
-                        and random.random() < 0.7
+                        and random.random() < 0.6 * score_coefficient
                     ):
                         submits[2].extend(
                             [
@@ -385,7 +417,11 @@ class Command(BaseCommand):
                                     * random.randint(0, 1),
                                     comment="Dummy submit",
                                 )
-                                for i in range(random.randint(0, 5), -1, -1)
+                                for i in range(
+                                    random.randint(0, int(4 * score_coefficient)),
+                                    -1,
+                                    -1,
+                                )
                             ]
                         )
 
@@ -398,6 +434,13 @@ class Command(BaseCommand):
                 field._meta.get_field("created_at").auto_now_add = True
 
         return [*submits[0], *submits[1], *submits[2]]
+
+    def fake_ruledata_times(self, contest: Contest, date: datetime):
+        RuleData.objects.filter(
+            contest=contest,
+            engine="seminare.rules.ksp.KSP2025",
+            created_at__gte=timezone.now() - timedelta(minutes=1),
+        ).update(created_at=date)
 
     def handle(self, *args, **options):
         if not settings.DEBUG and not options["force"]:
@@ -423,13 +466,24 @@ class Command(BaseCommand):
         self.stdout.write("Creating schools...\n")
         schools = self.create_schools()
 
-        self.stdout.write("Creating problem sets...\n")
-        problem_sets = self.create_problem_sets(contest)
+        for cast in (1, 2):
+            self.stdout.write(f"Cast {cast}...\n")
+            self.stdout.write(" - Creating problem sets...\n")
+            problem_sets = self.create_problem_sets(
+                contest, cast, (3 - cast) * 2 * 45 - 1
+            )
 
-        self.stdout.write("Creating enrollments...\n")
-        enrollments = self.create_enrollments(users, problem_sets, schools)
+            self.stdout.write(" - Creating enrollments...\n")
+            enrollments = self.create_enrollments(users, problem_sets, schools)
 
-        self.stdout.write("Creating submits...\n")
-        self.create_submits(enrollments)
+            self.stdout.write(" - Creating submits...\n")
+            self.create_submits(enrollments)
+
+            self.stdout.write(" - Closing problem sets\n")
+            for problem_set in problem_sets:
+                problem_set.close()
+
+            self.stdout.write(" - Faking RuleData times\n")
+            self.fake_ruledata_times(contest, max(ps.end_date for ps in problem_sets))
 
         self.stdout.write(self.style.SUCCESS("Dummy data generation completed.\n"))

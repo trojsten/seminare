@@ -14,10 +14,9 @@
   <div class="mt-1.5 mb-0.5 flex flex-wrap gap-0.5">
     {# TODO: Hide this element if empty. #}
 
-    {% if user.is_authenticated and problem.number == 1 %}
-      {# TODO: Proper check. #}
-      {% label "Nebodovaná" "amber" help="Táto úloha nie je v tvojej kategórií bodovaná." %}
-    {% endif %}
+    {% for chip in problem.chips %}
+      {% label chip.message chip.color icon=chip.icon help=chip.help %}
+    {% endfor %}
 
     {% if problem.users_score_pending %}
       {% label "Čaká na ohodnotenie" "gray" %}

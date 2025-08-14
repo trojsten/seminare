@@ -1,9 +1,17 @@
-<div class="font-bold text-xl mb-1 mt-4">Odovzdané riešenia</div>
+{% load ui %}
+<div class="font-bold text-xl mb-1 mt-4 flex justify-between">
+  <span>Odovzdané riešenia</span>
+  {% if submits.chip %}
+    {% with chip=submits.chip %}
+      <div class="flex items-center">{% label chip.message chip.color icon=chip.icon help=chip.help %}</div>
+    {% endwith %}
+  {% endif %}
+</div>
 
 <div class="mb-10 text-sm space-y-1">
-  {% for submit in submits %}
+  {% for submit in submits.submits %}
     <a href="{% url "submit_detail" submit.submit_id %}" class="flex items-center gap-1 py-1 px-2 rounded-md {% if submit.score is not None %}text-green-800 bg-green-100 hover:bg-green-200{% else %}hover:bg-gray-200{% endif %}" {% if submit.tooltip %}data-tippy-content="{{ submit.tooltip }}"{% endif %}>
-      <iconify-icon icon="{{ icon }}"></iconify-icon>
+      <iconify-icon icon="{{ data.icon }}"></iconify-icon>
       <span>{{ submit.created_at|date:"d.m.Y" }} {{ submit.created_at|time:"H:i" }}</span>
 
       <span class="ml-auto {% if submit.score is None %}text-xs text-gray-500{% endif %}">
