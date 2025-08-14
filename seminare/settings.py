@@ -38,6 +38,8 @@ INSTALLED_APPS = [
     "debug_toolbar",
     "mozilla_django_oidc",
     "widget_tweaks",
+    "rest_framework",
+    "rest_framework.authtoken",
 ]
 
 MIDDLEWARE = [
@@ -113,6 +115,16 @@ LOGOUT_REDIRECT_URL = "/"
 
 JUDGE_URL: str = env("JUDGE_URL", default="https://judge.ksp.sk")
 JUDGE_TOKEN: str = env("JUDGE_TOKEN")
+
+REST_FRAMEWORK = {
+    "DEFAULT_PERMISSION_CLASSES": [
+        "seminare.organizer.api.auth.IsContestAdmin",
+    ],
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.TokenAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
+    ],
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
