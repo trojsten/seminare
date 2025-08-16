@@ -14,7 +14,7 @@ CMD ["pnpm", "run", "watch"]
 FROM ghcr.io/trojsten/django-docker:v6
 
 COPY pyproject.toml uv.lock ./
-RUN uv sync --frozen
+RUN uv sync --frozen --no-cache
 
 COPY --chown=appuser:appuser ./ /app
 COPY --chown=appuser:appuser --from=cssbuild /app/seminare/style/static/* /app/seminare/style/static/
