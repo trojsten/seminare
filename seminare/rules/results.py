@@ -210,9 +210,10 @@ class Table(ResultsSerializable):
         rows = []
         schools = {}
 
-        for school in data["_schools"]:
-            schools[school["id"]] = School(
-                id=school["id"],
+        for id, school in data["_schools"].items():
+            id = int(id)
+            schools[id] = School(
+                id=id,
                 name=school["name"],
                 short_name=school["short_name"],
                 edu_id=school["edu_id"],

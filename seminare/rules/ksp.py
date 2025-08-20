@@ -10,6 +10,7 @@ from django.utils.dateparse import parse_datetime
 from seminare.problems.models import Problem, Text
 from seminare.rules import Chip
 from seminare.rules.common import (
+    CachedRuleEngine,
     LevelRuleEngine,
     LimitedSubmitRuleEngine,
     PreviousProblemSetRuleEngine,
@@ -25,7 +26,12 @@ from seminare.submits.models import BaseSubmit
 from seminare.users.models import Enrollment, Grade, User
 
 
-class KSP2025(LevelRuleEngine, PreviousProblemSetRuleEngine, LimitedSubmitRuleEngine):
+class KSP2025(
+    CachedRuleEngine,
+    LevelRuleEngine,
+    PreviousProblemSetRuleEngine,
+    LimitedSubmitRuleEngine,
+):
     max_level = 4
 
     doprogramovanie_date: datetime

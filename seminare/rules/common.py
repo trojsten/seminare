@@ -1,6 +1,7 @@
 from collections import defaultdict
 from functools import cache
 
+from django.core.cache import cache as django_cache
 from django.db.models import QuerySet
 from django.utils.functional import cached_property
 
@@ -16,6 +17,7 @@ from seminare.rules.results import (
 from seminare.submits.models import BaseSubmit, FileSubmit, JudgeSubmit, TextSubmit
 from seminare.users.logic.permissions import is_contest_organizer
 from seminare.users.models import Enrollment, User
+from seminare.utils import compress_data, decompress_data
 
 
 class LevelRuleEngine(RuleEngine):
@@ -108,6 +110,18 @@ class LevelRuleEngine(RuleEngine):
         self.set_levels_for_users(new_levels)
 
         super().close_problemset()
+
+
+class CachedRuleEngine(RuleEngine):
+    def get_result_table(self, table: str, **kwargs) -> Table:
+        key = f"results_table/{self.problem_set.slug}/{table}"
+        if key in django_cache:
+            return Table.deserialize(decompress_data(django_cache.get(key)))
+
+        results = super().get_result_table(table, **kwargs)
+        django_cache.set(key, compress_data(results.serialize()), timeout=60 * 5)
+
+        return results
 
 
 class PreviousProblemSetRuleEngine(RuleEngine):
