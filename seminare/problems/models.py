@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Type, TypedDict
+from typing import TYPE_CHECKING, Self, Type, TypedDict
 
 from django.db import models
 from django.db.models import UniqueConstraint
@@ -57,7 +57,22 @@ class ProblemSet(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
+        if not self._finalized and self.finalized:
+            self.finalized = False
+            self.get_rule_engine().close_problemset()
+            self.finalized = True
+
         return super().save(*args, **kwargs)
+
+    _finalized: bool = False
+
+    @classmethod
+    def from_db(cls, *args, **kwargs) -> Self:
+        instance = super().from_db(*args, **kwargs)
+
+        instance._finalized = instance.finalized
+
+        return instance
 
     def get_rule_engine(self) -> RuleEngine:
         class_ = get_rule_engine_class(self.rule_engine)
@@ -67,17 +82,6 @@ class ProblemSet(models.Model):
     def is_running(self) -> bool:
         now = timezone.now()
         return self.start_date <= now <= self.end_date
-
-    def close(self):
-        """Closes and finalizes the problem set."""
-
-        if self.finalized:
-            raise ValueError("Problem set is already finalized.")
-
-        self.get_rule_engine().close_problemset()
-        self.finalized = True
-
-        self.save()
 
     def set_frozen_results(self, table: str, data: dict):
         return ProblemSetFrozenResults.objects.update_or_create(
