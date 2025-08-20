@@ -43,6 +43,13 @@ class ProblemSetForm(forms.ModelForm):
             "end_date": DateTimeInput(),
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if self.instance and self.instance.finalized:
+            self.fields["finalized"].disabled = True
+            self.fields["finalized"].help_text = "Táto sada úloh už bola finalizovaná."
+
     def clean(self):
         data = super().clean()
 
