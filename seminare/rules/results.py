@@ -44,16 +44,16 @@ class Cell(ResultsSerializable):
 
     def serialize(self) -> dict:
         return {
-            "display_cell": self.display_cell,
-            "display_tooltip": self.display_tooltip,
+            "cell": self.display_cell,
+            "tooltip": self.display_tooltip,
             "ghost": self.ghost,
         }
 
     @classmethod
     def deserialize(cls, data: dict):
         return FrozenCell(
-            _cell=data["display_cell"],
-            _tooltip=data.get("display_tooltip"),
+            _cell=data["cell"],
+            _tooltip=data.get("tooltip"),
             _ghost=data.get("ghost", False),
         )
 
