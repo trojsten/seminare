@@ -59,6 +59,9 @@ class WithSubmitList(WithContest, MixinProtocol):
 
         for enrollment in enrollments:
             row: dict = {"user": enrollment.user}
+            if not submits[enrollment.id]:
+                continue
+
             row.update(submits[enrollment.id])
             if limit_types and len(limit_types) == 1:
                 row["submit"] = submits[enrollment.id].get(limit_types[0])
