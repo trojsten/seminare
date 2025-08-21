@@ -10,7 +10,7 @@ from seminare.problems.models import Problem, ProblemSet
 from seminare.rules import RuleEngine
 from seminare.submits.models import FileSubmit, JudgeSubmit, TextSubmit
 from seminare.users.logic.permissions import is_contest_organizer
-from seminare.users.models import Enrollment, User
+from seminare.users.models import User
 
 
 class ProblemSetListView(ListView):
@@ -116,12 +116,12 @@ class ProblemDetailView(DetailView):
             ProblemSet.objects.for_user(self.request.user)
             .filter(contest=self.contest, slug=self.kwargs["problem_set_slug"])
             .select_related("contest")
+            .prefetch_related("problems")
         ).first()
 
         return get_object_or_404(
-            Problem.objects.select_related("problem_set"),
+            self.problem_set.problems,
             number=self.kwargs["number"],
-            problem_set=self.problem_set,
         )
 
     def get_submits(self, enrollment):
@@ -158,9 +158,7 @@ class ProblemDetailView(DetailView):
 
         if (user := self.request.user).is_authenticated:
             assert isinstance(user, User)
-            enrollment = Enrollment.objects.filter(
-                problem_set=self.object.problem_set, user=user
-            ).first()
+            enrollment = user.get_enrollment(self.object.problem_set)
 
             if enrollment is not None:
                 enrollment.user = user

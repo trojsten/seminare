@@ -4,7 +4,7 @@ from django.contrib.auth.models import AnonymousUser
 
 from seminare.problems.models import Problem, ProblemSet
 from seminare.rules import Chip
-from seminare.users.models import Enrollment, User
+from seminare.users.models import User
 
 
 def inject_user_score(
@@ -17,7 +17,7 @@ def inject_user_score(
 
     rule_engine = problem_set.get_rule_engine()
 
-    enrollment = Enrollment.objects.filter(user=user, problem_set=problem_set).first()
+    enrollment = user.get_enrollment(problem_set)
 
     if enrollment is None:
         return problems
