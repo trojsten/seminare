@@ -7,7 +7,13 @@
       Pre odovzdávanie sa musíš <a href="{% url "oidc_authentication_init" %}?next={{ request.path_info|urlencode }}" class="underline hover:text-red-700">prihlásiť</a>.
     </span>
   </div>
+{% elif not user.current_grade or not user.current_school %}
+  {# TODO: remove that login / logout step when no longer needed #}
+  {% message 'Nemáš nastavenú školu a ročník. Nastav si ich prosím v <a class="link" href="https://id.trojsten.sk/accounts/school/">Trojsten ID</a> a potom sa odhlás a znovu prihlás.' "warning" %}
 {% else %}
+  {% if enrollment_warning %}
+    {% message 'Tvoja aktuálna škola alebo ročník sa zmenil. Ak sú údaje vo výsledkovej listine neaktuálne, napíš na <a class="link" href="mailto:info@trojsten.sk?subject=Neaktuálne údaje vo výsledkovej listine">info@trojsten.sk</a>.' "warning" %}
+  {% endif %}
   <div data-submit--cta-target="submitForm" id="submit">
     {% for id, data in submits.items %}
       <div data-controller="submit--{{ id }}-submit">

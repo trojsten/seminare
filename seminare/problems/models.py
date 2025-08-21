@@ -57,6 +57,11 @@ class ProblemSet(models.Model):
         class_ = get_rule_engine_class(self.rule_engine)
         return class_(self)
 
+    @property
+    def is_running(self) -> bool:
+        now = timezone.now()
+        return self.start_date <= now <= self.end_date
+
     def close(self):
         """Closes and finalizes the problem set."""
 
