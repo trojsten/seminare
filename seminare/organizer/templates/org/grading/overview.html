@@ -7,6 +7,11 @@
 {% block body %}
   {% include "org/generic/_title.html" with title=problem subtitle="Prehľad hodnotení" %}
 
+  <p class="my-8 space-x-2">
+    <a class="btn btn-primary" href="{% url "org:grading_download" problem.id %}">Stiahnuť ZIP na opravovanie</a>
+    <a class="btn btn-primary" href="{% url "org:grading_upload" problem.id %}">Nahrať opravený ZIP</a>
+  </p>
+
   <div class="overflow-x-auto mb-4">
     <table class="simple-table">
       <thead>

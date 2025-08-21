@@ -1,4 +1,5 @@
 from django import forms
+from django.core.validators import FileExtensionValidator
 
 from seminare.content.models import Page, Post
 from seminare.contests.models import Contest
@@ -74,6 +75,14 @@ class GradingForm(forms.Form):
     comment_file = forms.FileField(required=False)
 
     score = forms.DecimalField(required=False)
+
+
+class GradingUploadForm(forms.Form):
+    file = forms.FileField(
+        validators=[FileExtensionValidator(["zip"])],
+        required=True,
+        help_text="ZIP súbor s opravenými riešeniami.",
+    )
 
 
 class ProblemForm(forms.ModelForm):

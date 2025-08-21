@@ -1,5 +1,6 @@
 import random
 from datetime import datetime, timedelta
+from pathlib import Path
 from typing import Iterable
 
 from django.conf import settings
@@ -346,7 +347,7 @@ class Command(BaseCommand):
                                             seconds=random.randint(0, 60 * 60 * 24),
                                         )
                                     ).astimezone(timezone.get_current_timezone()),
-                                    file=f"dummy_files/{enrollment.user.username}/{problem.number}/{i}.txt",
+                                    file=f"dummy_files/{enrollment.user.username}/{problem.number}/{i}.pdf",
                                     score=min(
                                         random.randint(0, int(problem.file_points))
                                         * score_coefficient
@@ -377,7 +378,7 @@ class Command(BaseCommand):
                                             seconds=random.randint(0, 60 * 60 * 24),
                                         )
                                     ).astimezone(timezone.get_current_timezone()),
-                                    program=f"dummy_programs/{enrollment.user.username}/{problem.number}/{i}.py",
+                                    program=f"dummy_programs/{enrollment.user.username}/{problem.number}/{i}.{random.choice(['py', 'cpp'])}",
                                     judge_id=f"dummy-judge-{enrollment.id}-{problem.id}-{i}",
                                     score=min(
                                         random.randint(0, int(problem.judge_points))
@@ -435,6 +436,94 @@ class Command(BaseCommand):
 
         return [*submits[0], *submits[1], *submits[2]]
 
+    def create_submit_files(self, submits: list[BaseSubmit]):
+        for submit in submits:
+            text = f"{submit.enrollment.user.display_name} ({submit.enrollment.user.username})"
+            if isinstance(submit, FileSubmit):
+                Path(submit.file.path).parent.mkdir(parents=True, exist_ok=True)
+                with submit.file.open("w") as f:
+                    f.write(
+                        # https://brendanzagaeski.appspot.com/0004.html
+                        f"""%PDF-1.1
+%¥±ë
+
+1 0 obj
+  << /Type /Catalog
+     /Pages 2 0 R
+  >>
+endobj
+
+2 0 obj
+  << /Type /Pages
+     /Kids [3 0 R]
+     /Count 1
+     /MediaBox [0 0 300 144]
+  >>
+endobj
+
+3 0 obj
+  <<  /Type /Page
+      /Parent 2 0 R
+      /Resources
+       << /Font
+           << /F1
+               << /Type /Font
+                  /Subtype /Type1
+                  /BaseFont /Times-Roman
+               >>
+           >>
+       >>
+      /Contents 4 0 R
+  >>
+endobj
+
+4 0 obj
+  << /Length {44 + len(text)} >>
+stream
+  BT
+    /F1 18 Tf
+    10 63 Td
+    ({text}) Tj
+  ET
+endstream
+endobj
+
+xref
+0 5
+0000000000 65535 f 
+0000000018 00000 n 
+0000000077 00000 n 
+0000000178 00000 n 
+0000000457 00000 n 
+trailer
+  <<  /Root 1 0 R
+      /Size 5
+  >>
+startxref
+{554 + len(text) + len(str(int(44 + len(text))))}
+%%EOF
+""",
+                    )
+            elif isinstance(submit, JudgeSubmit):
+                Path(submit.program.path).parent.mkdir(parents=True, exist_ok=True)
+                with submit.program.open("w") as f:
+                    f.write(
+                        f'''#if 0
+print('Hi there {submit.enrollment.user.username}')
+#endif
+#if 0
+""" "
+#endif
+#include <iostream>
+int main() {{
+    std::cout << "Hi there {submit.enrollment.user.username}" << std::endl;
+}}
+#if 0
+" """
+#endif
+'''
+                    )
+
     def fake_ruledata_times(self, contest: Contest, date: datetime):
         RuleData.objects.filter(
             contest=contest,
@@ -477,7 +566,10 @@ class Command(BaseCommand):
             enrollments = self.create_enrollments(users, problem_sets, schools)
 
             self.stdout.write(" - Creating submits...\n")
-            self.create_submits(enrollments)
+            submits = self.create_submits(enrollments)
+
+            self.stdout.write(" - Creating submit files...\n")
+            self.create_submit_files(submits)
 
             self.stdout.write(" - Closing problem sets\n")
             for problem_set in problem_sets:

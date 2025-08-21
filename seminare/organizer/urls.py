@@ -23,6 +23,16 @@ contest_patterns = [
         name="grading_overview",
     ),
     path(
+        "grading/problem/<int:problem_id>/download/",
+        grading.GradingDownloadView.as_view(),
+        name="grading_download",
+    ),
+    path(
+        "grading/problem/<int:problem_id>/upload/",
+        grading.GradingUploadView.as_view(),
+        name="grading_upload",
+    ),
+    path(
         "grading/submit/<submit_id:submit_id>/",
         grading.GradingSubmitView.as_view(),
         name="grading_submit",
