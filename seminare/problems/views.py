@@ -10,7 +10,7 @@ from seminare.problems.models import Problem, ProblemSet
 from seminare.rules import RuleEngine
 from seminare.submits.models import FileSubmit, JudgeSubmit, TextSubmit
 from seminare.users.logic.permissions import is_contest_organizer
-from seminare.users.models import Enrollment, User
+from seminare.users.models import User
 
 
 class ProblemSetListView(ListView):
@@ -116,25 +116,19 @@ class ProblemDetailView(DetailView):
             ProblemSet.objects.for_user(self.request.user)
             .filter(contest=self.contest, slug=self.kwargs["problem_set_slug"])
             .select_related("contest")
+            .prefetch_related("problems")
         ).first()
 
         return get_object_or_404(
-            Problem.objects.select_related("problem_set"),
+            self.problem_set.problems,
             number=self.kwargs["number"],
-            problem_set=self.problem_set,
         )
 
-    def get_submits(self):
+    def get_submits(self, enrollment):
         if not self.request.user.is_authenticated:
             return {}
 
         rule_engine: RuleEngine = self.object.problem_set.get_rule_engine()
-        enrollment = Enrollment.objects.filter(
-            problem_set=self.object.problem_set, user=self.request.user
-        ).first()
-
-        if enrollment is not None:
-            enrollment.user = self.request.user
 
         return {
             id: {
@@ -160,6 +154,22 @@ class ProblemDetailView(DetailView):
         ctx = super().get_context_data(**kwargs)
         assert isinstance(self.request.user, User | AnonymousUser)
 
+        enrollment = None
+
+        if (user := self.request.user).is_authenticated:
+            assert isinstance(user, User)
+            enrollment = user.get_enrollment(self.object.problem_set)
+
+            if enrollment is not None:
+                enrollment.user = user
+                ctx["enrollment"] = enrollment
+
+                if self.problem_set.is_running and (
+                    enrollment.school_id != user.current_school_id
+                    or enrollment.grade != user.current_grade
+                ):
+                    ctx["enrollment_warning"] = True
+
         chips = self.object.problem_set.get_rule_engine().get_chips(self.request.user)
 
         ctx["texts"] = self.object.get_all_texts()
@@ -173,7 +183,7 @@ class ProblemDetailView(DetailView):
         ctx["chips"] = chips[self.object]
         if isinstance(self.request.user, User):
             ctx["is_organizer"] = is_contest_organizer(self.request.user, self.contest)
-        ctx["submits"] = self.get_submits()
+        ctx["submits"] = self.get_submits(enrollment)
         return ctx
 
 

@@ -1,6 +1,13 @@
+from typing import TYPE_CHECKING
+
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+
+if TYPE_CHECKING:
+    from django.db.models.fields.related_descriptors import RelatedManager
+
+    from seminare.problems.models import ProblemSet
 
 
 class Grade(models.TextChoices):
@@ -35,6 +42,8 @@ class User(AbstractUser):
     current_school_id: int
     current_grade = models.CharField(choices=Grade.choices, max_length=3, blank=True)
 
+    enrollment_set: "RelatedManager[Enrollment]"
+
     @property
     def profile_url(self):
         return f"https://id.trojsten.sk/profile/{self.username}/"
@@ -48,6 +57,20 @@ class User(AbstractUser):
         if self.first_name and self.last_name:
             return self.get_full_name()
         return self.username
+
+    def get_enrollment(self, problem_set: "ProblemSet"):
+        if hasattr(self, f"enrollment_cache_{problem_set.slug}"):
+            return getattr(self, f"enrollment_cache_{problem_set.slug}")
+
+        enrollment = self.enrollment_set.filter(
+            user=self, problem_set=problem_set
+        ).first()
+
+        if enrollment is None:
+            return None
+
+        setattr(self, f"enrollment_cache_{problem_set.slug}", enrollment)
+        return enrollment
 
 
 class School(models.Model):
