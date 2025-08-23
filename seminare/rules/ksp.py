@@ -25,7 +25,11 @@ from seminare.submits.models import BaseSubmit
 from seminare.users.models import Enrollment, Grade, User
 
 
-class KSP2025(LevelRuleEngine, PreviousProblemSetRuleEngine, LimitedSubmitRuleEngine):
+class KSP2025(
+    LevelRuleEngine,
+    PreviousProblemSetRuleEngine,
+    LimitedSubmitRuleEngine,
+):
     max_level = 4
 
     doprogramovanie_date: datetime

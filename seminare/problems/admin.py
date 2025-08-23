@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from seminare.problems.models import Problem, ProblemSet, Text
+from seminare.problems.models import Problem, ProblemSet, ProblemSetFrozenResults, Text
 
 
 class TextInline(admin.TabularInline):
@@ -12,6 +12,12 @@ class TextInline(admin.TabularInline):
 class ProblemSetAdmin(admin.ModelAdmin):
     list_display = ["name", "start_date", "end_date"]
     search_fields = ["name"]
+
+
+@admin.register(ProblemSetFrozenResults)
+class ProblemSetFrozenResultsAdmin(admin.ModelAdmin):
+    list_display = ["problem_set", "table"]
+    search_fields = ["problem_set", "table"]
 
 
 @admin.register(Problem)

@@ -481,7 +481,8 @@ class Command(BaseCommand):
 
             self.stdout.write(" - Closing problem sets\n")
             for problem_set in problem_sets:
-                problem_set.close()
+                problem_set.is_finalized = True
+                problem_set.save()
 
             self.stdout.write(" - Faking RuleData times\n")
             self.fake_ruledata_times(contest, max(ps.end_date for ps in problem_sets))

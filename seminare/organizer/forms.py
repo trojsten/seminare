@@ -15,8 +15,9 @@ class ProblemSetForm(forms.ModelForm):
             "slug",
             "start_date",
             "end_date",
-            "rule_engine",
+            "is_finalized",
             "is_public",
+            "rule_engine",
             "rule_engine_options",
         ]
         labels = {
@@ -24,21 +25,32 @@ class ProblemSetForm(forms.ModelForm):
             "slug": "URL adresa",
             "start_date": "Začiatok",
             "end_date": "Koniec",
-            "rule_engine": "Rule Engine",
+            "is_finalized": "Finalizovať výsledky",
             "is_public": "Zverejniť",
+            "rule_engine": "Rule Engine",
             "rule_engine_options": "Nastavenia pre Rule Engine",
         }
         help_texts = {
             "start_date": "Dátum zverejnenia sady úloh.",
             "end_date": "Riešenia bude možné odovzdávať najneskôr v tento deň.",
-            "rule_engine": "Cesta k triede, ktorá implementuje pravidlá a hodnotenie.",
             "is_public": "Sada úloh sa bude zobrazovať na stránke.",
+            "is_finalized": "Výsledky budú finalizované a nebudú sa už dať meniť.",
+            "rule_engine": "Cesta k triede, ktorá implementuje pravidlá a hodnotenie.",
             "rule_engine_options": "Špecifické nastavenia pre Rule Engine.",
         }
         widgets = {
             "start_date": DateTimeInput(),
             "end_date": DateTimeInput(),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if self.instance and self.instance.is_finalized:
+            self.fields["is_finalized"].disabled = True
+            self.fields[
+                "is_finalized"
+            ].help_text = "Táto sada úloh už bola finalizovaná."
 
     def clean(self):
         data = super().clean()

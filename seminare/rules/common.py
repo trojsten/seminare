@@ -84,7 +84,7 @@ class LevelRuleEngine(RuleEngine):
 
     def close_problemset(self):
         if not self.should_update_levels():
-            return
+            return super().close_problemset()
 
         enrollments = list(
             self.problem_set.enrollment_set.all().prefetch_related("user")
@@ -107,7 +107,7 @@ class LevelRuleEngine(RuleEngine):
 
         self.set_levels_for_users(new_levels)
 
-        super().close_problemset()
+        return super().close_problemset()
 
 
 class PreviousProblemSetRuleEngine(RuleEngine):
