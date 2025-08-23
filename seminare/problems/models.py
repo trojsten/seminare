@@ -41,7 +41,7 @@ class ProblemSet(models.Model):
     rule_engine = models.CharField(max_length=512)
     rule_engine_options = models.JSONField(default=dict, blank=True)
 
-    finalized = models.BooleanField(default=False)
+    is_finalized = models.BooleanField(default=False)
 
     objects = ProblemSetQuerySet.as_manager()
     enrollment_set: "RelatedManager[Enrollment]"
@@ -57,20 +57,20 @@ class ProblemSet(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
-        if not self._finalized and self.finalized:
-            self.finalized = False
+        if not self._is_finalized and self.is_finalized:
+            self.is_finalized = False
             self.get_rule_engine().close_problemset()
-            self.finalized = True
+            self.is_finalized = True
 
         return super().save(*args, **kwargs)
 
-    _finalized: bool = False
+    _is_finalized: bool = False
 
     @classmethod
     def from_db(cls, *args, **kwargs) -> Self:
         instance = super().from_db(*args, **kwargs)
 
-        instance._finalized = instance.finalized
+        instance._is_finalized = instance.is_finalized
 
         return instance
 

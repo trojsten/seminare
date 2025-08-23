@@ -15,7 +15,7 @@ class ProblemSetForm(forms.ModelForm):
             "slug",
             "start_date",
             "end_date",
-            "finalized",
+            "is_finalized",
             "is_public",
             "rule_engine",
             "rule_engine_options",
@@ -25,7 +25,7 @@ class ProblemSetForm(forms.ModelForm):
             "slug": "URL adresa",
             "start_date": "Začiatok",
             "end_date": "Koniec",
-            "finalized": "Finalizovať výsledky",
+            "is_finalized": "Finalizovať výsledky",
             "is_public": "Zverejniť",
             "rule_engine": "Rule Engine",
             "rule_engine_options": "Nastavenia pre Rule Engine",
@@ -34,7 +34,7 @@ class ProblemSetForm(forms.ModelForm):
             "start_date": "Dátum zverejnenia sady úloh.",
             "end_date": "Riešenia bude možné odovzdávať najneskôr v tento deň.",
             "is_public": "Sada úloh sa bude zobrazovať na stránke.",
-            "finalized": "Výsledky budú finalizované a nebudú sa už dať meniť.",
+            "is_finalized": "Výsledky budú finalizované a nebudú sa už dať meniť.",
             "rule_engine": "Cesta k triede, ktorá implementuje pravidlá a hodnotenie.",
             "rule_engine_options": "Špecifické nastavenia pre Rule Engine.",
         }
@@ -46,9 +46,11 @@ class ProblemSetForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        if self.instance and self.instance.finalized:
-            self.fields["finalized"].disabled = True
-            self.fields["finalized"].help_text = "Táto sada úloh už bola finalizovaná."
+        if self.instance and self.instance.is_finalized:
+            self.fields["is_finalized"].disabled = True
+            self.fields[
+                "is_finalized"
+            ].help_text = "Táto sada úloh už bola finalizovaná."
 
     def clean(self):
         data = super().clean()

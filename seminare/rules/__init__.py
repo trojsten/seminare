@@ -251,7 +251,7 @@ class RuleEngine:
     def get_result_table(self, table: str, **kwargs) -> Table:
         """Calculates given result table."""
 
-        if self.problem_set.finalized:
+        if self.problem_set.is_finalized:
             frozen_results = self.problem_set.get_frozen_results(table)
             return Table.deserialize(frozen_results)
 
