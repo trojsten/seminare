@@ -55,4 +55,7 @@ urlpatterns = [
     path("pages/<int:pk>/", page.PageUpdateView.as_view(), name="page_update"),
     path("pages/<int:pk>/delete/", page.PageDeleteView.as_view(), name="page_delete"),
     path("pages/create/", page.PageCreateView.as_view(), name="page_create"),
+    path(
+        "pages/create/<path:slug>/", page.PageCreateView.as_view(), name="page_create"
+    ),
 ]
