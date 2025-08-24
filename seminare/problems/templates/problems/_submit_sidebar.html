@@ -11,7 +11,9 @@
   {# TODO: remove that login / logout step when no longer needed #}
   {% message 'Nemáš nastavenú školu a ročník. Nastav si ich prosím v <a class="link" href="https://id.trojsten.sk/accounts/school/">Trojsten ID</a> a potom sa odhlás a znovu prihlás.' "warning" %}
 {% else %}
-  {% if enrollment_warning %}
+  {% if not problem.problem_set.is_running %}
+    {% message 'Kolo už skončilo. Stále môžeš odovzdávať, ale výsledky sa ti už nebudú započítavať do výsledkovej listiny.' "info" %}
+  {% elif enrollment_warning %}
     {% message 'Tvoja aktuálna škola alebo ročník sa zmenil. Ak sú údaje vo výsledkovej listine neaktuálne, napíš na <a class="link" href="mailto:info@trojsten.sk?subject=Neaktuálne údaje vo výsledkovej listine">info@trojsten.sk</a>.' "warning" %}
   {% endif %}
   <div data-submit--cta-target="submitForm" id="submit">
