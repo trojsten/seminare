@@ -1,4 +1,7 @@
+from django.core.files.storage import default_storage
 from django.urls import reverse
+from django.utils.http import urlencode
+from django.utils.safestring import mark_safe
 
 from seminare.content.models import Page
 from seminare.problems.models import Problem, ProblemSet
@@ -128,3 +131,33 @@ class PostTable(Table):
                 reverse("org:post_delete", args=[object.id]),
             ),
         ]
+
+
+class FileTable(Table):
+    fields = ["icon", "name"]
+    labels = {"icon": "", "name": "Názov"}
+
+    def get_icon_content(self, object):
+        if object["is_dir"]:
+            return mark_safe("<iconify-icon icon='mdi:folder'></iconify-icon>")
+        return mark_safe("<iconify-icon icon='mdi:file'></iconify-icon>")
+
+    def get_name_content(self, object):
+        return object["file"].name
+
+    def get_links(
+        self, object: dict, context: dict
+    ) -> list[tuple[str, str] | tuple[str, str, str]]:
+        links = []
+
+        path_query = "?" + urlencode({"path": str(object["rel"])})
+        if object["is_dir"]:
+            links.append(
+                ("mdi:folder-open", "Otvoriť", reverse("org:file_list") + path_query)
+            )
+        else:
+            links.append(
+                ("mdi:download", "Stiahnúť", default_storage.url(object["file"]))
+            )
+        links.append(("mdi:delete", "Vymazať", reverse("org:file_delete") + path_query))
+        return links

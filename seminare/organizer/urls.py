@@ -1,6 +1,14 @@
 from django.urls import path
 
-from seminare.organizer.views import dashboard, grading, page, post, problem, problemset
+from seminare.organizer.views import (
+    dashboard,
+    files,
+    grading,
+    page,
+    post,
+    problem,
+    problemset,
+)
 
 app_name = "org"
 
@@ -69,4 +77,10 @@ urlpatterns = [
         page.PageCreateView.as_view(),
         name="page_create",
     ),
+    path("subory/", files.FileListView.as_view(), name="file_list"),
+    path("subory/vymazat/", files.FileDeleteView.as_view(), name="file_delete"),
+    path(
+        "subory/novy_priecinok/", files.NewFolderView.as_view(), name="file_new_folder"
+    ),
+    path("subory/nahrat/", files.UploadFileView.as_view(), name="file_upload"),
 ]
