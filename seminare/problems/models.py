@@ -1,3 +1,4 @@
+from pathlib import PurePath
 from typing import TYPE_CHECKING, Self, Type, TypedDict
 
 from django.db import models
@@ -194,6 +195,12 @@ class Problem(models.Model):
             }
 
         return output
+
+    def get_data_root(self, absolute=False) -> str:
+        path = PurePath("rounds") / self.problem_set.slug / str(self.number)
+        if absolute:
+            return str(self.problem_set.contest.data_root / path)
+        return str(path)
 
     def get_visible_texts(self) -> "set[Text.Type]":
         return self.problem_set.get_rule_engine().get_visible_texts(self)
