@@ -1,4 +1,3 @@
-from django.contrib.sites.shortcuts import get_current_site
 from django.urls import reverse, reverse_lazy
 from django.views.generic import CreateView, UpdateView
 
@@ -39,7 +38,7 @@ class PageUpdateView(
 
     def get_form_kwargs(self):
         kw = super().get_form_kwargs()
-        kw["site"] = get_current_site(self.request)
+        kw["contest"] = get_current_contest(self.request)
         return kw
 
     def get_breadcrumbs(self) -> list[tuple[str, str]]:
@@ -57,7 +56,7 @@ class PageCreateView(ContestOrganizerRequired, GenericFormView, CreateView):
 
     def get_form_kwargs(self):
         kw = super().get_form_kwargs()
-        kw["site"] = get_current_site(self.request)
+        kw["contest"] = get_current_contest(self.request)
         return kw
 
     def get_initial(self):

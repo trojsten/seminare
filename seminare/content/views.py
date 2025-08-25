@@ -1,4 +1,3 @@
-from django.contrib.sites.shortcuts import get_current_site
 from django.http import Http404, HttpRequest, HttpResponseBase
 from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import DetailView, ListView
@@ -48,13 +47,17 @@ class PostListView(ListView):
     paginate_by = 15
 
     def get_queryset(self):
-        site = get_current_site(self.request)
-        return Post.objects.filter(contests__site=site)
+        contest = get_current_contest(self.request)
+        return Post.objects.filter(contests__id=contest.id).select_related("author")
 
 
 class PostDetailView(DetailView):
     template_name = "post/detail.html"
 
     def get_object(self, queryset=...):
-        site = get_current_site(self.request)
-        return get_object_or_404(Post, slug=self.kwargs["slug"], contests__site=site)
+        contest = get_current_contest(self.request)
+        return get_object_or_404(
+            Post.objects.select_related("author"),
+            slug=self.kwargs["slug"],
+            contests__id=contest.id,
+        )
