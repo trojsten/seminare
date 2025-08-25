@@ -3,6 +3,7 @@ from django.urls import reverse, reverse_lazy
 from django.views.generic import CreateView, UpdateView
 
 from seminare.content.models import Page
+from seminare.contests.utils import get_current_contest
 from seminare.organizer.forms import PageForm
 from seminare.organizer.tables import PageTable
 from seminare.organizer.views import MixinProtocol
@@ -16,8 +17,8 @@ from seminare.users.mixins.permissions import ContestOrganizerRequired
 
 class WithPageQuerySet(MixinProtocol):
     def get_queryset(self):
-        site = get_current_site(self.request)
-        return Page.objects.filter(contest__site=site)
+        contest = get_current_contest(self.request)
+        return Page.objects.filter(contest=contest)
 
 
 class PageListView(ContestOrganizerRequired, WithPageQuerySet, GenericTableView):

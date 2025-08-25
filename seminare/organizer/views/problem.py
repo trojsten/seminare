@@ -1,11 +1,10 @@
 from django.db.models import QuerySet
-from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.views.generic import CreateView, UpdateView
 
 from seminare.organizer.forms import ProblemForm
 from seminare.organizer.tables import ProblemTable
-from seminare.organizer.views import WithContest, WithProblemSet
+from seminare.organizer.views import WithProblem, WithProblemSet
 from seminare.organizer.views.generic import GenericFormView, GenericTableView
 from seminare.problems.models import Problem
 from seminare.users.logic.permissions import is_contest_administrator
@@ -15,9 +14,7 @@ from seminare.users.mixins.permissions import (
 )
 
 
-class ProblemListView(
-    ContestOrganizerRequired, WithContest, WithProblemSet, GenericTableView
-):
+class ProblemListView(ContestOrganizerRequired, WithProblemSet, GenericTableView):
     table_class = ProblemTable
     table_title = "Úlohy"
 
@@ -57,7 +54,7 @@ class ProblemListView(
 
 
 class ProblemCreateView(
-    ContestAdminRequired, WithContest, WithProblemSet, GenericFormView, CreateView
+    ContestAdminRequired, WithProblemSet, GenericFormView, CreateView
 ):
     form_class = ProblemForm
     form_title = "Nová úloha"
@@ -82,9 +79,7 @@ class ProblemCreateView(
         ]
 
 
-class ProblemUpdateView(
-    ContestAdminRequired, WithContest, WithProblemSet, GenericFormView, UpdateView
-):
+class ProblemUpdateView(ContestAdminRequired, WithProblem, GenericFormView, UpdateView):
     form_class = ProblemForm
     form_title = "Upraviť úlohu"
 
@@ -94,7 +89,7 @@ class ProblemUpdateView(
         return kw
 
     def get_object(self, queryset=None):
-        return get_object_or_404(Problem, id=self.kwargs.get("problem_id"))
+        return self.problem
 
     def get_success_url(self) -> str:
         return reverse("org:problem_list", args=[self.problem_set.slug])
