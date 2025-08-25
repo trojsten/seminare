@@ -28,7 +28,7 @@ class PageDetailView(DetailView):
         ).first()
 
         if self.page is None:
-            if self.is_organizer:
+            if self.is_organizer and not self.kwargs.get("slug").startswith("org/"):
                 return redirect("org:page_create", slug=self.kwargs["slug"])
             raise Http404()
 
