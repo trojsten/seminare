@@ -8,7 +8,6 @@ from typing import Iterable
 from django.core.files.base import ContentFile
 from django.db.models.fields.files import FieldFile
 from django.http import FileResponse, HttpResponseRedirect
-from django.shortcuts import get_object_or_404
 from django.template.defaultfilters import slugify
 from django.urls import reverse
 from django.utils.functional import cached_property
@@ -19,20 +18,17 @@ from seminare.organizer.forms import GradingForm, GradingUploadForm
 from seminare.organizer.views import (
     MixinProtocol,
     WithBreadcrumbs,
-    WithContest,
+    WithProblem,
     WithSubmit,
 )
 from seminare.organizer.views.generic import GenericFormView
-from seminare.problems.models import Problem
 from seminare.rules import RuleEngine
 from seminare.submits.models import BaseSubmit, FileSubmit, JudgeSubmit, TextSubmit
 from seminare.users.mixins.permissions import ContestOrganizerRequired
 from seminare.users.models import Enrollment
 
 
-class WithSubmitList(WithContest, MixinProtocol):
-    problem: Problem | cached_property
-
+class WithSubmitList(WithProblem, MixinProtocol):
     @cached_property
     def rule_engine(self) -> RuleEngine:
         return self.problem.problem_set.get_rule_engine()
@@ -80,15 +76,12 @@ class WithSubmitList(WithContest, MixinProtocol):
 
 
 class GradingOverviewView(
-    ContestOrganizerRequired, WithSubmitList, WithBreadcrumbs, TemplateView
+    ContestOrganizerRequired,
+    WithSubmitList,
+    WithBreadcrumbs,
+    TemplateView,
 ):
     template_name = "org/grading/overview.html"
-
-    @cached_property
-    def problem(self):
-        return get_object_or_404(
-            Problem, id=self.kwargs["problem_id"], problem_set__contest=self.contest
-        )
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
@@ -99,7 +92,10 @@ class GradingOverviewView(
                 "default",
                 "mdi:human-queue",
                 "Hromadné opravovanie",
-                reverse("org:bulk_grading", args=[self.problem.id]),
+                reverse(
+                    "org:bulk_grading",
+                    args=[self.problem_set.slug, self.problem.number],
+                ),
             )
         ]
         return ctx
@@ -187,12 +183,6 @@ class BulkGradingView(ContestOrganizerRequired, WithSubmitList, GenericFormView)
     form_header_template = "org/grading/_bulk_header.html"
     form_multipart = True
 
-    @cached_property
-    def problem(self):
-        return get_object_or_404(
-            Problem, id=self.kwargs["problem_id"], problem_set__contest=self.contest
-        )
-
     def form_valid(self, form):
         enrollments = self.rule_engine.get_enrollments().select_related("user")
 
@@ -262,12 +252,17 @@ class BulkGradingView(ContestOrganizerRequired, WithSubmitList, GenericFormView)
                 "default",
                 "mdi:download",
                 "Stiahnuť ZIP na opravovanie",
-                reverse("org:bulk_grading_download", args=[self.kwargs["problem_id"]]),
+                reverse(
+                    "org:bulk_grading_download",
+                    args=[self.problem_set.slug, self.problem.number],
+                ),
             )
         ]
 
     def get_success_url(self):
-        return reverse("org:grading_overview", args=[self.kwargs["problem_id"]])
+        return reverse(
+            "org:grading_overview", args=[self.problem_set.slug, self.problem.number]
+        )
 
     def get_breadcrumbs(self):
         return [
@@ -281,18 +276,18 @@ class BulkGradingView(ContestOrganizerRequired, WithSubmitList, GenericFormView)
                 ),
             ),
             (self.problem, ""),
-            ("Opravovanie", reverse("org:grading_overview", args=[self.problem.id])),
+            (
+                "Opravovanie",
+                reverse(
+                    "org:grading_overview",
+                    args=[self.problem_set.slug, self.problem.number],
+                ),
+            ),
             ("Hromadné opravovanie", ""),
         ]
 
 
 class BulkGradingDownloadView(ContestOrganizerRequired, WithSubmitList, View):
-    @cached_property
-    def problem(self):
-        return get_object_or_404(
-            Problem, id=self.kwargs["problem_id"], problem_set__contest=self.contest
-        )
-
     def get(self, request, *args, **kwargs):
         enrollments = self.rule_engine.get_enrollments().select_related("user")
         enrollments_by_id = {enrollment.id: enrollment for enrollment in enrollments}

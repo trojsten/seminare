@@ -1,71 +1,72 @@
-from django.urls import include, path
+from django.urls import path
 
 from seminare.organizer.views import dashboard, grading, page, post, problem, problemset
 
 app_name = "org"
 
-contest_patterns = [
+urlpatterns = [
     path("", dashboard.ContestDashboardView.as_view(), name="contest_dashboard"),
-    path("sets/", problemset.ProblemSetListView.as_view(), name="problemset_list"),
+    path("kola/", problemset.ProblemSetListView.as_view(), name="problemset_list"),
     path(
-        "sets/create/",
+        "kola/vytvorit/",
         problemset.ProblemSetCreateView.as_view(),
         name="problemset_create",
     ),
     path(
-        "sets/<slug>/",
+        "kola/<problem_set_slug>/",
         problemset.ProblemSetUpdateView.as_view(),
         name="problemset_update",
     ),
     path(
-        "grading/problem/<int:problem_id>/",
+        "kola/<problem_set_slug>/ulohy/<int:number>/opravovanie/",
         grading.GradingOverviewView.as_view(),
         name="grading_overview",
     ),
     path(
-        "grading/problem/<int:problem_id>/bulk/",
+        "kola/<problem_set_slug>/ulohy/<int:number>/opravovanie/hromadne/",
         grading.BulkGradingView.as_view(),
         name="bulk_grading",
     ),
     path(
-        "grading/problem/<int:problem_id>/bulk/download/",
+        "kola/<problem_set_slug>/ulohy/<int:number>/opravovanie/hromadne/stiahnut/",
         grading.BulkGradingDownloadView.as_view(),
         name="bulk_grading_download",
     ),
     path(
-        "grading/submit/<submit_id:submit_id>/",
+        "kola/<problem_set_slug>/ulohy/<int:number>/opravovanie/<submit_id:submit_id>/",
         grading.GradingSubmitView.as_view(),
         name="grading_submit",
     ),
     path(
-        "sets/<problem_set_slug>/problems/",
+        "kola/<problem_set_slug>/ulohy/",
         problem.ProblemListView.as_view(),
         name="problem_list",
     ),
     path(
-        "sets/<problem_set_slug>/problems/<int:problem_id>/",
+        "kola/<problem_set_slug>/ulohy/<int:number>/",
         problem.ProblemUpdateView.as_view(),
         name="problem_update",
     ),
     path(
-        "sets/<problem_set_slug>/problems/create/",
+        "kola/<problem_set_slug>/ulohy/vytvorit/",
         problem.ProblemCreateView.as_view(),
         name="problem_create",
     ),
-    path("posts/", post.PostListView.as_view(), name="post_list"),
-    path("posts/<int:pk>/", post.PostUpdateView.as_view(), name="post_update"),
-    path("posts/<int:pk>/delete/", post.PostDeleteView.as_view(), name="post_delete"),
-    path("posts/create/", post.PostCreateView.as_view(), name="post_create"),
-]
-
-
-urlpatterns = [
-    path("contests/", include(contest_patterns)),
-    path("pages/", page.PageListView.as_view(), name="page_list"),
-    path("pages/<int:pk>/", page.PageUpdateView.as_view(), name="page_update"),
-    path("pages/<int:pk>/delete/", page.PageDeleteView.as_view(), name="page_delete"),
-    path("pages/create/", page.PageCreateView.as_view(), name="page_create"),
+    path("prispevky/", post.PostListView.as_view(), name="post_list"),
+    path("prispevky/<int:pk>/", post.PostUpdateView.as_view(), name="post_update"),
     path(
-        "pages/create/<path:slug>/", page.PageCreateView.as_view(), name="page_create"
+        "prispevky/<int:pk>/vymazat/", post.PostDeleteView.as_view(), name="post_delete"
+    ),
+    path("prispevky/vytvorit/", post.PostCreateView.as_view(), name="post_create"),
+    path("stranky/", page.PageListView.as_view(), name="page_list"),
+    path("stranky/<int:pk>/", page.PageUpdateView.as_view(), name="page_update"),
+    path(
+        "stranky/<int:pk>/vymazat/", page.PageDeleteView.as_view(), name="page_delete"
+    ),
+    path("stranky/vytvorit/", page.PageCreateView.as_view(), name="page_create"),
+    path(
+        "stranky/vytvorit/<path:slug>/",
+        page.PageCreateView.as_view(),
+        name="page_create",
     ),
 ]

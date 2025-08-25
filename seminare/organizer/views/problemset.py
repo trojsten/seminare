@@ -1,12 +1,11 @@
 from django.db.models import QuerySet
 from django.http import HttpResponseRedirect
-from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.views.generic import CreateView, UpdateView
 
 from seminare.organizer.forms import ProblemSetForm
 from seminare.organizer.tables import ProblemSetTable, ProblemTable
-from seminare.organizer.views import WithContest
+from seminare.organizer.views import WithContest, WithProblemSet
 from seminare.organizer.views.generic import (
     GenericFormTableView,
     GenericFormView,
@@ -76,7 +75,7 @@ class ProblemSetCreateView(
 
 
 class ProblemSetUpdateView(
-    ContestAdminRequired, WithContest, GenericFormTableView, UpdateView
+    ContestAdminRequired, WithProblemSet, GenericFormTableView, UpdateView
 ):
     form_class = ProblemSetForm
     table_class = ProblemTable
@@ -90,9 +89,7 @@ class ProblemSetUpdateView(
         ]
 
     def get_object(self, queryset=None):
-        return get_object_or_404(
-            ProblemSet, slug=self.kwargs["slug"], contest=self.contest
-        )
+        return self.problem_set
 
     def get_queryset(self) -> QuerySet[Problem]:
         return Problem.objects.filter(problem_set=self.get_object()).order_by("number")

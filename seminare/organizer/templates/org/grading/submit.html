@@ -7,14 +7,14 @@
 {% block org_body %}
 <div class="flex w-full h-full max-h-screen">
   <div class="border-r w-80 shrink-0 px-4 py-3 overflow-auto space-y-1" hx-boost="true">
-    <a href="{% url 'org:grading_overview' submit.problem_id %}#user-{{ submit.enrollment.user_id }}" class="link flex items-center mb-2">
+    <a href="{% url 'org:grading_overview' problem_set.slug problem.number %}#user-{{ submit.enrollment.user_id }}" class="link flex items-center mb-2">
       <iconify-icon icon="mdi:arrow-left" class="mr-1"></iconify-icon>
       Späť na hodnotenie úlohy
     </a>
 
     {% for row in other_users %}
     {% if row.submit %}
-    <a href="{% url 'org:grading_submit' row.submit.submit_id %}" class="block text-gray-800 px-3 py-2 hover:bg-gray-50 {% if row.user.id == submit.enrollment.user_id %}bg-gray-100 scroll-to-me{% endif %} rounded">
+    <a href="{% url 'org:grading_submit' problem_set.slug problem.number row.submit.submit_id %}" class="block text-gray-800 px-3 py-2 hover:bg-gray-50 {% if row.user.id == submit.enrollment.user_id %}bg-gray-100 scroll-to-me{% endif %} rounded">
       <div class="flex items-center justify-between font-semibold">
         <span>{{ row.user.display_name }}</span>
         {% if row.submit.score is not None %}
@@ -44,9 +44,9 @@
       {% for osubmit in other_submits %}
         {% if osubmit.type == "submit" %}
           {% with other_submit=osubmit.submit %}
-            <a href="{% url 'org:grading_submit' other_submit.submit_id %}" class="block text-gray-800 px-3 py-2 hover:bg-gray-50 {% if other_submit == submit %}bg-gray-100 scroll-to-me{% endif %} rounded">
+            <a href="{% url 'org:grading_submit' problem_set.slug problem.number other_submit.submit_id %}" class="block text-gray-800 px-3 py-2 hover:bg-gray-50 {% if other_submit == submit %}bg-gray-100 scroll-to-me{% endif %} rounded">
               <div class="flex items-center justify-between font-semibold gap-1">
-                <span class="text-ellipsis overflow-hidden text-sm">{{ submit.created_at }}</span>
+                <span class="text-ellipsis overflow-hidden text-sm">{{ other_submit.created_at }}</span>
                 <span data-submit-score="{{ other_submit.id }}"class="text-green-600 whitespace-nowrap shrink-0 tabular-nums">{% if other_submit.score is not None %}{{ other_submit.score|floatformat:"g" }} b{% endif %}</span>
               </div>
             </a>

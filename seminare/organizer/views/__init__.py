@@ -6,7 +6,7 @@ from django.utils.functional import cached_property
 
 from seminare.contests.models import Contest
 from seminare.contests.utils import get_current_contest
-from seminare.problems.models import ProblemSet
+from seminare.problems.models import Problem, ProblemSet
 from seminare.submits.models import BaseSubmit
 
 
@@ -37,10 +37,12 @@ class WithContest(MixinProtocol):
         return ctx
 
 
-class WithProblemSet(MixinProtocol):
+class WithProblemSet(WithContest, MixinProtocol):
     @cached_property
     def problem_set(self) -> ProblemSet:
-        return get_object_or_404(ProblemSet, slug=self.kwargs["problem_set_slug"])
+        return get_object_or_404(
+            ProblemSet, slug=self.kwargs["problem_set_slug"], contest=self.contest
+        )
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
@@ -48,10 +50,12 @@ class WithProblemSet(MixinProtocol):
         return ctx
 
 
-class WithProblem(MixinProtocol):
+class WithProblem(WithProblemSet, MixinProtocol):
     @cached_property
-    def problem(self) -> ProblemSet:
-        return get_object_or_404(ProblemSet, id=self.kwargs["problem_id"])
+    def problem(self) -> Problem:
+        return get_object_or_404(
+            Problem, problem_set=self.problem_set, number=self.kwargs["number"]
+        )
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
