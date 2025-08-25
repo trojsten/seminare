@@ -39,8 +39,11 @@ class GenericFormView(WithBreadcrumbs, FormView):
     template_name = "org/generic/form.html"
 
     form_title = ""
+    form_description = ""
     form_multipart = False
     form_submit_label = "Uložiť"
+    form_header_template = None
+    form_links = []
 
     def get_form_title(self):
         return self.form_title
@@ -48,9 +51,15 @@ class GenericFormView(WithBreadcrumbs, FormView):
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx["form_title"] = self.get_form_title()
+        ctx["form_description"] = self.form_description
         ctx["form_multipart"] = self.form_multipart
         ctx["form_submit_label"] = self.form_submit_label
+        ctx["form_header_template"] = self.form_header_template
+        ctx["form_links"] = self.get_form_links()
         return ctx
+
+    def get_form_links(self):
+        return self.form_links
 
 
 class GenericDeleteView(GenericFormView, DeleteView):
