@@ -1,4 +1,5 @@
 from datetime import datetime
+from pathlib import PurePath
 
 from django.db import models
 
@@ -37,6 +38,10 @@ class Contest(models.Model):
     @property
     def logo_path(self):
         return f"/static/contests/{self.short_name.lower()}/logo.svg"
+
+    @property
+    def data_root(self) -> PurePath:
+        return PurePath("contest") / self.short_name.lower()
 
 
 class RuleDataQuerySet(models.QuerySet):

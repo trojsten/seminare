@@ -1,6 +1,14 @@
 from django.urls import include, path
 
-from seminare.organizer.views import dashboard, grading, page, post, problem, problemset
+from seminare.organizer.views import (
+    dashboard,
+    files,
+    grading,
+    page,
+    post,
+    problem,
+    problemset,
+)
 
 app_name = "org"
 
@@ -56,6 +64,10 @@ contest_patterns = [
     path("posts/<int:pk>/", post.PostUpdateView.as_view(), name="post_update"),
     path("posts/<int:pk>/delete/", post.PostDeleteView.as_view(), name="post_delete"),
     path("posts/create/", post.PostCreateView.as_view(), name="post_create"),
+    path("files/", files.FileListView.as_view(), name="file_list"),
+    path("files/delete/", files.FileDeleteView.as_view(), name="file_delete"),
+    path("files/mkdir/", files.NewFolderView.as_view(), name="file_new_folder"),
+    path("files/upload/", files.UploadFileView.as_view(), name="file_upload"),
 ]
 
 

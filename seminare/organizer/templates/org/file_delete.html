@@ -1,0 +1,21 @@
+{% extends "org/base.html" %}
+{% load forms %}
+
+{% block title %}
+  {{ form_title }} {{ block.super }}
+{% endblock title %}
+
+{% block body %}
+  {% include "org/generic/_title.html" with title=form_title %}
+
+  <form method="post" class="space-y-6" {% if form_multipart %}enctype="multipart/form-data"{% endif %}>
+    {% csrf_token %}
+
+    <p>Naozaj chceš vymazať "{{ request.GET.path }}"?</p>
+
+    {% render_form form %}
+
+    <button type="submit" class="btn btn-blue">{{ form_submit_label }}</button>
+  </form>
+{% endblock body %}
+
