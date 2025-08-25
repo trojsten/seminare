@@ -76,7 +76,7 @@ class User(AbstractUser):
 class School(models.Model):
     name = models.CharField(blank=True, max_length=256)
     short_name = models.CharField(blank=True, max_length=64)
-    edu_id = models.CharField(unique=True, max_length=16)
+    edu_id = models.CharField(unique=True, blank=True, null=True, max_length=16)
     address = models.CharField(blank=True, max_length=256)
 
     class Meta:

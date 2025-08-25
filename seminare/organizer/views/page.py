@@ -59,6 +59,12 @@ class PageCreateView(ContestOrganizerRequired, GenericFormView, CreateView):
         kw["site"] = get_current_site(self.request)
         return kw
 
+    def get_initial(self):
+        initial = super().get_initial()
+        if self.kwargs.get("slug"):
+            initial["slug"] = self.kwargs["slug"]
+        return initial
+
     def get_breadcrumbs(self) -> list[tuple[str, str]]:
         return [
             ("Stránky", reverse("org:page_list")),

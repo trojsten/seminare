@@ -21,7 +21,7 @@ from seminare.rules.results import (
     Table,
 )
 from seminare.rules.scores import Score
-from seminare.submits.models import BaseSubmit
+from seminare.submits.models import BaseSubmit, FileSubmit
 from seminare.users.models import Enrollment, Grade, User
 
 
@@ -67,6 +67,17 @@ class KSP2025(
         dates.append((self.doprogramovanie_date, "Doprogramovávanie"))
 
         return dates
+
+    def can_submit(
+        self,
+        submit_cls: type[BaseSubmit],
+        problem: "Problem",
+        enrollment: Enrollment | None,
+    ) -> bool:
+        if submit_cls == FileSubmit and timezone.now() > self.doprogramovanie_date:
+            return False
+
+        return super().can_submit(submit_cls, problem, enrollment)
 
     def get_effective_submits(
         self, submit_cls: type[BaseSubmit], problem: "Problem"
