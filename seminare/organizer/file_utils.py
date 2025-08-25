@@ -22,6 +22,10 @@ def list_folder(contest: Contest, path: str) -> tuple[list[PurePath], list[PureP
     if not default_storage.exists(cpath):
         return [], []
 
+    fs_path = default_storage.path(cpath)
+    if not os.path.isdir(fs_path):
+        return [], []
+
     fs_dirs, fs_files = default_storage.listdir(cpath)
 
     dirs = [PurePath(cpath) / f for f in fs_dirs]
