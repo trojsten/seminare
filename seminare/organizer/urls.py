@@ -1,10 +1,10 @@
-from django.urls import include, path
+from django.urls import path
 
 from seminare.organizer.views import dashboard, grading, page, post, problem, problemset
 
 app_name = "org"
 
-contest_patterns = [
+urlpatterns = [
     path("", dashboard.ContestDashboardView.as_view(), name="contest_dashboard"),
     path("sets/", problemset.ProblemSetListView.as_view(), name="problemset_list"),
     path(
@@ -56,11 +56,6 @@ contest_patterns = [
     path("posts/<int:pk>/", post.PostUpdateView.as_view(), name="post_update"),
     path("posts/<int:pk>/delete/", post.PostDeleteView.as_view(), name="post_delete"),
     path("posts/create/", post.PostCreateView.as_view(), name="post_create"),
-]
-
-
-urlpatterns = [
-    path("contests/", include(contest_patterns)),
     path("pages/", page.PageListView.as_view(), name="page_list"),
     path("pages/<int:pk>/", page.PageUpdateView.as_view(), name="page_update"),
     path("pages/<int:pk>/delete/", page.PageDeleteView.as_view(), name="page_delete"),
