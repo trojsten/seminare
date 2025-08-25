@@ -157,7 +157,7 @@ class FileTable(Table):
             )
         else:
             links.append(
-                ("mdi:download", "Stiahnúť", default_storage.url(object["file"]))
+                ("mdi:download", "Stiahnuť", default_storage.url(object["file"]))
             )
         links.append(("mdi:delete", "Vymazať", reverse("org:file_delete") + path_query))
         return links
