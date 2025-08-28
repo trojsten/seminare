@@ -1,9 +1,9 @@
-<div class="bg-white p-4 border-b shadow space-y-6 absolute w-full md:hidden hidden" data-menu-toggle-target="toggle">
+<div class="bg-white p-4 text-sm font-semibold border-b shadow space-y-6 absolute w-full md:hidden hidden" data-menu-toggle-target="toggle">
   {% regroup items by group as groups %}
 
   {% for group, group_items in groups %}
   <div>
-    <h3 class="text-sm text-gray-600 font-semibold">{{ group.title }}</h3>
+    <h3 class="text-gray-600">{{ group.title }}</h3>
     <div class="mt-4 flow-root">
       {% include "navbar/_group_items.html" %}
     </div>
@@ -13,7 +13,7 @@
   {% if not user.is_authenticated %}
   <div class="-m-2">
     <a href="{% url "oidc_authentication_init" %}"
-      class="flex items-center gap-x-2 p-2 text-sm font-semibold text-gray-800 hover:text-primary">
+      class="flex items-center gap-x-2 p-2 text-gray-800 rounded hover:text-primary hover:bg-gray-50">
       <iconify-icon icon="mdi:login" width="none" class="size-5"></iconify-icon>
       Prihlásiť sa
     </a>
