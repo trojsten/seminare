@@ -83,7 +83,12 @@ class FileDeleteView(ContestOrganizerRequired, WithContest, GenericFormView):
     form_class = Form
     form_title = "Naozaj?"
     form_submit_label = "Vymazať"
-    template_name = "org/file_delete.html"
+    template_name = "org/generic/delete.html"
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["object"] = self.request.GET.get("path")
+        return ctx
 
     def form_valid(self, form) -> HttpResponse:
         delete_subtree(self.contest, self.request.GET.get("path", ""))
