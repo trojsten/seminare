@@ -1,6 +1,8 @@
+{% load static %}
+
 <div class="text-gray-600 p-10 grid grid-cols-1 sm:grid-cols-4 text-sm gap-8 border-t bg-gray-50">
   <div class="sm:col-span-2">
-    <img src="/static/contests/trojsten/logo.svg" alt="Trojsten" class="h-10 mb-4">
+    <img src="{% static "contests/trojsten/logo-black.svg" %}" alt="Trojsten" class="h-10 mb-4">
     <p>
        {{ contest.name }} zastrešuje občianske združenie <a href="https://trojsten.sk" class="underline text-gray-700 hover:text-gray-900">Trojsten</a>.
     </p>
@@ -10,7 +12,7 @@
 
     <ul class="space-y-2">
       <li>
-        <a href="mailto:kms@kms.sk" class="hover:text-gray-900">kms@kms.sk</a>
+        <a href="mailto:{{ contest.contact_email }}" class="hover:text-gray-900">{{ contest.contact_email }}</a>
       </li>
       <li>
         <p>Trojsten, o.z.<br>
@@ -23,18 +25,22 @@
     <div class="font-bold text-gray-700 mb-3">Ďalšie projekty</div>
 
     <ul class="space-y-2">
+      {% if not activities_template %}
       <li>
-        <a href="https://www.ksp.sk" class="hover:text-gray-900">Korešpondenčný seminár z programovania</a>
+        <a href="https://ksp.sk" class="hover:text-gray-900">Korešpondenčný seminár z programovania</a>
         <p class="text-xs text-gray-500">Programátorská súťaž pre stredoškolákov</p>
       </li>
       <li>
-        <a href="https://math.naboj.org/sk/sk/" class="hover:text-gray-900">Matematický Náboj</a>
-        <p class="text-xs text-gray-500">Tímová matematická súťaž pre stredoškolákov</p>
+        <a href="https://kms.sk" class="hover:text-gray-900">Matematický korešpondenčný seminár</a>
+        <p class="text-xs text-gray-500">Matematická súťaž pre stredoškolákov</p>
       </li>
       <li>
         <a href="https://fks.sk" class="hover:text-gray-900">Fyzikálny korešpondenčný seminár</a>
         <p class="text-xs text-gray-500">Fyzikálna súťaž pre stredoškolákov</p>
       </li>
+      {% else %}
+        {% include activities_template %}
+      {% endif %}
       <li>
         <a href="https://trojsten.sk/aktivity/" class="hover:text-gray-900">Všetky naše aktivity <iconify-icon icon="mdi:arrow-right" inline></iconify-icon></a>
       </li>

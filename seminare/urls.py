@@ -2,8 +2,9 @@ import debug_toolbar
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.shortcuts import render
 from django.urls import include, path, register_converter
+
+from seminare.contests.views import HomepageView
 
 
 class SubmitIDConverter:
@@ -28,7 +29,7 @@ urlpatterns = [
     path("", include("seminare.legacy.urls")),
     path("org/", include("seminare.organizer.urls")),
     path("__debug__/", include(debug_toolbar.urls)),
-    path("", lambda request: render(request, "home.html")),
+    path("", HomepageView.as_view(), name="homepage"),
     # fallback to pages if nothing else was matched
     path("", include("seminare.content.urls")),
 ]

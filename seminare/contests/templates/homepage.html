@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ contest.name }}{% endblock %}
+
+{% block body %}
+  <div class="p-4 text-center my-12">
+    <h1 class="font-bold text-3xl mb-4">
+      {{ contest.name }}
+    </h1>
+    <a href="{% url 'problem_set_list' %}" class="btn btn-primary">Aktuálne zadania</a>
+  </div>
+{% endblock %}
+
+{% block after_body %}
+  {% include "_footer.html" %}
+{% endblock %}
