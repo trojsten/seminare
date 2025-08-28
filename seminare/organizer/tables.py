@@ -66,7 +66,10 @@ class ProblemTable(Table):
                 "Opravovanie",
                 reverse(
                     "org:grading_overview",
-                    args=[object.id],
+                    args=[
+                        object.problem_set.slug,
+                        object.number,
+                    ],
                 ),
             ),
         ]
@@ -79,7 +82,7 @@ class ProblemTable(Table):
                         "org:problem_update",
                         args=[
                             object.problem_set.slug,
-                            object.id,
+                            object.number,
                         ],
                     ),
                 ),

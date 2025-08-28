@@ -2,7 +2,6 @@ from django import forms
 from django.core.validators import FileExtensionValidator
 
 from seminare.content.models import Page, Post
-from seminare.contests.models import Contest
 from seminare.problems.models import Problem, ProblemSet, Text
 from seminare.rules import get_rule_engine_class
 from seminare.style.forms import DateTimeInput
@@ -162,9 +161,9 @@ class PageForm(forms.ModelForm):
             "content": "Obsah",
         }
 
-    def __init__(self, *, site, **kwargs):
+    def __init__(self, *, contest, **kwargs):
         super().__init__(**kwargs)
-        self.contest = Contest.objects.filter(site=site).first()
+        self.contest = contest
 
     def clean_slug(self):
         slug = self.cleaned_data["slug"]
