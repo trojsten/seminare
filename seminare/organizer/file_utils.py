@@ -5,6 +5,7 @@ from typing import IO
 
 from django.core.exceptions import PermissionDenied
 from django.core.files.storage import default_storage
+from django.http import Http404
 
 from seminare.contests.models import Contest
 
@@ -20,11 +21,14 @@ def resolve_path(contest: Contest, path: str) -> str:
 def list_folder(contest: Contest, path: str) -> tuple[list[PurePath], list[PurePath]]:
     cpath = resolve_path(contest, path)
     if not default_storage.exists(cpath):
-        return [], []
+        if path == "":
+            create_folder(contest, path)
+        else:
+            raise Http404()
 
     fs_path = default_storage.path(cpath)
     if not os.path.isdir(fs_path):
-        return [], []
+        raise Http404()
 
     fs_dirs, fs_files = default_storage.listdir(cpath)
 
