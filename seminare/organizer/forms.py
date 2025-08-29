@@ -212,3 +212,16 @@ class PostForm(forms.ModelForm):
         post.contests.add(self.contest)
 
         return post
+
+
+class NewFolderForm(forms.Form):
+    name = forms.CharField(label="Názov")
+
+
+class FileUploadForm(forms.Form):
+    name = forms.CharField(
+        label="Názov súboru",
+        required=False,
+        help_text="Ak necháš prázdne, použije sa názov nahraného súboru.",
+    )
+    file = forms.FileField(label="Súbor")

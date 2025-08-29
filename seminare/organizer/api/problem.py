@@ -9,6 +9,8 @@ from seminare.problems.models import Problem, ProblemSet
 
 
 class ProblemSerializer(serializers.ModelSerializer):
+    data_root = serializers.ReadOnlyField(source="get_data_root")
+
     class Meta:  # pyright:ignore
         model = Problem
         exclude = ["id", "problem_set"]
