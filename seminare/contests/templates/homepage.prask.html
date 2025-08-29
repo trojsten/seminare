@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ contest.name }}{% endblock %}
+
+{% block body_container %}
+  <div class="bg-cover bg-center bg-no-repeat" style="background-image: url('{% static "homepage/prask/hero.webp" %}')">
+    <div class="px-4 py-32 mx-auto max-w-4xl text-center text-white">
+      <h1 class="font-bold text-4xl">Baví ťa matematika, počítače a logické úlohy?</h1>
+      <p class="text-3xl mt-4">Zapoj sa do programátorskej súťaže PRASK!</p>
+
+      <p class="mt-6">
+        <a href="{% url 'problem_set_list' %}" class="btn btn-primary">Začať riešiť</a>
+        <a href="{% url 'page_detail' 'pravidla' %}" class="btn btn-default">Ako to funguje?</a>
+      </p>
+    </div>
+  </div>
+
+  <div class="mx-auto max-w-4xl px-4 py-16">
+    <h2 class="font-bold text-2xl mb-4">Čo je to PRASK?</h2>
+
+    <p>
+      PRASK je súťaž pre žiakov základných škôl a 1. ročníka stredných škôl, ktorých baví logické myslenie, matematika či informatika.
+      Nemusíš vedieť programovať - úlohy ťa to postupne naučia. Súťaž prebieha dvakrát do roka a najlepších riešiteľov pozývame na
+      sústredenie plné prednášok, hier a nových kamarátov.
+    </p>
+
+    <p class="mt-4">
+      PRASK zastrešujú študenti informatiky z Fakulty matematiky, fyziky a informatiky UK v Bratislave z občianského združenia Trojsten.
+    </p>
+  </div>
+
+  <div class="bg-gray-50">
+    <div class="mx-auto max-w-4xl px-4 py-16">
+      <h2 class="font-bold text-2xl mb-4">Prečo sa zapojiť?</h2>
+
+      <dl class="grid grid-cols-1 gap-x-10 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
+        <div class="relative pl-9">
+          <dt class="inline font-semibold text-gray-900">
+            <iconify-icon icon="mdi:puzzle" class="absolute top-1 left-1 size-5 text-primary"></iconify-icon>
+            Naučíš sa myslieť algoritmicky.
+          </dt>
+          <dd class="inline">Zistíš, ako riešiť problémy krok po kroku a hľadať logické súvislosti.</dd>
+        </div>
+
+        <div class="relative pl-9">
+          <dt class="inline font-semibold text-gray-900">
+            <iconify-icon icon="mdi:code" class="absolute top-1 left-1 size-5 text-primary"></iconify-icon>
+            Získaš základy programovania.
+          </dt>
+          <dd class="inline">Úlohy ťa postupne naučia pracovať s kódom aj bez predchádzajúcich skúseností.</dd>
+        </div>
+
+        <div class="relative pl-9">
+          <dt class="inline font-semibold text-gray-900">
+            <iconify-icon icon="mdi:book-open-page-variant" class="absolute top-1 left-1 size-5 text-primary"></iconify-icon>
+            Pomôže ti to v škole.
+          </dt>
+          <dd class="inline">Zlepšíš sa v matematike, logike a pripravíš sa na prijímačky či olympiády.</dd>
+        </div>
+
+        <div class="relative pl-9">
+          <dt class="inline font-semibold text-gray-900">
+            <iconify-icon icon="mdi:trophy" class="absolute top-1 left-1 size-5 text-primary"></iconify-icon>
+            Čakajú ťa sústredenia.
+          </dt>
+          <dd class="inline">Najlepších pozývame na sústredenia plné prednášok, hier a nových kamarátov.</dd>
+        </div>
+
+        <div class="relative pl-9">
+          <dt class="inline font-semibold text-gray-900">
+            <iconify-icon icon="mdi:account-group" class="absolute top-1 left-1 size-5 text-primary"></iconify-icon>
+            Skvelá komunita.
+          </dt>
+          <dd class="inline">Stretneš ľudí, ktorých baví to isté, a zažiješ veľa zábavy.</dd>
+        </div>
+
+        <div class="relative pl-9">
+          <dt class="inline font-semibold text-gray-900">
+            <iconify-icon icon="mdi:rocket-launch" class="absolute top-1 left-1 size-5 text-primary"></iconify-icon>
+            Bonus do budúcnosti.
+          </dt>
+          <dd class="inline">Algoritmické myslenie ocenia aj veľké IT firmy - od Google po Eset.</dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+
+  <div class="mx-auto max-w-6xl px-4 py-16">
+    <h2 class="font-bold text-2xl mb-4">Aj takto to vyzerá na sústredení...</h2>
+    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <img src="{% static "homepage/prask/1.webp" %}" alt="Účastníci sústredenia PRASK počas prednášky a diskusie pri stole" class="rounded-md">
+      <img src="{% static "homepage/prask/2.webp" %}" alt="Účastníci sústredenia PRASK hrajú hru vonku" class="rounded-md">
+      <img src="{% static "homepage/prask/3.webp" %}" alt="Účastníci sústredenia PRASK hrajú vonku tímovú hru" class="rounded-md">
+      <img src="{% static "homepage/prask/4.webp" %}" alt="Účastníci sústredenia PRASK sedia pri stole a pracujú na notebookoch" class="rounded-md">
+      <img src="{% static "homepage/prask/5.webp" %}" alt="Vedúci sústredenia PRASK v dejovom oblečení stoja v interiéri pod otvoreným dáždnikom" class="rounded-md">
+      <img src="{% static "homepage/prask/6.webp" %}" alt="Skupinová fotografia účastníkov sústredenia PRASK vonku v padajúcom snehu" class="rounded-md">
+    </div>
+  </div>
+{% endblock %}
+
+{% block after_body %}
+  {% include "_footer.html" with activities_template="_footer_activities.prask.html" %}
+{% endblock %}
