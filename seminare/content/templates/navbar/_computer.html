@@ -1,28 +1,27 @@
-<div class="hidden md:flex items-center">
-    {% regroup items by group as groups %}
+<div class="hidden md:flex items-center text-sm font-semibold">
+  {% regroup items by group as groups %}
 
-    {% for group, group_items in groups %}
+  {% for group, group_items in groups %}
     <div class="relative inline-block" data-controller="dropdown">
-            <button type="button"
-                    class="inline-flex w-full items-center gap-x-1 rounded-md  px-3 py-2 text-sm font-semibold hover:bg-primary-dark"
-                    id="menu-button-{{ group.id }}" data-dropdown-target="button" aria-expanded="false" aria-haspopup="true" data-action="click->dropdown#toggle">
-                {{ group.title }}
-                
-                <iconify-icon icon="mdi:chevron-down" width="none" class="size-4"></iconify-icon>
-            </button>
+      <button type="button"
+              class="inline-flex w-full items-center gap-x-1 rounded-md px-3 py-2 hover:bg-primary-dark"
+              id="menu-button-{{ group.id }}" data-dropdown-target="button" aria-expanded="false" aria-haspopup="true" data-action="click->dropdown#toggle">
+          {{ group.title }}
+        <iconify-icon icon="mdi:chevron-down" width="none" class="size-4"></iconify-icon>
+      </button>
 
-        <div class="hidden absolute right-0 z-10 p-4 mt-2 w-60 origin-top-right rounded-md bg-white shadow-lg border"
-             role="menu" aria-orientation="vertical" aria-labelledby="menu-button-{{ group.id }}" tabindex="-1"
-             data-dropdown-target="dropdown"
-        >
-            {% include "navbar/_group_items.html" %}
-        </div>
+      <div class="hidden absolute right-0 z-10 p-4 mt-2 w-60 origin-top-right rounded-md bg-white shadow-lg border"
+           role="menu" aria-orientation="vertical" aria-labelledby="menu-button-{{ group.id }}" tabindex="-1"
+           data-dropdown-target="dropdown"
+      >
+        {% include "navbar/_group_items.html" %}
+      </div>
     </div>
-    {% endfor %}
+  {% endfor %}
 
   {% if not user.is_authenticated %}
-  <a href="{% url 'oidc_authentication_init' %}" class="inline-flex items-center gap-x-1 rounded-md  px-3 py-2 text-sm font-semibold hover:bg-primary-dark">
-    Prihlásiť sa
-  </a>
+    <a href="{% url 'oidc_authentication_init' %}" class="rounded-md px-3 py-2 hover:bg-primary-dark">
+      Prihlásiť sa
+    </a>
   {% endif %}
 </div>

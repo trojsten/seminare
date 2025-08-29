@@ -3,7 +3,7 @@
     {% if item.post %}
       <form method="post" action="{{ item.url }}">
         {% csrf_token %}
-        <button type="submit" class="flex items-center gap-x-2 p-2 text-sm font-semibold text-gray-800 hover:text-primary">
+        <button type="submit" class="flex w-full items-center gap-x-2 p-2 text-gray-800 rounded hover:text-primary hover:bg-gray-50">
           {% if item.icon %}
             <iconify-icon icon="{{ item.icon }}" width="none" class="size-5"></iconify-icon>
           {% endif %}
@@ -12,7 +12,7 @@
       </form>
     {% else %}
       <a href="{{ item.url }}"
-        class="flex items-center gap-x-2 p-2 text-sm font-semibold text-gray-800 hover:text-primary">
+        class="flex items-center gap-x-2 p-2 text-gray-800 rounded hover:text-primary hover:bg-gray-50">
         {% if item.icon %}
           <iconify-icon icon="{{ item.icon }}" width="none" class="size-5"></iconify-icon>
         {% endif %}
