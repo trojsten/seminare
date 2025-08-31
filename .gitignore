@@ -2,5 +2,6 @@ __pycache__/
 /.idea/
 /.env
 /node_modules
+/private
 /uploads
 /seminare/style/static/code.css

@@ -146,6 +146,22 @@ STATIC_ROOT = BASE_DIR / "static"
 MEDIA_URL = "uploads/"
 MEDIA_ROOT = BASE_DIR / "uploads"
 
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "private": {
+        "BACKEND": "seminare.problems.storages.OverwriteStorage",
+        "OPTIONS": {
+            "location": BASE_DIR / "private",
+            "base_url": "/.private/",
+        },
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 

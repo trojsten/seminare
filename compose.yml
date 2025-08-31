@@ -16,6 +16,7 @@ services:
     volumes:
       - ./seminare:/app/seminare
       - ./uploads:/app/uploads
+      - ./private:/app/private
     environment:
       - DEBUG=True
       - DATABASE_URL=psql://postgres:postgres@db/postgres
