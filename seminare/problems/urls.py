@@ -6,6 +6,8 @@ from .views import (
     ProblemSetListView,
     ProblemSetResultsView,
     ProblemSolutionView,
+    SolutionPDFView,
+    StatementPDFView,
 )
 
 urlpatterns = [
@@ -30,5 +32,15 @@ urlpatterns = [
         "kola/<slug>/vysledky/<slug:table>/",
         ProblemSetResultsView.as_view(),
         name="problem_set_results",
+    ),
+    path(
+        "kola/<slug>/zadania.pdf",
+        StatementPDFView.as_view(),
+        name="problem_set_statement_pdf",
+    ),
+    path(
+        "kola/<slug>/vzoraky.pdf",
+        SolutionPDFView.as_view(),
+        name="problem_set_solution_pdf",
     ),
 ]

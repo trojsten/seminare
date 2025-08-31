@@ -1,6 +1,7 @@
 from pathlib import PurePath
 from typing import TYPE_CHECKING, Self, Type, TypedDict
 
+from django.core.files.storage import storages
 from django.db import models
 from django.db.models import UniqueConstraint
 from django.shortcuts import get_object_or_404
@@ -25,6 +26,14 @@ class ProblemSetQuerySet(models.QuerySet):
         return self.filter(start_date__lte=timezone.now(), end_date__gte=timezone.now())
 
 
+def get_statement_filename(instance: "ProblemSet", filename: str) -> str:
+    return str(PurePath(instance.contest.data_root) / instance.slug / "zadania.pdf")
+
+
+def get_solution_filename(instance: "ProblemSet", filename: str) -> str:
+    return str(PurePath(instance.contest.data_root) / instance.slug / "vzoraky.pdf")
+
+
 class ProblemSet(models.Model):
     id: int
     slug = models.SlugField(max_length=64)
@@ -44,7 +53,20 @@ class ProblemSet(models.Model):
 
     is_finalized = models.BooleanField(default=False)
 
-    objects = ProblemSetQuerySet.as_manager()
+    statement_pdf = models.FileField(
+        upload_to=get_statement_filename,
+        storage=storages["private"],
+        blank=True,
+        null=True,
+    )
+    solution_pdf = models.FileField(
+        upload_to=get_solution_filename,
+        storage=storages["private"],
+        blank=True,
+        null=True,
+    )
+
+    objects: ProblemSetQuerySet = ProblemSetQuerySet.as_manager()  # pyright:ignore
     enrollment_set: "RelatedManager[Enrollment]"
     problems: "RelatedManager[Problem]"
 
