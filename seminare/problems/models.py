@@ -66,7 +66,7 @@ class ProblemSet(models.Model):
         null=True,
     )
 
-    objects = ProblemSetQuerySet.as_manager()
+    objects: ProblemSetQuerySet = ProblemSetQuerySet.as_manager()  # pyright:ignore
     enrollment_set: "RelatedManager[Enrollment]"
     problems: "RelatedManager[Problem]"
 

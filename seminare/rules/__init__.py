@@ -106,7 +106,11 @@ class RuleEngine:
         """Sets data for a single user. Data is a dict of data."""
         return self.set_data_for_users(key, {user: data})
 
-    def get_visible_texts(self, problem: "Problem") -> "set[Text.Type]":
+    def get_visible_texts(self, problem: "Problem|None") -> "set[Text.Type]":
+        """
+        Returns types of texts that are currently visible for a given problem.
+        If problem is None, we want to know visible texts in general (e.g. PDF statements).
+        """
         raise NotImplementedError()
 
     def get_important_dates(self) -> list[tuple[datetime, str]]:

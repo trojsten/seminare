@@ -1,16 +1,19 @@
 from django.contrib.auth.models import AnonymousUser
+from django.core.exceptions import PermissionDenied
 from django.http.response import Http404
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
-from django.views.generic import DetailView, ListView
+from django.views.generic import DetailView, ListView, View
+from django.views.generic.detail import SingleObjectMixin
 
 from seminare.contests.utils import get_current_contest
 from seminare.problems.logic import inject_chips, inject_user_score
-from seminare.problems.models import Problem, ProblemSet
+from seminare.problems.models import Problem, ProblemSet, Text
 from seminare.rules import RuleEngine
 from seminare.submits.models import FileSubmit, JudgeSubmit, TextSubmit
 from seminare.users.logic.permissions import is_contest_organizer
 from seminare.users.models import User
+from seminare.utils import sendfile
 
 
 class ProblemSetListView(ListView):
@@ -46,6 +49,7 @@ class ProblemSetDetailView(DetailView):
             inject_user_score(self.object, self.request.user),
             self.object.get_rule_engine().get_chips(self.request.user),
         )
+        ctx["visible_pdfs"] = self.object.get_rule_engine().get_visible_texts(None)
         return ctx
 
 
@@ -192,3 +196,29 @@ class ProblemSolutionView(ProblemDetailView):
         ctx = super().get_context_data(**kwargs)
         ctx["solution"] = True
         return ctx
+
+
+class StatementPDFView(SingleObjectMixin, View):
+    file_getter = "statement_pdf"
+    file_type = Text.Type.PROBLEM_STATEMENT
+
+    def get_queryset(self):
+        contest = get_current_contest(self.request)
+        return ProblemSet.objects.for_user(self.request.user).filter(contest=contest)
+
+    def get(self, request, *args, **kwargs):
+        problem_set: ProblemSet = self.get_object()
+        visible = problem_set.get_rule_engine().get_visible_texts(None)
+        if self.file_type not in visible:
+            raise PermissionDenied()
+
+        file = getattr(problem_set, self.file_getter)
+        if not file:
+            raise Http404()
+
+        return sendfile(file.path)
+
+
+class SolutionPDFView(StatementPDFView):
+    file_getter = "solution_pdf"
+    file_type = Text.Type.EXAMPLE_SOLUTION

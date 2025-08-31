@@ -49,7 +49,7 @@ class KSP2025(
 
         self.doprogramovanie_date = date
 
-    def get_visible_texts(self, problem: "Problem") -> "set[Text.Type]":
+    def get_visible_texts(self, problem: "Problem|None") -> "set[Text.Type]":
         visible = set()
         now = timezone.now()
 
