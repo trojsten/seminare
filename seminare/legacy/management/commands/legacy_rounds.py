@@ -1,14 +1,17 @@
 import os
+import re
 from pathlib import Path
+from typing import Generator
 
 import psycopg
 from django.core.files import File
+from django.core.files.storage import default_storage
 from django.core.management.base import BaseCommand
-from psycopg.rows import namedtuple_row
+from psycopg.rows import DictRow, dict_row
 
 from seminare.contests.models import Contest
 from seminare.legacy.models import OldProblem, OldRound
-from seminare.problems.models import ProblemSet, Text
+from seminare.problems.models import Problem, ProblemSet, Text
 
 ROUNDS_EXPORT_SQL = """
 SELECT r.id, r.start_time, r.end_time, r.second_end_time, r.visible, r.number, s.number AS semester_number, s.year
@@ -60,7 +63,9 @@ class Command(BaseCommand):
             help="Clear old data.",
         )
 
-    def migrate_problem_sets(self, cur: psycopg.Cursor, **options) -> list[ProblemSet]:
+    def migrate_problem_sets(
+        self, cur: psycopg.Cursor[DictRow], **options
+    ) -> list[ProblemSet]:
         cur.execute(ROUNDS_EXPORT_SQL, (options["legacy_site"],))
 
         problem_sets: list[ProblemSet] = []
@@ -69,15 +74,17 @@ class Command(BaseCommand):
             rule_engine_options = {}
 
             if (
-                row.second_end_time
+                row["second_end_time"]
                 or options["rule_engine"] == "seminare.rules.ksp.KSP2025"
             ):
                 # it requires at least some date
-                rule_engine_options["doprogramovanie_date"] = row.end_time.isoformat()
+                rule_engine_options["doprogramovanie_date"] = row[
+                    "end_time"
+                ].isoformat()
 
-            if row.number > 1:
+            if row["number"] > 1:
                 rule_engine_options["previous_problem_set"] = (
-                    f"r{row.year}{['z', 'l'][row.semester_number - 1]}{row.number - 1}"
+                    f"r{row['year']}{['z', 'l'][row['semester_number'] - 1]}{row['number'] - 1}"
                 )
 
             kwargs = {}
@@ -86,9 +93,9 @@ class Command(BaseCommand):
                 Path(options["legacy_dir"])
                 / "tasks"
                 / options["legacy_site"]
-                / str(row.year)
-                / str(row.semester_number)
-                / str(row.number)
+                / str(row["year"])
+                / str(row["semester_number"])
+                / str(row["number"])
             )
 
             if (path := legacy_path / "zadania" / "zadania.pdf").exists():
@@ -98,20 +105,22 @@ class Command(BaseCommand):
 
             problem_set = ProblemSet.objects.create(
                 contest=self.contest,
-                slug=f"r{row.year}{['z', 'l'][row.semester_number - 1]}{row.number}",
-                name=f"{row.number}. kolo {row.semester_number}. časť {row.year}. ročník {options['legacy_site']}",
-                start_date=row.start_time,
-                end_date=row.second_end_time if row.second_end_time else row.end_time,
-                is_public=row.visible,
+                slug=f"r{row['year']}{['z', 'l'][row['semester_number'] - 1]}{row['number']}",
+                name=f"{row['number']}. kolo {row['semester_number']}. časť {row['year']}. ročník {options['legacy_site']}",
+                start_date=row["start_time"],
+                end_date=row["second_end_time"]
+                if row["second_end_time"]
+                else row["end_time"],
+                is_public=row["visible"],
                 rule_engine=options["rule_engine"],
                 rule_engine_options=rule_engine_options,
                 **kwargs,
             )
-            setattr(problem_set, "legacy_id", row.id)
+            setattr(problem_set, "legacy_id", row["id"])
             setattr(problem_set, "legacy_path", legacy_path)
 
             OldRound.objects.create(
-                contest=self.contest, old_round_id=row.id, problem_set=problem_set
+                contest=self.contest, old_round_id=row["id"], problem_set=problem_set
             )
 
             self.stderr.write(problem_set.slug)
@@ -120,51 +129,78 @@ class Command(BaseCommand):
 
         return problem_sets
 
-    def migrate_problems(self, problem_set: ProblemSet, cur: psycopg.Cursor, **options):
+    def extract_files(
+        self, legacy_path: Path, text: str
+    ) -> Generator[Path, None, None]:
+        for match in re.finditer(r'(?:(?:src|href)=["\']([^"\']+)["\'])', text):
+            file_path = Path(match[1])
+            if (
+                not file_path.is_absolute()
+                and (path := (legacy_path / file_path)).exists()
+            ):
+                yield path
+
+    def migrate_problems(
+        self, problem_set: ProblemSet, cur: psycopg.Cursor[DictRow], **options
+    ):
         cur.execute(TASK_EXPORT_SQL, (getattr(problem_set, "legacy_id"),))
         while row := cur.fetchone():
             args = {}
-            if row.has_source:
+            if row["has_source"]:
                 args["judge_namespace"] = self.contest.short_name.lower()
-                args["judge_task"] = f"{problem_set.slug}p{row.number}"
+                args["judge_task"] = f"{problem_set.slug}p{row['number']}"
 
-            problem = problem_set.problems.create(
-                name=row.name,
-                number=row.number,
+            problem: Problem = problem_set.problems.create(
+                name=row["name"],
+                number=row["number"],
                 problem_set=problem_set,
-                file_points=row.description_points,
-                judge_points=row.source_points
-                if row.has_source
+                file_points=row["description_points"],
+                judge_points=row["source_points"]
+                if row["has_source"]
                 else 0,  # external_submit_link ?
                 **args,
             )
 
             OldProblem.objects.create(
-                contest=self.contest, old_problem_id=row.id, problem=problem
+                contest=self.contest, old_problem_id=row["id"], problem=problem
             )
 
             legacy_path: Path = getattr(problem_set, "legacy_path")
 
-            # TODO: prilohy
+            # TODO: prilohy correct links
             if (
                 path := legacy_path / "zadania" / "html" / f"prikl{problem.number}.html"
             ).exists():
+                text = path.read_text()
                 problem.text_set.create(
                     type=Text.Type.PROBLEM_STATEMENT,
-                    text=path.read_text(),
+                    text=text,
                     problem=problem,
                 )
+
+                root = Path(problem.get_data_root(True))
+                root.mkdir(parents=True, exist_ok=True)
+
+                for file in self.extract_files(legacy_path, text):
+                    default_storage.save(str(root / file.name), file.open("rb"))
 
             if (
                 path := legacy_path / "vzoraky" / "html" / f"prikl{problem.number}.html"
             ).exists():
+                text = path.read_text()
                 problem.text_set.create(
                     type=Text.Type.EXAMPLE_SOLUTION,
-                    text=path.read_text(),
+                    text=text,
                     problem=problem,
                 )
 
-            self.stderr.write(f"{problem_set.slug}p{row.number} {row.name}")
+                root = Path(problem.get_data_root(True))
+                root.mkdir(parents=True, exist_ok=True)
+
+                for file in self.extract_files(legacy_path, text):
+                    default_storage.save(str(root / file.name), file.open("rb"))
+
+            self.stderr.write(f"{problem_set.slug}p{row['number']} {row['name']}")
 
     def execute(self, *args, **options):
         if "LEGACY_DB" not in os.environ:
@@ -179,9 +215,7 @@ class Command(BaseCommand):
             ProblemSet.objects.filter(contest=self.contest).delete()
 
         with psycopg.connect(os.environ["LEGACY_DB"]) as conn:
-            with conn.cursor() as cur:
-                cur.row_factory = namedtuple_row
-
+            with conn.cursor(row_factory=dict_row) as cur:
                 problem_sets = self.migrate_problem_sets(cur, **options)
                 for ps in problem_sets:
                     self.migrate_problems(ps, cur, **options)
