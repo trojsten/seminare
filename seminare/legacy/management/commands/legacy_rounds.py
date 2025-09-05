@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 
 import psycopg
+from django.core.files import File
 from django.core.management.base import BaseCommand
 from psycopg.rows import namedtuple_row
 
@@ -79,6 +80,22 @@ class Command(BaseCommand):
                     f"r{row.year}{['z', 'l'][row.semester_number - 1]}{row.number - 1}"
                 )
 
+            kwargs = {}
+
+            legacy_path: Path = (
+                Path(options["legacy_dir"])
+                / "tasks"
+                / options["legacy_site"]
+                / str(row.year)
+                / str(row.semester_number)
+                / str(row.number)
+            )
+
+            if (path := legacy_path / "zadania" / "zadania.pdf").exists():
+                kwargs["statement_pdf"] = File(path.open("rb"), name=path.name)
+            if (path := legacy_path / "vzoraky" / "vzoraky.pdf").exists():
+                kwargs["solution_pdf"] = File(path.open("rb"), name=path.name)
+
             problem_set = ProblemSet.objects.create(
                 contest=self.contest,
                 slug=f"r{row.year}{['z', 'l'][row.semester_number - 1]}{row.number}",
@@ -88,11 +105,10 @@ class Command(BaseCommand):
                 is_public=row.visible,
                 rule_engine=options["rule_engine"],
                 rule_engine_options=rule_engine_options,
+                **kwargs,
             )
             setattr(problem_set, "legacy_id", row.id)
-            setattr(problem_set, "legacy_number", row.number)
-            setattr(problem_set, "legacy_semester_number", row.semester_number)
-            setattr(problem_set, "legacy_year", row.year)
+            setattr(problem_set, "legacy_path", legacy_path)
 
             OldRound.objects.create(
                 contest=self.contest, old_round_id=row.id, problem_set=problem_set
@@ -127,14 +143,7 @@ class Command(BaseCommand):
                 contest=self.contest, old_problem_id=row.id, problem=problem
             )
 
-            legacy_path: Path = (
-                Path(options["legacy_dir"])
-                / "tasks"
-                / options["legacy_site"]
-                / str(getattr(problem_set, "legacy_year"))
-                / str(getattr(problem_set, "legacy_semester_number"))
-                / str(getattr(problem_set, "legacy_number"))
-            )
+            legacy_path: Path = getattr(problem_set, "legacy_path")
 
             # TODO: prilohy
             if (
