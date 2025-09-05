@@ -4,4 +4,5 @@ __pycache__/
 /node_modules
 /private
 /uploads
+/legacy-data
 /seminare/style/static/code.css
