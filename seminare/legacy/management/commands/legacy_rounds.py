@@ -28,6 +28,13 @@ SELECT t.id, t.name, t.number, t.description_points, t.source_points, t.has_sour
   WHERE t.round_id = %s
 """
 
+RESULTS_EXPORT_SQL = """
+SELECT DISTINCT ON (r.tag) r.id, r.tag, r.round_id, r.serialized_results
+  FROM results_results r
+  WHERE r.round_id = %s
+  ORDER BY r.tag, r.id DESC
+"""
+
 
 class Command(BaseCommand):
     help = "Migrate rounds from legacy site"
@@ -112,10 +119,12 @@ class Command(BaseCommand):
                 if row["second_end_time"]
                 else row["end_time"],
                 is_public=row["visible"],
+                is_finalized=True,
                 rule_engine=options["rule_engine"],
                 rule_engine_options=rule_engine_options,
                 **kwargs,
             )
+
             setattr(problem_set, "legacy_id", row["id"])
             setattr(problem_set, "legacy_path", legacy_path)
 
@@ -202,6 +211,102 @@ class Command(BaseCommand):
 
             self.stderr.write(f"{problem_set.slug}p{row['number']} {row['name']}")
 
+    def get_grade(self, year: int):
+        if year > 5:
+            return "OLD"
+        elif year < -4:
+            return "YOUNG"
+        elif year <= 0:
+            return f"{9 - year}ZS"
+        else:
+            return f"{year}SS"
+
+    def migrate_results(
+        self, problem_set: ProblemSet, cur: psycopg.Cursor[DictRow], **options
+    ):
+        cur.execute(RESULTS_EXPORT_SQL, (getattr(problem_set, "legacy_id"),))
+
+        while row := cur.fetchone():
+            self.stderr.write(f"  results {row['tag']}")
+
+            results = row["serialized_results"]
+            assert isinstance(results, dict)
+
+            data = {
+                "rows": [],
+                "columns": [],
+                "_schools": {
+                    -1: {
+                        "name": "Iná škola",
+                        "short_name": "Iná škola",
+                        "edu_id": "",
+                        "address": "",
+                    }
+                },
+            }
+
+            for col in results["cols"]:
+                if col["key"] == "sum":
+                    continue
+
+                c = {"link": None, "title": col["name"], "tooltip": None}
+
+                if c["title"] == "P":
+                    c["tooltip"] = "Body z predchádzajúceho kola"
+
+                elif "task" in col:
+                    c["link"] = f"/kola/{problem_set.slug}/ulohy/{col['name']}/"
+                    c["tooltip"] = col["task"]["name"]
+                data["columns"].append(c)
+
+            for r in results["rows"]:
+                data["rows"].append(
+                    {
+                        "rank": r["rank"],
+                        "ghost": not r["active"],
+                        "total": r["cell_list"][-1]["points"],
+                        "columns": [
+                            {
+                                "cell": col["points"],
+                                "ghost": not col["active"],
+                                "tooltip": f"Program: {col.get('auto_points', '-')}, Popis: {col.get('manual_points', '-')}"
+                                if options["legacy_site"] in {"KSP", "PRASK"}
+                                else None,
+                            }
+                            for col in r["cell_list"][:-1]
+                        ],
+                        "enrollment": {
+                            "id": None,
+                            "user": {
+                                "id": None,  # TODO: maybe set ID for users that are migrated?
+                                "email": "",
+                                "username": r["user"]["username"],
+                                "first_name": r["user"]["name"].split(" ")[0],
+                                "last_name": " ".join(r["user"]["name"].split(" ")[1:]),
+                            },
+                            "grade": self.get_grade(r["user"]["year"]),
+                            "school_id": r["user"]["school"]["id"]
+                            if r["user"]["school"] is not None
+                            else -1,
+                        },
+                    }
+                )
+
+                if r["user"]["school"] is not None:
+                    if r["user"]["school"]["id"] not in data["_schools"]:
+                        data["_schools"][r["user"]["school"]["id"]] = {
+                            "name": r["user"]["school"]["verbose_name"],
+                            "short_name": r["user"]["school"]["name"],
+                            "edu_id": "",
+                            "address": "",
+                        }
+
+            problem_set.frozen_results.create(
+                table=row["tag"].split("_")[-1].replace("ALL", "all"),
+                data=data,
+                problem_set=problem_set,
+            )
+
     def execute(self, *args, **options):
         if "LEGACY_DB" not in os.environ:
             self.stderr.write(
@@ -219,3 +324,4 @@ class Command(BaseCommand):
                 problem_sets = self.migrate_problem_sets(cur, **options)
                 for ps in problem_sets:
                     self.migrate_problems(ps, cur, **options)
+                    self.migrate_results(ps, cur, **options)

@@ -69,6 +69,7 @@ class ProblemSet(models.Model):
 
     objects: ProblemSetQuerySet = ProblemSetQuerySet.as_manager()  # pyright:ignore
     enrollment_set: "RelatedManager[Enrollment]"
+    frozen_results: "RelatedManager[ProblemSetFrozenResults]"
     problems: "RelatedManager[Problem]"
 
     class Meta:
@@ -81,7 +82,7 @@ class ProblemSet(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
-        if not self._is_finalized and self.is_finalized:
+        if not self._is_finalized and self.is_finalized and not self._state.adding:
             self.is_finalized = False
             self.get_rule_engine().close_problemset()
             self.is_finalized = True
@@ -125,7 +126,9 @@ class ProblemSet(models.Model):
 class ProblemSetFrozenResults(models.Model):
     id: int
 
-    problem_set = models.ForeignKey(ProblemSet, on_delete=models.CASCADE)
+    problem_set = models.ForeignKey(
+        ProblemSet, on_delete=models.CASCADE, related_name="frozen_results"
+    )
     table = models.CharField(max_length=64)
     data = models.JSONField(default=dict, blank=True)
 
