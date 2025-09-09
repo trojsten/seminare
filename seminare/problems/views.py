@@ -21,7 +21,11 @@ class ProblemSetListView(ListView):
 
     def get_queryset(self):
         contest = get_current_contest(self.request)
-        return ProblemSet.objects.for_user(self.request.user).filter(contest=contest)
+        return (
+            ProblemSet.objects.for_user(self.request.user)
+            .filter(contest=contest)
+            .order_by("-end_date", "-start_date")
+        )
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
