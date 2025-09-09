@@ -26,7 +26,12 @@ class ProblemSetListView(ListView):
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
 
-        current_sets = ProblemSet.objects.for_user(self.request.user).only_current()
+        contest = get_current_contest(self.request)
+        current_sets = (
+            ProblemSet.objects.filter(contest=contest)
+            .for_user(self.request.user)
+            .only_current()
+        )
         for pset in current_sets:
             pset.problems_with_score = inject_user_score(pset, self.request.user)
 
