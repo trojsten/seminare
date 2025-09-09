@@ -10,6 +10,7 @@ from django.utils import timezone
 
 from seminare.rules import RuleEngine, get_rule_engine_class
 from seminare.submits.models import BaseSubmit, FileSubmit, JudgeSubmit, TextSubmit
+from seminare.users.logic.schools import date_to_academic_year
 
 if TYPE_CHECKING:
     from django.db.models.fields.related_descriptors import RelatedManager
@@ -105,6 +106,10 @@ class ProblemSet(models.Model):
     def is_running(self) -> bool:
         now = timezone.now()
         return self.start_date <= now <= self.end_date
+
+    @property
+    def school_year(self) -> int:
+        return date_to_academic_year(self.start_date)
 
     def set_frozen_results(self, table: str, data: dict):
         return ProblemSetFrozenResults.objects.update_or_create(
