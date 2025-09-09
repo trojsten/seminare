@@ -36,7 +36,7 @@
                 {% if not texts.PS.is_visible %}
                   {% message "Túto sekciu vidíš, lebo si organizátor" "warning" %}
                 {% endif %}
-                {{ texts.PS.text|markdownify }}
+                {{ texts.PS.text|markdownify:problem }}
               </div>
             </details>
           {% endif %}
@@ -46,7 +46,7 @@
               {% message "Túto sekciu vidíš, lebo si organizátor" "warning" %}
             {% endif %}
             <div class="prose">
-              {{ texts.ES.text|markdownify }}
+              {{ texts.ES.text|markdownify:problem }}
             </div>
           {% endif %}
         {% else %}
@@ -61,7 +61,7 @@
               {% message "Túto sekciu vidíš, lebo si organizátor" "warning" %}
             {% endif %}
             <div class="prose">
-              {{ texts.PS.text|markdownify }}
+              {{ texts.PS.text|markdownify:problem }}
             </div>
           {% endif %}
         {% endif %}

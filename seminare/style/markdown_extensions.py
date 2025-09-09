@@ -1,7 +1,7 @@
 import re
+from pathlib import PurePath
 from xml.etree.ElementTree import Element, SubElement
 
-from django.conf import settings
 from markdown import Extension, Markdown
 from markdown.blockprocessors import BlockProcessor
 from markdown.preprocessors import Preprocessor
@@ -9,7 +9,15 @@ from markdown.treeprocessors import Treeprocessor
 
 
 class ImageTreeprocessor(Treeprocessor):
+    def __init__(self, md: Markdown | None = None, root: str | None = None) -> None:
+        super().__init__(md)
+        self._url_root = root
+
     def run(self, root: Element):
+        url_root = self._url_root
+        if not url_root:
+            url_root = "/"
+
         for elem in root.iter("img"):
             image_url = elem.get("src")
             if image_url is None:
@@ -19,19 +27,12 @@ class ImageTreeprocessor(Treeprocessor):
             if image_url.startswith("http://") or image_url.startswith("https://"):
                 continue
 
-            # Already MEDIA images
-            if image_url.startswith(settings.MEDIA_URL):
+            # Absolute images
+            if image_url.startswith("/"):
                 continue
 
-            elem.set(
-                "src",
-                "/".join(
-                    map(
-                        lambda x: x.strip("/"),
-                        ["", settings.MEDIA_URL, "assets", image_url],
-                    )
-                ),
-            )
+            path = PurePath(url_root) / image_url
+            elem.set("src", str(path))
 
 
 class CodeBlocksProcessor(Preprocessor):
@@ -130,8 +131,14 @@ class IOOutputBlockProcessor(FencedBlockProcessor):
 
 
 class SeminareExtension(Extension):
+    def __init__(self, image_root: str | None = None, **kwargs) -> None:
+        super().__init__(**kwargs)
+        self._image_root = image_root
+
     def extendMarkdown(self, md: Markdown) -> None:  # noqa: N802
-        md.treeprocessors.register(ImageTreeprocessor(md), "images", 0)
+        md.treeprocessors.register(
+            ImageTreeprocessor(md, self._image_root), "images", 0
+        )
         md.preprocessors.register(CodeBlocksProcessor(md), "IO_code_blocks", 100000)
         md.parser.blockprocessors.register(
             BoxBlockProcessor(md.parser), "IO_box", 100000

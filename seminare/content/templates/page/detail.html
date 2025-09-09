@@ -9,7 +9,7 @@
   <div class="prose mx-auto">
     <h1>{{ object.title }}</h1>
 
-    {{ object.content|markdownify }}
+    {{ object.content|markdownify:contest }}
 
     {% if is_organizer %}
       <a href="{% url 'org:page_update' pk=object.pk %}" class="btn btn-blue not-prose">Upraviť stránku</a>
