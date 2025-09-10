@@ -1,5 +1,7 @@
 import os
 import re
+from html import escape, unescape
+from html.parser import HTMLParser
 from pathlib import Path
 from typing import Generator
 
@@ -34,6 +36,120 @@ SELECT DISTINCT ON (r.tag) r.id, r.tag, r.round_id, r.serialized_results
   WHERE r.round_id = %s
   ORDER BY r.tag, r.id DESC
 """
+
+
+class HTMLMarkdownParser(HTMLParser):
+    def __init__(self):
+        super().__init__(convert_charrefs=False)
+        self.output = []
+        self.href_stack = []
+        self.math_stack = []
+
+    def handle_starttag(self, tag, attrs):
+        tag = tag.lower()
+        attr_dict = {k.lower(): v for k, v in attrs}
+
+        if tag == "img":
+            alt = attr_dict.get("alt", "")
+            src = attr_dict.get("src", "")
+            title = attr_dict.get("title", "")
+            title_part = f' "{title}"' if title else ""
+            self.output.append(f"![{alt}]({src}{title_part})")
+        elif tag in ("h1", "h2", "h3", "h4", "h5", "h6"):
+            level = int(tag[1])
+            self.output.append("\n" + "#" * level + " ")
+        elif tag == "p":
+            self.output.append("\n\n")
+        elif tag == "a":
+            href = attr_dict.get("href", "")
+            self.href_stack.append(href)
+            self.output.append("[")
+        elif tag == "code":
+            self.output.append("`")
+        elif tag == "pre":
+            lang = attr_dict.get("class", "").replace("language-", "")
+            fence = "```" + (lang if lang else "")
+            self.output.append("\n\n" + fence + "\n")
+        elif (
+            tag == "span"
+            and "class" in attr_dict
+            and "math" in attr_dict["class"].split()
+        ):
+            stack = "$" if "inline" in attr_dict["class"].split() else "$$"
+            self.math_stack.append(stack)
+            self.output.append(stack)
+        elif tag in ("strong", "b"):
+            self.output.append("**")
+        elif tag in ("em", "i"):
+            self.output.append("*")
+        elif tag == "u":
+            self.output.append("<u>")
+        else:
+            parts = [tag]
+            for k, v in attrs:
+                v_escaped = escape(v, quote=True)
+                parts.append(f'{k}="{v_escaped}"')
+            self.output.append(f"<{' '.join(parts)}>")
+
+    def handle_endtag(self, tag):
+        tag = tag.lower()
+        if tag == "img":
+            return
+        elif tag in ("h1", "h2", "h3", "h4", "h5", "h6"):
+            self.output.append("\n\n")
+        elif tag == "p":
+            self.output.append("\n\n")
+        elif tag == "a":
+            href = self.href_stack.pop() if self.href_stack else ""
+            self.output.append(f"]({href})")
+        elif tag == "code":
+            self.output.append("`")
+        elif tag == "pre":
+            self.output.append("\n```" + "\n\n")
+        elif tag == "span":
+            if self.math_stack:
+                self.output.append(self.math_stack.pop())
+            else:
+                self.output.append("</span>")
+        elif tag in ("strong", "b"):
+            self.output.append("**")
+        elif tag in ("em", "i"):
+            self.output.append("*")
+        elif tag == "u":
+            self.output.append("</u>")
+        else:
+            self.output.append(f"</{tag}>")
+
+    def handle_data(self, data):
+        self.output.append(unescape(data))
+
+    def handle_entityref(self, name):
+        self.output.append(unescape(f"&{name};"))
+
+    def handle_charref(self, name):
+        self.output.append(unescape(f"&#{name};"))
+
+    def handle_comment(self, data):
+        return
+
+    def handle_decl(self, decl):
+        # self.output.append(f"<!{decl}>")
+        return
+
+    def handle_pi(self, data):
+        # self.output.append(f"<?{data}>")
+        return
+
+    def get_markdown(self):
+        text = "".join(self.output).strip()
+        # collapse multiple blank lines to max two
+        while "\n\n\n" in text:
+            text = text.replace("\n\n\n", "\n\n")
+
+        text = re.sub(r"\$\\\((.+?)\\\)\$", r"$\1$", text, flags=re.DOTALL)
+        text = re.sub(r"\$\$\\\[(.+?)\\\]\$\$", r"$$\1$$", text, flags=re.DOTALL)
+
+        return text + "\n"
 
 
 class Command(BaseCommand):
@@ -138,6 +254,14 @@ class Command(BaseCommand):
 
         return problem_sets
 
+    def parse_text(self, text: str):
+        parser = HTMLMarkdownParser()
+        parser.feed(text)
+        parser.close()
+        text = parser.get_markdown()
+        text = re.sub(r"obrazky\/prikl[0-9]\/", "", text)
+        return text
+
     def extract_files(
         self, legacy_path: Path, text: str
     ) -> Generator[Path, None, None]:
@@ -180,7 +304,7 @@ class Command(BaseCommand):
             if (
                 path := legacy_path / "zadania" / "html" / f"prikl{problem.number}.html"
             ).exists():
-                text = path.read_text()
+                text = self.parse_text(path.read_text())
                 problem.text_set.create(
                     type=Text.Type.PROBLEM_STATEMENT,
                     text=text,
@@ -196,7 +320,7 @@ class Command(BaseCommand):
             if (
                 path := legacy_path / "vzoraky" / "html" / f"prikl{problem.number}.html"
             ).exists():
-                text = path.read_text()
+                text = self.parse_text(path.read_text())
                 problem.text_set.create(
                     type=Text.Type.EXAMPLE_SOLUTION,
                     text=text,
