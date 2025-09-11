@@ -24,8 +24,10 @@ def _redirect_problem_or_solution(request, id, solution=False):
         OldProblem, contest=contest, old_problem_id=id
     ).problem
 
-    url_name = "problem_detail"
-    # TODO: solution URL
+    if solution:
+        url_name = "problem_solution"
+    else:
+        url_name = "problem_detail"
 
     return HttpResponsePermanentRedirect(
         reverse(
