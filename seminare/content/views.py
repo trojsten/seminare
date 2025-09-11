@@ -1,10 +1,11 @@
 from django.http import Http404, HttpRequest, HttpResponseBase
 from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse
 from django.views.generic import DetailView, ListView
 
 from seminare.content.models import Page, Post
 from seminare.contests.utils import get_current_contest
-from seminare.users.logic.permissions import has_contest_role
+from seminare.users.logic.permissions import has_contest_role, is_contest_organizer
 from seminare.users.models import ContestRole, User
 
 
@@ -47,17 +48,53 @@ class PostListView(ListView):
     paginate_by = 15
 
     def get_queryset(self):
-        contest = get_current_contest(self.request)
-        return Post.objects.filter(contests__id=contest.id).select_related("author")
+        self.contest = get_current_contest(self.request)
+        return Post.objects.filter(contests__id=self.contest.id).select_related(
+            "author"
+        )
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["is_organizer"] = isinstance(
+            self.request.user, User
+        ) and is_contest_organizer(self.request.user, self.contest)
+        ctx["links"] = []
+        if ctx["is_organizer"]:
+            ctx["links"].append(
+                (
+                    "green",
+                    "mdi:plus",
+                    "Vytvoriť príspevok",
+                    reverse("org:post_create"),
+                )
+            )
+        return ctx
 
 
 class PostDetailView(DetailView):
     template_name = "post/detail.html"
 
     def get_object(self, queryset=...):
-        contest = get_current_contest(self.request)
+        self.contest = get_current_contest(self.request)
         return get_object_or_404(
             Post.objects.select_related("author"),
             slug=self.kwargs["slug"],
-            contests__id=contest.id,
+            contests__id=self.contest.id,
         )
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["is_organizer"] = isinstance(
+            self.request.user, User
+        ) and is_contest_organizer(self.request.user, self.contest)
+        ctx["links"] = []
+        if ctx["is_organizer"]:
+            ctx["links"].append(
+                (
+                    "green",
+                    "mdi:pencil",
+                    "Upraviť príspevok",
+                    reverse("org:post_update", args=[self.object.id]),
+                )
+            )
+        return ctx
