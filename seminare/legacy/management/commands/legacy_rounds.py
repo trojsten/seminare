@@ -366,7 +366,6 @@ class Command(BaseCommand):
 
             legacy_path: Path = getattr(problem_set, "legacy_path")
 
-            # TODO: prilohy correct links
             if (
                 path := legacy_path / "zadania" / "html" / f"prikl{problem.number}.html"
             ).exists():
