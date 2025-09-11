@@ -44,12 +44,50 @@ class HTMLMarkdownParser(HTMLParser):
         self.output = []
         self.href_stack = []
         self.math_stack = []
+        self.in_pre = False
+        self.pre_lang = ""
+        self.in_style = False
+        self.list_stack = []
 
     def handle_starttag(self, tag, attrs):
         tag = tag.lower()
         attr_dict = {k.lower(): v for k, v in attrs}
 
-        if tag == "img":
+        if tag == "style":
+            self.in_style = True
+            return
+
+        if tag == "pre" and "class" in attr_dict:
+            classes = attr_dict["class"].split()
+            # pick first class that's not 'sourceCode'
+            lang = next((c for c in classes if c.lower() != "sourcecode"), "")
+            self.pre_lang = lang.lower()
+            fence = "```" + (self.pre_lang if self.pre_lang else "")
+            # ensure blank line before block
+            self.output.append("\n\n" + fence + "\n")
+            self.in_pre = True
+            return
+
+        if self.in_style or self.in_pre:
+            return
+
+        if tag == "ul":
+            self.list_stack.append({"type": "ul"})
+            return
+        elif tag == "ol":
+            self.list_stack.append({"type": "ol", "counter": 1})
+            return
+        elif tag == "li":
+            level = len(self.list_stack)
+            indent = "  " * (level - 1) if level > 0 else ""
+            top = self.list_stack[-1]
+            if top["type"] == "ul":
+                prefix = "- "
+            else:
+                prefix = f"{top['counter']}. "
+                top["counter"] += 1
+            self.output.append("\n" + indent + prefix)
+        elif tag == "img":
             alt = attr_dict.get("alt", "")
             src = attr_dict.get("src", "")
             title = attr_dict.get("title", "")
@@ -59,7 +97,8 @@ class HTMLMarkdownParser(HTMLParser):
             level = int(tag[1])
             self.output.append("\n" + "#" * level + " ")
         elif tag == "p":
-            self.output.append("\n\n")
+            if not self.list_stack:
+                self.output.append("\n\n")
         elif tag == "a":
             href = attr_dict.get("href", "")
             self.href_stack.append(href)
@@ -80,10 +119,12 @@ class HTMLMarkdownParser(HTMLParser):
             self.output.append(stack)
         elif tag in ("strong", "b"):
             self.output.append("**")
-        elif tag in ("em", "i"):
+        elif tag in ("em", "i", "figcaption"):
             self.output.append("*")
         elif tag == "u":
             self.output.append("<u>")
+        elif tag == "figure":
+            return
         else:
             parts = [tag]
             for k, v in attrs:
@@ -93,7 +134,24 @@ class HTMLMarkdownParser(HTMLParser):
 
     def handle_endtag(self, tag):
         tag = tag.lower()
-        if tag == "img":
+
+        if tag == "style":
+            self.in_style = False
+            return
+
+        if tag == "pre" and self.in_pre:
+            self.output.append("\n```" + "\n\n")
+            self.in_pre = False
+            self.pre_lang = ""
+            return
+
+        if self.in_pre or self.in_style:
+            return
+
+        if tag in ("ul", "ol"):
+            if self.list_stack:
+                self.list_stack.pop()
+        elif tag == "li" or tag == "img":
             return
         elif tag in ("h1", "h2", "h3", "h4", "h5", "h6"):
             self.output.append("\n\n")
@@ -113,20 +171,28 @@ class HTMLMarkdownParser(HTMLParser):
                 self.output.append("</span>")
         elif tag in ("strong", "b"):
             self.output.append("**")
-        elif tag in ("em", "i"):
+        elif tag in ("em", "i", "figcaption"):
             self.output.append("*")
         elif tag == "u":
             self.output.append("</u>")
+        elif tag == "figure":
+            return
         else:
             self.output.append(f"</{tag}>")
 
     def handle_data(self, data):
+        if self.in_style:
+            return
         self.output.append(unescape(data))
 
     def handle_entityref(self, name):
+        if self.in_style:
+            return
         self.output.append(unescape(f"&{name};"))
 
     def handle_charref(self, name):
+        if self.in_style:
+            return
         self.output.append(unescape(f"&#{name};"))
 
     def handle_comment(self, data):
