@@ -28,6 +28,8 @@
           <iconify-icon icon="mdi:chevron-down" class="ml-1"></iconify-icon>
         </a>
 
+        {% include "org/generic/_title.html" with title=problem %}
+
         {% if solution %}
           {% if texts.PS.is_visible or is_organizer %}
             <details class="py-2 px-4 mb-4 border bg-gray-100 rounded-md">

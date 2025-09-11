@@ -11,7 +11,10 @@ from seminare.problems.logic import inject_chips, inject_user_score
 from seminare.problems.models import Problem, ProblemSet, Text
 from seminare.rules import RuleEngine
 from seminare.submits.models import FileSubmit, JudgeSubmit, TextSubmit
-from seminare.users.logic.permissions import is_contest_organizer
+from seminare.users.logic.permissions import (
+    is_contest_administrator,
+    is_contest_organizer,
+)
 from seminare.users.models import User
 from seminare.utils import sendfile
 
@@ -194,8 +197,36 @@ class ProblemDetailView(DetailView):
             chips,
         )
         ctx["chips"] = chips[self.object]
+        ctx["links"] = []
         if isinstance(self.request.user, User):
-            ctx["is_organizer"] = is_contest_organizer(self.request.user, self.contest)
+            if is_contest_organizer(self.request.user, self.contest):
+                ctx["is_organizer"] = True
+
+                ctx["links"].append(
+                    (
+                        "default",
+                        "mdi:comment-arrow-left",
+                        "Opravovanie",
+                        reverse(
+                            "org:grading_overview",
+                            args=[self.object.problem_set.slug, self.object.number],
+                        ),
+                    )
+                )
+
+            if is_contest_administrator(self.request.user, self.contest):
+                ctx["links"].append(
+                    (
+                        "default",
+                        "mdi:pencil",
+                        "Upraviť úlohu",
+                        reverse(
+                            "org:problem_update",
+                            args=[self.object.problem_set.slug, self.object.number],
+                        ),
+                    )
+                )
+
         ctx["submits"] = self.get_submits(enrollment)
         return ctx
 
