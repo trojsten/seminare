@@ -11,15 +11,15 @@
     </div>
     {% endif %}
   </div>
-  <div class="mt-1.5 mb-0.5 flex flex-wrap gap-0.5">
-    {# TODO: Hide this element if empty. #}
+  {% if problem.chips or problem.users_score_pending %}
+    <div class="mt-1.5 mb-0.5 flex flex-wrap gap-0.5">
+      {% for chip in problem.chips %}
+        {% label chip.message chip.color icon=chip.icon help=chip.help %}
+      {% endfor %}
 
-    {% for chip in problem.chips %}
-      {% label chip.message chip.color icon=chip.icon help=chip.help %}
-    {% endfor %}
-
-    {% if problem.users_score_pending %}
-      {% label "Čaká na ohodnotenie" "gray" %}
-    {% endif %}
-  </div>
+      {% if problem.users_score_pending %}
+        {% label "Čaká na ohodnotenie" "gray" %}
+      {% endif %}
+    </div>
+  {% endif %}
 </a>
