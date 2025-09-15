@@ -23,22 +23,18 @@ class ProblemSetListView(ListView):
     template_name = "sets/list.html"
 
     def get_queryset(self):
-        contest = get_current_contest(self.request)
-        return (
-            ProblemSet.objects.for_user(self.request.user)
-            .filter(contest=contest)
-            .order_by("-end_date", "-start_date")
+        self.contest = get_current_contest(self.request)
+        return ProblemSet.objects.for_user(self.request.user, self.contest).order_by(
+            "-end_date", "-start_date"
         )
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
 
-        contest = get_current_contest(self.request)
-        current_sets = (
-            ProblemSet.objects.filter(contest=contest)
-            .for_user(self.request.user)
-            .only_current()
-        )
+        current_sets = ProblemSet.objects.for_user(
+            self.request.user, self.contest
+        ).only_current()
+
         for pset in current_sets:
             pset.problems_with_score = inject_user_score(pset, self.request.user)
 
@@ -53,7 +49,7 @@ class ProblemSetDetailView(DetailView):
 
     def get_queryset(self):
         contest = get_current_contest(self.request)
-        return ProblemSet.objects.for_user(self.request.user).filter(contest=contest)
+        return ProblemSet.objects.for_user(self.request.user, contest)
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
@@ -73,7 +69,7 @@ class ProblemSetResultsView(DetailView):
     def get_queryset(self):
         contest = get_current_contest(self.request)
         return (
-            ProblemSet.objects.for_user(self.request.user)
+            ProblemSet.objects.for_user(self.request.user, contest)
             .filter(contest=contest)
             .select_related("contest")
         )
@@ -129,8 +125,8 @@ class ProblemDetailView(DetailView):
     def get_object(self, queryset=None):
         self.contest = get_current_contest(self.request)
         self.problem_set = (
-            ProblemSet.objects.for_user(self.request.user)
-            .filter(contest=self.contest, slug=self.kwargs["problem_set_slug"])
+            ProblemSet.objects.for_user(self.request.user, self.contest)
+            .filter(slug=self.kwargs["problem_set_slug"])
             .select_related("contest")
             .prefetch_related("problems")
         ).first()
@@ -244,7 +240,7 @@ class StatementPDFView(SingleObjectMixin, View):
 
     def get_queryset(self):
         contest = get_current_contest(self.request)
-        return ProblemSet.objects.for_user(self.request.user).filter(contest=contest)
+        return ProblemSet.objects.for_user(self.request.user, contest)
 
     def get(self, request, *args, **kwargs):
         problem_set: ProblemSet = self.get_object()

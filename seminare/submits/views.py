@@ -164,7 +164,6 @@ class JudgeReportView(View):
         submit.protocol = json_data["protocol"]
 
         if "final_score" in submit.protocol:
-            # TODO: get maximum points from RuleEngine (to the time of submit)
             max_points = submit.problem.judge_points
             submit.score = Decimal(str(submit.protocol["final_score"])) * max_points
 
