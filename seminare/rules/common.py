@@ -1,4 +1,3 @@
-from collections import defaultdict
 from functools import cache
 
 from django.db.models import QuerySet
@@ -24,19 +23,10 @@ class LevelRuleEngine(RuleEngine):
 
     def get_level_for_users(self, users: "list[User]") -> dict["User", int]:
         """Returns levels for multiple users. If no data is found, returns default level."""
-        rule_data = self.get_data_for_users("level", users)
-
-        return defaultdict(
-            lambda: self.default_level,
-            {d.user: d.data for d in rule_data},
-        )
+        return self.get_data_for_users("level", users)  # pyright:ignore
 
     def get_level_for_user(self, user: "User") -> int:
-        """Returns the level for a single user. If no data is found, returns default level."""
-        rule_data = self.get_data_for_user("level", user)
-        if rule_data is None:
-            return self.default_level
-        return rule_data.data
+        return self.get_level_for_users([user])[user]
 
     def set_levels_for_users(self, data: dict["User", int]):
         """Sets levels for multiple users. Data is a dict mapping User to level."""
@@ -59,13 +49,13 @@ class LevelRuleEngine(RuleEngine):
         raise NotImplementedError()
 
     def result_table_get_context(
-        self, table: str, enrollments: QuerySet[Enrollment, Enrollment], context: dict
+        self, table: str, enrollments: QuerySet[Enrollment, Enrollment]
     ) -> dict:
         users = list(e.user for e in enrollments)
 
+        context = super().result_table_get_context(table, enrollments)
         context["levels"] = self.get_level_for_users(users)
-
-        return super().result_table_get_context(table, enrollments, context)
+        return context
 
     def result_table_get_headers(
         self, table: str, context: dict, **kwargs
@@ -129,14 +119,14 @@ class PreviousProblemSetRuleEngine(RuleEngine):
         return super().parse_options(options)
 
     def result_table_get_context(
-        self, table: str, enrollments: QuerySet[Enrollment, Enrollment], context: dict
+        self, table: str, enrollments: QuerySet[Enrollment, Enrollment]
     ) -> dict:
+        context = super().result_table_get_context(table, enrollments)
         if self.previous_problem_set:
             context["previous_problemset_data"] = (
                 self.previous_problem_set.get_rule_engine().get_result_table(table)
             )
-
-        return super().result_table_get_context(table, enrollments, context)
+        return context
 
     def result_table_get_headers(
         self, table: str, context: dict, **kwargs
@@ -190,8 +180,8 @@ class LimitedSubmitRuleEngine(RuleEngine):
                 self.max_submissions[submit_cls] = options[key]
 
     @cache
-    def get_override(self, user: User):
-        return self.get_data_for_user("max_submits_override", user)
+    def get_override(self, user: User) -> dict:
+        return self.get_data_for_users("max_submits_override", [user])[user]  # pyright:ignore
 
     @cache
     def get_max_submits(
@@ -205,9 +195,7 @@ class LimitedSubmitRuleEngine(RuleEngine):
             enrollment is not None
             and (rule_data := self.get_override(enrollment.user)) is not None
         ):
-            limit = rule_data.data.get(
-                f"max_{submit_cls.__name__}_submits_{problem.number}"
-            )
+            limit = rule_data.get(f"max_{submit_cls.__name__}_submits_{problem.number}")
 
             if limit:
                 return limit

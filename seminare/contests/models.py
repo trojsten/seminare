@@ -1,5 +1,6 @@
 from datetime import datetime
 from pathlib import PurePath
+from typing import Self
 
 from django.db import models
 
@@ -70,7 +71,7 @@ class RuleDataQuerySet(models.QuerySet):
         users: list[User],
         effective_date: datetime | None = None,
         engines: list[str] | None = None,
-    ):
+    ) -> Self:
         if effective_date is None:
             effective_date = datetime.now()
 
@@ -112,18 +113,20 @@ class RuleData(models.Model):
         on_delete=models.CASCADE,
         related_name="rule_data",
     )
+    contest_id: int
     user = models.ForeignKey(
         "users.User",
         on_delete=models.CASCADE,
         related_name="rule_data",
     )
+    user_id: int
     engine = models.CharField(max_length=512)
     created_at = models.DateTimeField(auto_now_add=True)
 
     key = models.CharField(max_length=32, blank=True, default="")
     data = models.JSONField()
 
-    objects = RuleDataQuerySet.as_manager()
+    objects: RuleDataQuerySet = RuleDataQuerySet.as_manager()  # pyright:ignore
 
     class Meta:
         ordering = ["-created_at"]

@@ -79,17 +79,6 @@ class KSP2025(
 
         return super().can_submit(submit_cls, problem, enrollment)
 
-    def get_effective_submits(
-        self, submit_cls: type[BaseSubmit], problem: "Problem"
-    ) -> QuerySet[BaseSubmit]:
-        return (
-            submit_cls.objects.filter(
-                problem=problem, created_at__lte=self.problem_set.end_date
-            )
-            .order_by("enrollment_id", F("score").desc(nulls_last=True), "-created_at")
-            .distinct("enrollment_id")
-        )
-
     def get_enrollments_problems_effective_submits(
         self,
         submit_cls: type[BaseSubmit],
@@ -166,18 +155,18 @@ class KSP2025(
             return Decimal(0)
         return Decimal(1)
 
-    def result_table_exclude_enrollment(
+    def result_table_is_excluded(
         self, table: str, context: dict, enrollment: Enrollment
     ) -> bool:
         level = int(table[1:]) if table.startswith("L") else 0
         return (
             level > 0 and context["levels"][enrollment.user] > level
-        ) | super().result_table_exclude_enrollment(table, context, enrollment)
+        ) or super().result_table_is_excluded(table, context, enrollment)
 
     def result_table_is_ghost(
         self, table: str, context: dict, enrollment: Enrollment
     ) -> bool:
-        return Grade.is_old(enrollment.grade) | super().result_table_is_ghost(
+        return Grade.is_old(enrollment.grade) or super().result_table_is_ghost(
             table, context, enrollment
         )
 
