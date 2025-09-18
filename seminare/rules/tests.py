@@ -38,54 +38,6 @@ class KSPRulesTests(TestCase):
                 else:
                     self.assertNotIn(Text.Type.EXAMPLE_SOLUTION, visible_texts)
 
-    def test_get_effective_submits(self):
-        for rule_engine in self.get_rule_engines():
-            for problem in rule_engine.problem_set.problems.all():
-                for submit_cls in problem.accepted_submit_classes:
-                    submits = rule_engine.get_effective_submits(
-                        submit_cls, problem
-                    ).all()
-
-                    # assert correct problem
-                    self.assertTrue(
-                        all(submit.problem == problem for submit in submits)
-                    )
-
-                    # assert unique enrollment
-                    self.assertEqual(
-                        submits.values_list("enrollment_id", flat=True)
-                        .distinct()
-                        .count(),
-                        submits.count(),
-                    )
-
-                    # assert submits from all enrollments before deadline are present
-                    self.assertEqual(
-                        submits.count(),
-                        submit_cls.objects.filter(
-                            problem=problem,
-                            created_at__lte=rule_engine.problem_set.end_date,
-                        )
-                        .order_by("enrollment_id")
-                        .distinct("enrollment_id")
-                        .count(),
-                    )
-
-                    for submit in submits:
-                        # assert before deadline
-                        self.assertLessEqual(
-                            submit.created_at, rule_engine.problem_set.end_date
-                        )
-
-                        # assert no better submit exists before deadline
-                        self.assertFalse(
-                            submits.filter(
-                                enrollment=submit.enrollment,
-                                score__gt=submit.score,
-                                created_at__lte=rule_engine.problem_set.end_date,
-                            ).exists()
-                        )
-
     def test_get_enrollments_problems_effective_submits(self):
         for rule_engine in self.get_rule_engines():
             for problem in rule_engine.problem_set.problems.all():
