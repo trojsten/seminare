@@ -1,4 +1,6 @@
-from datetime import date
+from datetime import date, datetime
+
+from django.utils import timezone
 
 from seminare.users.models import Grade
 
@@ -52,7 +54,9 @@ def get_grade_from_type_year(school_type: str, year: int) -> Grade | None:
     return map[year]
 
 
-def date_to_academic_year(date: date) -> int:
+def date_to_academic_year(date: date | datetime) -> int:
+    if isinstance(date, datetime):
+        date = date.astimezone(timezone.get_current_timezone())
     september = date.replace(month=9, day=1)
     if date < september:
         return date.year - 1
