@@ -63,8 +63,8 @@
       </thead>
       <tbody>
         {% for row in table.rows %}
-          <tr class="{% if row.ghost %}!text-gray-400{% endif %} {% if row.enrollment.user == request.user %}bg-gray-50 font-bold{% endif %}">
-            <td class="tabular-nums">
+          <tr class="{% if row.ghost %}!text-gray-400{% endif %} {% if row.enrollment.user == request.user %}bg-gray-50 font-bold{% endif %} tabular-nums">
+            <td>
               {% if row.rank %}
                 {{ row.rank }}.
               {% endif %}
