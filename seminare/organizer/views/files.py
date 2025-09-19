@@ -62,7 +62,7 @@ class NewFolderView(ContestOrganizerRequired, WithContest, GenericFormView):
         )
 
 
-class UploadFileView(ContestOrganizerRequired, WithContest, GenericFormView):
+class FileUploadView(ContestOrganizerRequired, WithContest, GenericFormView):
     form_class = FileUploadForm
     form_title = "Nahrať súbor"
     form_multipart = True
