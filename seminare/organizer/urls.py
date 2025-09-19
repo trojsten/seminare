@@ -82,5 +82,5 @@ urlpatterns = [
     path(
         "subory/novy_priecinok/", files.NewFolderView.as_view(), name="file_new_folder"
     ),
-    path("subory/nahrat/", files.UploadFileView.as_view(), name="file_upload"),
+    path("subory/nahrat/", files.FileUploadView.as_view(), name="file_upload"),
 ]
