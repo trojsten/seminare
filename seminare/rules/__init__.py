@@ -211,8 +211,8 @@ class RuleEngineDataMixin:
     compatible_engines: list[str] = []
     """Other compatible engine IDs that should be fetched with RuleData"""
 
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
         self.engine_id = f"{self.__class__.__module__}.{self.__class__.__qualname__}"
 
     def get_data_for_users(
@@ -220,7 +220,7 @@ class RuleEngineDataMixin:
         key: str,
         users: list["User"],
         engines: list[str] | None = None,
-    ) -> dict["User", JSON]:
+    ) -> dict[int, JSON]:
         """
         Returns stored RuleData for given users under key.
         """
@@ -269,6 +269,20 @@ class RuleEngine(RuleEngineDataMixin, AbstractRuleEngine):
             (self.problem_set.end_date, "Koniec kola"),
         ]
 
+    def get_visible_texts(self, problem: "Problem|None") -> "set[Text.Type]":
+        from seminare.problems.models import Text
+
+        visible = set()
+        now = timezone.now()
+
+        if now >= self.problem_set.start_date:
+            visible.add(Text.Type.PROBLEM_STATEMENT)
+
+        if now > self.problem_set.end_date:
+            visible.add(Text.Type.EXAMPLE_SOLUTION)
+
+        return visible
+
     def can_submit(
         self,
         submit_cls: type[BaseSubmit],
@@ -287,6 +301,28 @@ class RuleEngine(RuleEngineDataMixin, AbstractRuleEngine):
             return True
 
         return False
+
+    def get_enrollments_problems_scores(
+        self, enrollments: Iterable[Enrollment], problems: Iterable["Problem"]
+    ) -> dict[tuple[int, int], Score]:
+        user_problem_submits: dict[tuple[int, int], list[BaseSubmit]]
+        user_problem_submits = defaultdict(list)
+
+        for type_ in BaseSubmit.get_submit_types():
+            submits = self.get_enrollments_problems_effective_submits(
+                type_, enrollments, problems
+            ).select_related("enrollment")
+            for submit in submits:
+                key = (submit.enrollment.user_id, submit.problem_id)
+                user_problem_submits[key].append(submit)
+
+        output = {}
+        for key, submits in user_problem_submits.items():
+            output[key] = Score(submits)
+        return output
+
+    def get_enrollments(self) -> QuerySet[Enrollment]:
+        return self.problem_set.enrollment_set.get_queryset()
 
     def result_table_get_context(
         self, table: str, enrollments: QuerySet[Enrollment, Enrollment]

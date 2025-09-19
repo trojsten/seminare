@@ -1,6 +1,8 @@
+from collections import defaultdict
 from functools import cache
+from typing import Iterable
 
-from django.db.models import QuerySet
+from django.db.models import F, QuerySet
 from django.utils.functional import cached_property
 
 from seminare.problems.models import Problem, ProblemSet
@@ -21,12 +23,14 @@ class LevelRuleEngine(RuleEngine):
     default_level: int = 1
     max_level: int
 
-    def get_level_for_users(self, users: "list[User]") -> dict["User", int]:
+    def get_level_for_users(self, users: "list[User]") -> dict[int, int]:
         """Returns levels for multiple users. If no data is found, returns default level."""
-        return self.get_data_for_users("level", users)  # pyright:ignore
+        return defaultdict(
+            lambda: self.default_level, self.get_data_for_users("level", users)
+        )  # pyright:ignore
 
     def get_level_for_user(self, user: "User") -> int:
-        return self.get_level_for_users([user])[user]
+        return self.get_level_for_users([user])[user.id]
 
     def set_levels_for_users(self, data: dict["User", int]):
         """Sets levels for multiple users. Data is a dict mapping User to level."""
@@ -181,7 +185,9 @@ class LimitedSubmitRuleEngine(RuleEngine):
 
     @cache
     def get_override(self, user: User) -> dict:
-        return self.get_data_for_users("max_submits_override", [user])[user]  # pyright:ignore
+        return defaultdict(
+            lambda: None, self.get_data_for_users("max_submits_override", [user])
+        )[user]  # pyright:ignore
 
     @cache
     def get_max_submits(
@@ -249,3 +255,26 @@ class LimitedSubmitRuleEngine(RuleEngine):
             return False
 
         return super().can_submit(submit_cls, problem, enrollment)
+
+
+class BestSubmitRuleEngine(RuleEngine):
+    def get_enrollments_problems_effective_submits(
+        self,
+        submit_cls: type[BaseSubmit],
+        enrollments: Iterable[Enrollment],
+        problems: Iterable[Problem],
+    ) -> QuerySet[BaseSubmit]:
+        return (
+            submit_cls.objects.filter(
+                problem__in=problems,
+                enrollment__in=enrollments,
+                created_at__lte=self.problem_set.end_date,
+            )
+            .order_by(
+                "enrollment_id",
+                "problem_id",
+                F("score").desc(nulls_last=True),
+                "-created_at",
+            )
+            .distinct("enrollment_id", "problem_id")
+        )

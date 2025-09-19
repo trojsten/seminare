@@ -25,8 +25,13 @@ class Grade(models.TextChoices):
     OLD = "OLD", "∞"
 
     @classmethod
-    def is_old(cls, grade: str) -> bool:
-        return grade == cls.OLD
+    def is_old(cls, grade: str, is_prask=False) -> bool:
+        old_grades = {cls.OLD}
+
+        if is_prask:
+            old_grades |= {cls.SS2, cls.SS3, cls.SS4, cls.SS5}
+
+        return grade in old_grades
 
     @classmethod
     def is_ss(cls, grade: str) -> bool:
