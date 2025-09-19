@@ -14,7 +14,7 @@
 
 {% block body %}
     <div class="max-w-prose mx-auto">
-        <h1 class="text-4xl font-bold mb-8">Novinky</h1>
+        {% include "org/generic/_title.html" with title="Novinky" %}
 
         <div class="space-y-8 mb-8">
         {% for post in object_list %}
