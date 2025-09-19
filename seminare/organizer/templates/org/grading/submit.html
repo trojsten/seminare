@@ -4,9 +4,11 @@
 {{ submit.submit_id }} ({{ submit.enrollment.user.display_name }}) {{ block.super }}
 {% endblock title %}
 
+{% block org_navbar_class %}{{ block.super }} hidden 2xl:block{% endblock %}
+
 {% block org_body %}
-<div class="flex w-full h-full max-h-screen">
-  <div class="border-r w-80 shrink-0 px-4 py-3 overflow-auto space-y-1" hx-boost="true">
+<div class="flex flex-col md:flex-row w-full h-full max-h-screen">
+  <div class="border-r w-80 shrink-0 px-4 py-3 overflow-auto space-y-1 hidden lg:block" hx-boost="true">
     <a href="{% url 'org:grading_overview' problem_set.slug problem.number %}#user-{{ submit.enrollment.user_id }}" class="link flex items-center mb-2">
       <iconify-icon icon="mdi:arrow-left" class="mr-1"></iconify-icon>
       Späť na hodnotenie úlohy
@@ -33,11 +35,11 @@
     {% endfor %}
   </div>
 
-  <div class="flex-1 overflow-auto flex">
+  <div class="md:flex-1 overflow-auto flex min-h-[40rem] md:h-auto">
     {% include "submits/content/render.html" %}
   </div>
 
-  <div class="border-l w-80 shrink-0 flex flex-col">
+  <div class="border-l md:w-80 shrink-0 flex flex-col">
     <div class="font-bold text-lg pb-2 pt-3 px-4 shrink-0">Ostatné odovzdania</div>
 
     <div class="px-4 pb-3 pt-0 flex-1 overflow-auto space-y-1" hx-boost="true">

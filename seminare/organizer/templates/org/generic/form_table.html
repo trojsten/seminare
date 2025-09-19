@@ -16,7 +16,7 @@
     <button type="submit" class="btn btn-blue">{{ form_submit_label }}</button>
     </form>
 
-    <div class="mt-4">
+    <div class="mt-8">
     {% render_table table object_list extra_context=form_table_context%}
     {% if page_obj %}
         {% paginator page_obj %}

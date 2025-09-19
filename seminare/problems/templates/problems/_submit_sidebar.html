@@ -28,7 +28,7 @@
           {% if id != "text" %}
             <div class="bg-gray-100 rounded-md text-gray-700 text-center p-4 cursor-pointer hover:bg-gray-200" data-action="click->submit--{{ id }}-submit#openFilePicker">
               <iconify-icon icon="mdi:upload" width="none" class="size-8"></iconify-icon>
-              <p data-submit--{{ id }}-submit-target="fileText">Vyber alebo presuň tvoj program sem</p>
+              <p data-submit--{{ id }}-submit-target="fileText">Vyber alebo presuň tvoj {{ data.name }} sem</p>
             </div>
           {% endif %}
 
