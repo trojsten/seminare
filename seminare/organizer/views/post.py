@@ -18,7 +18,11 @@ from seminare.users.mixins.permissions import (
 
 class WithPostQuerySet(WithContest, MixinProtocol):
     def get_queryset(self):
-        return Post.objects.filter(contests__id=self.contest.id).distinct()
+        return (
+            Post.objects.filter(contests__id=self.contest.id)
+            .select_related("author")
+            .distinct()
+        )
 
 
 class PostListView(ContestOrganizerRequired, WithPostQuerySet, GenericTableView):
