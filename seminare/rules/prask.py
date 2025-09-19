@@ -25,9 +25,9 @@ class Prask2025(BestSubmitRuleEngine, PreviousProblemSetRuleEngine, RuleEngine):
         chips = super().get_chips(user)
 
         mapping = {
-            "inter": Chip("Interaktívna", "amber"),
-            "prog": Chip("Programovacia", "green"),
-            "teor": Chip("Teoretická", "blue"),
+            "inter": Chip("Interaktívna", "amber", "mdi:interaction-tap"),
+            "prog": Chip("Programovacia", "green", "mdi:code-braces"),
+            "teor": Chip("Teoretická", "blue", "mdi:head-thinking-outline"),
         }
 
         for problem in self.problem_set.problems.all():
