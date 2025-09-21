@@ -13,9 +13,9 @@
 }
 
 .theme-kms {
-  --primary-dark: oklch(51.72% 0.1589 269.14);
-  --primary: oklch(61.72% 0.1589 269.14);
-  --primary-light: oklch(71.72% 0.1589 269.14);
+  --primary-dark: oklch(45.13% 0.2369 300.61);
+  --primary: oklch(55.13% 0.2369 300.61);
+  --primary-light: oklch(65.13% 0.2369 300.61);
   --primary-text: white;
 }
 

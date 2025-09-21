@@ -24,8 +24,10 @@ def _redirect_problem_or_solution(request, id, solution=False):
         OldProblem, contest=contest, old_problem_id=id
     ).problem
 
-    url_name = "problem_detail"
-    # TODO: solution URL
+    if solution:
+        url_name = "problem_solution"
+    else:
+        url_name = "problem_detail"
 
     return HttpResponsePermanentRedirect(
         reverse(
@@ -44,3 +46,17 @@ def redirect_problem(request, *args, **kwargs):
 
 def redirect_solution(request, *args, **kwargs):
     return _redirect_problem_or_solution(request, kwargs.get("id"), True)
+
+
+def redirect_results(request, id, slug=None, *args, **kwargs):
+    contest = get_current_contest(request)
+
+    old_round = get_object_or_404(OldRound, contest=contest, old_round_id=id)
+
+    kwargs = {"slug": old_round.problem_set.slug}
+
+    if slug is not None:
+        slug = slug.split("_")[-1]
+        kwargs["table"] = {"ALL": "all"}.get(slug, slug)
+
+    return HttpResponsePermanentRedirect(reverse("problem_set_results", kwargs=kwargs))

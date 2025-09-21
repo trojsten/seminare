@@ -10,6 +10,7 @@ from django.utils import timezone
 
 from seminare.rules import RuleEngine, get_rule_engine_class
 from seminare.submits.models import BaseSubmit, FileSubmit, JudgeSubmit, TextSubmit
+from seminare.users.logic.permissions import is_contest_organizer
 from seminare.users.logic.schools import date_to_academic_year
 
 if TYPE_CHECKING:
@@ -19,9 +20,14 @@ if TYPE_CHECKING:
 
 
 class ProblemSetQuerySet(models.QuerySet):
-    def for_user(self, user):
-        # TODO: real permission check
-        return self.filter(is_public=True)
+    def for_contest(self, contest):
+        return self.filter(contest=contest)
+
+    def for_user(self, user, contest):
+        if user.is_authenticated and is_contest_organizer(user, contest):
+            return self.filter(contest=contest)
+
+        return self.filter(is_public=True, contest=contest)
 
     def only_current(self):
         return self.filter(start_date__lte=timezone.now(), end_date__gte=timezone.now())
@@ -69,6 +75,7 @@ class ProblemSet(models.Model):
 
     objects: ProblemSetQuerySet = ProblemSetQuerySet.as_manager()  # pyright:ignore
     enrollment_set: "RelatedManager[Enrollment]"
+    frozen_results: "RelatedManager[ProblemSetFrozenResults]"
     problems: "RelatedManager[Problem]"
 
     class Meta:
@@ -81,7 +88,7 @@ class ProblemSet(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
-        if not self._is_finalized and self.is_finalized:
+        if not self._is_finalized and self.is_finalized and not self._state.adding:
             self.is_finalized = False
             self.get_rule_engine().close_problemset()
             self.is_finalized = True
@@ -125,7 +132,9 @@ class ProblemSet(models.Model):
 class ProblemSetFrozenResults(models.Model):
     id: int
 
-    problem_set = models.ForeignKey(ProblemSet, on_delete=models.CASCADE)
+    problem_set = models.ForeignKey(
+        ProblemSet, on_delete=models.CASCADE, related_name="frozen_results"
+    )
     table = models.CharField(max_length=64)
     data = models.JSONField(default=dict, blank=True)
 
