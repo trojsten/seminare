@@ -2,6 +2,7 @@ from collections import defaultdict
 from dataclasses import dataclass
 from datetime import datetime
 from decimal import Decimal
+from functools import cached_property
 from importlib import import_module
 from typing import TYPE_CHECKING, Iterable
 
@@ -215,6 +216,13 @@ class RuleEngineDataMixin:
         super().__init__(*args, **kwargs)
         self.engine_id = f"{self.__class__.__module__}.{self.__class__.__qualname__}"
 
+    @cached_property
+    def data_effective_date(self) -> datetime:
+        """
+        Returns the effective date for RuleData queries.
+        """
+        return self.problem_set.start_date
+
     def get_data_for_users(
         self,
         key: str,
@@ -228,7 +236,7 @@ class RuleEngineDataMixin:
             contest=self.problem_set.contest,
             key=key,
             users=users,
-            effective_date=self.problem_set.start_date,  # TODO: casti
+            effective_date=self.data_effective_date,
             engines=engines or [self.engine_id, *self.compatible_engines],
         )
 
