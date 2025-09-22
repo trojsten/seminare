@@ -124,17 +124,26 @@ class ProblemDetailView(DetailView):
 
     def get_object(self, queryset=None):
         self.contest = get_current_contest(self.request)
-        self.problem_set = (
+        problem_set = get_object_or_404(
             ProblemSet.objects.for_user(self.request.user, self.contest)
             .filter(slug=self.kwargs["problem_set_slug"])
-            .select_related("contest")
             .prefetch_related("problems")
-        ).first()
-
-        return get_object_or_404(
-            self.problem_set.problems,
-            number=self.kwargs["number"],
         )
+        problem_set.contest = self.contest
+
+        problem = next(
+            (
+                problem
+                for problem in problem_set.problems.all()
+                if problem.number == self.kwargs["number"]
+            ),
+            None,
+        )
+
+        if problem is None:
+            raise Http404()
+
+        return problem
 
     def get_submits(self, enrollment):
         if not self.request.user.is_authenticated:
@@ -176,7 +185,7 @@ class ProblemDetailView(DetailView):
                 enrollment.user = user
                 ctx["enrollment"] = enrollment
 
-                if self.problem_set.is_running and (
+                if self.object.problem_set.is_running and (
                     enrollment.school_id != user.current_school_id
                     or enrollment.grade != user.current_grade
                 ):

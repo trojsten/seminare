@@ -121,12 +121,12 @@ class ProblemForm(forms.ModelForm):
         self.problem_set = kwargs.pop("problem_set")
         super(ProblemForm, self).__init__(*args, **kwargs)
 
+        texts = {t.type: t for t in self.instance.text_set.all()}
+
         for text_type, label in Text.Type.choices:
             initial = ""
             if self.instance.id:
-                if current_text := self.instance.text_set.filter(
-                    type=text_type
-                ).first():
+                if current_text := texts.get(text_type):
                     initial = current_text.text
             self.fields[f"text_{text_type}"] = forms.CharField(
                 required=False, widget=forms.Textarea, label=label, initial=initial

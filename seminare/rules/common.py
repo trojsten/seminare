@@ -1,4 +1,5 @@
 from collections import defaultdict
+from datetime import datetime
 from functools import cache
 from typing import Iterable
 
@@ -116,6 +117,13 @@ class PreviousProblemSetRuleEngine(RuleEngine):
             contest__id=self.problem_set.contest_id,
             slug=self.previous_problem_set_slug,
         ).first()
+
+    @cached_property
+    def data_effective_date(self) -> datetime:
+        if self.previous_problem_set is None:
+            return super().data_effective_date
+
+        return self.previous_problem_set.start_date
 
     def parse_options(self, options: dict) -> None:
         self.previous_problem_set_slug = options.get("previous_problem_set")

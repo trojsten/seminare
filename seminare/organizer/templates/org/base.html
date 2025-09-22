@@ -5,12 +5,16 @@
 
 {% block root_body %}
 <div class="flex flex-col md:flex-row flex-1">
-  <div class="shrink-0 w-full md:w-64 md:border-r">
-    <a href="/" class="bg-primary p-4 flex items-center justify-center">
+  <div class="{% block org_navbar_class %}shrink-0 w-full md:w-64 md:border-r{% endblock %}" data-controller="toggle" data-toggle-toggle-class="hidden">
+    <a href="/" class="bg-primary p-4 flex items-center justify-between md:justify-center">
       <img src="{{ contest.logo_path }}" alt="{{ contest.name }}" class="h-10">
+
+      <button class="p-4 -m-4 flex md:hidden text-white" data-action="click->toggle#click:prevent">
+        <iconify-icon icon="mdi:menu" width="none" class="size-6"></iconify-icon>
+      </button>
     </a>
 
-    <div class="p-4 space-y-6">
+    <div class="p-4 space-y-6 hidden md:block" data-toggle-target="toggle">
       {% org_navbar %}
     </div>
   </div>
