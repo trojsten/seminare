@@ -369,7 +369,8 @@ class Command(BaseCommand):
             if (
                 path := legacy_path / "zadania" / "html" / f"prikl{problem.number}.html"
             ).exists():
-                text = self.parse_text(path.read_text())
+                original_text = path.read_text()
+                text = self.parse_text(original_text)
                 problem.text_set.create(
                     type=Text.Type.PROBLEM_STATEMENT,
                     text=text,
@@ -379,7 +380,7 @@ class Command(BaseCommand):
                 root = Path(problem.get_data_root(True))
                 root.mkdir(parents=True, exist_ok=True)
 
-                for file in self.extract_files(legacy_path, text):
+                for file in self.extract_files(legacy_path, original_text):
                     default_storage.save(str(root / file.name), file.open("rb"))
 
             if (
