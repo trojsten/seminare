@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 env:
-  IMAGE_NAME: registry.3sten.sk/grd-seminare
+  IMAGE_NAME: registry.3sten.sk/seminare
 
 jobs:
   build-and-push-image:
