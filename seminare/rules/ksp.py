@@ -105,7 +105,7 @@ class KSP2025(
 
         output = {}
         for key, submits in user_problem_submits.items():
-            output[key] = Score(submits)  # TODO: Extract Score creation
+            output[key] = Score(submits)
         return output
 
     def get_enrollments(self) -> QuerySet[Enrollment]:
@@ -137,7 +137,7 @@ class KSP2025(
         return sum(best[:5]) + previous
 
     def get_coefficient_for_problem(
-        self, problem_number: int, table: str | None = None
+        self, problem_number: int, enrollment: Enrollment, table: str
     ) -> Decimal:
         if table and table[0] == "L" and problem_number < int(table[1]):
             return Decimal(0)

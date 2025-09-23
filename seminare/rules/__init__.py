@@ -141,12 +141,14 @@ class AbstractRuleEngine:
         raise NotImplementedError()
 
     def get_coefficient_for_problem(
-        self, problem_number: int, table: str | None = None
+        self,
+        problem_number: int,
+        enrollment: Enrollment,
+        table: str,
     ) -> Decimal:
         """
         Returns the score coefficient for a given problem in a results table.
         """
-        # TODO: Also pass User or UserData.
         return Decimal(1)
 
     def result_table_get_context(
@@ -365,7 +367,9 @@ class RuleEngine(RuleEngineDataMixin, AbstractRuleEngine):
         for problem in context["problems"]:
             if (key := (enrollment.user_id, problem.id)) in context["scores"]:
                 score = context["scores"][key]
-                coeff = self.get_coefficient_for_problem(problem.number, table)
+                coeff = self.get_coefficient_for_problem(
+                    problem.number, enrollment, table
+                )
                 cells.append(ScoreCell(score, coeff))
             else:
                 cells.append(None)
