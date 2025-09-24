@@ -493,7 +493,9 @@ class Command(BaseCommand):
                         }
 
             problem_set.frozen_results.create(
-                table=row["tag"].split("_")[-1].replace("ALL", "all"),
+                table=row["tag"].split("_")[-1].replace("ALL", "all")
+                if row["tag"] != "_"
+                else "all",
                 data=data,
                 problem_set=problem_set,
             )
