@@ -6,3 +6,4 @@ __pycache__/
 /uploads
 /legacy-data
 /seminare/style/static/code.css
+/*.sql

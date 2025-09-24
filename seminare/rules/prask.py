@@ -41,10 +41,10 @@ class Prask2025(BestSubmitRuleEngine, PreviousProblemSetRuleEngine, RuleEngine):
     # === Results tables ===
 
     def get_result_tables(self) -> dict[str, str]:
-        return {"": "Prask"}
+        return {"all": "Prask"}
 
     def get_default_result_table(self, user: User | None = None) -> str:
-        return ""
+        return "all"
 
     def calculate_total(self, scores: Iterable[Cell | None]) -> Decimal:
         total = Decimal(0)
