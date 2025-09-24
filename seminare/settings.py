@@ -167,6 +167,22 @@ STORAGES = {
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+dsn = env("SENTRY_DSN", default="")
+if dsn:
+    import sentry_sdk
+    from sentry_sdk.integrations.django import DjangoIntegration
+
+    from seminare import VERSION
+
+    sentry_sdk.init(
+        dsn=dsn,
+        integrations=[DjangoIntegration()],
+        auto_session_tracking=False,
+        traces_sample_rate=0.1,
+        send_default_pii=True,
+        release=VERSION,
+    )
+
 if DEBUG:
     import socket  # only if you haven't already imported this
 
