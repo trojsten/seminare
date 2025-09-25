@@ -34,7 +34,7 @@ RESULTS_EXPORT_SQL = """
 SELECT DISTINCT ON (r.tag) r.id, r.tag, r.round_id, r.serialized_results
   FROM results_results r
   WHERE r.round_id = %s
-  ORDER BY r.tag, r.id DESC
+  ORDER BY r.tag, r.time DESC
 """
 
 
