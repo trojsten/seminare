@@ -408,7 +408,7 @@ class Command(BaseCommand):
         elif year < -4:
             return "YOUNG"
         elif year <= 0:
-            return f"{9 - year}ZS"
+            return f"{9 + year}ZS"
         else:
             return f"{year}SS"
 
