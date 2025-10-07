@@ -31,6 +31,9 @@ class ImageTreeprocessor(Treeprocessor):
             if image_url.startswith("/"):
                 continue
 
+            if image_url.startswith("obrazky/"):
+                image_url = image_url.removeprefix("obrazky/")
+
             path = PurePath(url_root) / image_url
             elem.set("src", str(path))
 
