@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 
 class Prask2025(BestSubmitRuleEngine, PreviousProblemSetRuleEngine, RuleEngine):
-    problem_types_mappings = {1: "inter", 2: "prog", 3: "prog", 4: "teor", 5: "teor"}
+    problem_types_mappings: dict[str, str] = {}
 
     def parse_options(self, options: dict) -> None:
         """Parses options from problem set."""
@@ -25,14 +25,16 @@ class Prask2025(BestSubmitRuleEngine, PreviousProblemSetRuleEngine, RuleEngine):
         chips = super().get_chips(user)
 
         mapping = {
-            "inter": Chip("Interaktívna", "amber", "mdi:interaction-tap"),
-            "prog": Chip("Programovacia", "green", "mdi:code-braces"),
-            "teor": Chip("Teoretická", "blue", "mdi:head-thinking-outline"),
+            "interactive": Chip("Interaktívna", "amber", "mdi:interaction-tap"),
+            "special": Chip("Špeciálna", "red", "mdi:magic"),
+            "code": Chip("Programovacia", "green", "mdi:code-braces"),
+            "theoretical": Chip("Teoretická", "blue", "mdi:head-thinking-outline"),
         }
 
         for problem in self.problem_set.problems.all():
-            if problem.number in self.problem_types_mappings:
-                chips[problem] = [mapping[self.problem_types_mappings[problem.number]]]
+            key = str(problem.number)
+            if key in self.problem_types_mappings:
+                chips[problem] = [mapping[self.problem_types_mappings[key]]]
 
         return chips
 
