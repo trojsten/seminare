@@ -9,6 +9,7 @@ from seminare.organizer.file_utils import (
     create_folder,
     delete_subtree,
     list_folder,
+    resolve_path,
     upload_file,
 )
 from seminare.organizer.forms import FileUploadForm, NewFolderForm
@@ -41,9 +42,22 @@ class FileListView(ContestOrganizerRequired, WithContest, GenericTableView):
 
     def get_queryset(self):  # pyright: ignore
         # Yeah, this is not exactly a QuerySet, but it is passed right to the FileTable.
+        path = self.request.GET.get("path", "")
+        cpath = PurePath(resolve_path(self.contest, path))
         dirs, files = list_folder(self.contest, self.request.GET.get("path", ""))
         root = self.contest.data_root
-        rows = [{"file": f, "is_dir": True, "rel": f.relative_to(root)} for f in dirs]
+
+        rows = []
+        if cpath != root:
+            rows.append(
+                {
+                    "file": cpath.parent.with_name(".."),
+                    "is_dir": True,
+                    "rel": cpath.parent.relative_to(root),
+                }
+            )
+
+        rows += [{"file": f, "is_dir": True, "rel": f.relative_to(root)} for f in dirs]
         rows += [
             {"file": f, "is_dir": False, "rel": f.relative_to(root)} for f in files
         ]
