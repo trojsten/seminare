@@ -30,7 +30,14 @@ class Score(ResultsSerializable):
         return any(submit.score is None for submit in self.submits)
 
     @property
+    def all_pending(self):
+        return all(submit.score is None for submit in self.submits)
+
+    @property
     def display(self) -> str:
+        if self.all_pending:
+            return "?"
+
         points = self.points
         display_string = f"{self.points:.0f}"
         if not float(points).is_integer():
