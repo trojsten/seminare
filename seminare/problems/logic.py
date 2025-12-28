@@ -17,7 +17,7 @@ def inject_user_score(
 
     rule_engine = problem_set.get_rule_engine()
 
-    enrollment = user.get_enrollment(problem_set)
+    enrollment = rule_engine.get_enrollment(user)
 
     if enrollment is None:
         return problems
