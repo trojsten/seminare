@@ -32,7 +32,9 @@ def get_contest_role_for_users(
     Returns a dictionary mapping each user in `users` to their ContestRole (or None) for `contest`.
     """
     out: dict[User, ContestRole | None] = defaultdict(lambda: None)
-    roles = ContestRole.objects.filter(user__in=users, contest=contest)
+    roles = ContestRole.objects.filter(user__in=users, contest=contest).select_related(
+        "user"
+    )
 
     for role in roles:
         out[role.user] = role
