@@ -439,6 +439,9 @@ class RuleEngine(RuleEngineDataMixin, AbstractRuleEngine):
                 table, enrollment, context
             )
 
+            if all(cell is None for cell in cells):
+                continue
+
             rows.append(
                 Row(
                     rank=None,
