@@ -1,9 +1,11 @@
+from django.http import Http404
 from django.http.response import HttpResponsePermanentRedirect
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 
 from seminare.contests.utils import get_current_contest
 from seminare.legacy.models import OldProblem, OldRound
+from seminare.problems.models import ProblemSet
 
 
 def redirect_round(request, *args, **kwargs):
@@ -46,6 +48,22 @@ def redirect_problem(request, *args, **kwargs):
 
 def redirect_solution(request, *args, **kwargs):
     return _redirect_problem_or_solution(request, kwargs.get("id"), True)
+
+
+def redirect_latest_results(request, *args, **kwargs):
+    contest = get_current_contest(request)
+
+    if latest := (
+        ProblemSet.objects.for_user(request.user, contest)
+        .order_by("-end_date", "-start_date")
+        .first()
+    ):
+        return redirect(
+            "problem_set_results",
+            slug=latest.slug,
+        )
+
+    raise Http404()
 
 
 def redirect_results(request, id, slug=None, *args, **kwargs):
