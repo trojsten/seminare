@@ -1,3 +1,5 @@
+from functools import cached_property
+
 from django.contrib.auth.models import AnonymousUser
 from django.core.exceptions import PermissionDenied
 from django.http.response import Http404
@@ -53,11 +55,14 @@ class ProblemSetDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
+
+        rule_engine = self.object.get_rule_engine()
+
         ctx["problems"] = inject_chips(
             inject_user_score(self.object, self.request.user),
-            self.object.get_rule_engine().get_chips(self.request.user),
+            rule_engine.get_chips(self.request.user),
         )
-        ctx["visible_pdfs"] = self.object.get_rule_engine().get_visible_texts(None)
+        ctx["visible_pdfs"] = rule_engine.get_visible_texts(None)
         return ctx
 
 
@@ -145,11 +150,13 @@ class ProblemDetailView(DetailView):
 
         return problem
 
+    @cached_property
+    def rule_engine(self) -> RuleEngine:
+        return self.object.problem_set.get_rule_engine()
+
     def get_submits(self, enrollment):
         if not self.request.user.is_authenticated:
             return {}
-
-        rule_engine: RuleEngine = self.object.problem_set.get_rule_engine()
 
         return {
             id: {
@@ -157,8 +164,8 @@ class ProblemDetailView(DetailView):
                 "name": name,
                 "action": reverse(f"{id}_submit", args=[self.object.id]),
                 "points": getattr(self.object, f"{id}_points", 0),
-                "chip": rule_engine.get_submits_chip(cls, self.object, enrollment),
-                "can_submit": rule_engine.can_submit(cls, self.object, enrollment),
+                "chip": self.rule_engine.get_submits_chip(cls, self.object, enrollment),
+                "can_submit": self.rule_engine.can_submit(cls, self.object, enrollment),
                 "submits": cls.objects.filter(
                     enrollment=enrollment, problem=self.object
                 ),
@@ -179,7 +186,7 @@ class ProblemDetailView(DetailView):
 
         if (user := self.request.user).is_authenticated:
             assert isinstance(user, User)
-            enrollment = user.get_enrollment(self.object.problem_set)
+            enrollment = self.rule_engine.get_enrollment(user)
 
             if enrollment is not None:
                 enrollment.user = user
@@ -191,7 +198,7 @@ class ProblemDetailView(DetailView):
                 ):
                     ctx["enrollment_warning"] = True
 
-        chips = self.object.problem_set.get_rule_engine().get_chips(self.request.user)
+        chips = self.rule_engine.get_chips(self.request.user)
 
         ctx["texts"] = self.object.get_all_texts()
         ctx["sidebar_problems"] = inject_chips(

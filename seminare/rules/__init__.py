@@ -17,7 +17,7 @@ from seminare.rules.scores import Score
 from seminare.submits.models import BaseSubmit
 from seminare.submits.utils import JSON
 from seminare.users.logic.permissions import is_contest_organizer, preload_contest_roles
-from seminare.users.models import Enrollment, User
+from seminare.users.models import Enrollment, Grade, User
 from seminare.utils import (
     compress_data,
     decompress_data,
@@ -92,6 +92,14 @@ class AbstractRuleEngine:
         Returns whether the user can create new submit for the given problem.
         """
         return True
+
+    def get_enrollment(self, user: User, create=False) -> Enrollment | None:
+        """
+        Returns the enrollment for a given user in this problem set, or None if not enrolled.
+
+        If create is True, creates the enrollment if it does not exist.
+        """
+        raise NotImplementedError()
 
     # === Grading & results ===
 
@@ -312,6 +320,29 @@ class RuleEngine(RuleEngineDataMixin, AbstractRuleEngine):
 
         return False
 
+    def get_enrollment(self, user: User, create: bool = False) -> Enrollment | None:
+        if hasattr(user, f"enrollment_cache_{self.problem_set.slug}"):
+            return getattr(user, f"enrollment_cache_{self.problem_set.slug}")
+
+        if create:
+            enrollment, _ = Enrollment.objects.get_or_create(
+                user=user,
+                problem_set=self.problem_set,
+                defaults={
+                    "grade": user.current_grade if user.current_grade else Grade.OLD,
+                    "school": user.current_school,
+                },
+            )
+        else:
+            enrollment = Enrollment.objects.filter(
+                user=user, problem_set=self.problem_set
+            ).first()
+
+        if enrollment is not None:
+            setattr(user, f"enrollment_cache_{self.problem_set.slug}", enrollment)
+
+        return enrollment
+
     def get_enrollments_problems_scores(
         self, enrollments: Iterable[Enrollment], problems: Iterable["Problem"]
     ) -> dict[tuple[int, int], Score]:
@@ -407,6 +438,9 @@ class RuleEngine(RuleEngineDataMixin, AbstractRuleEngine):
             cells: list[Cell | None] = self.result_table_get_cells(
                 table, enrollment, context
             )
+
+            if all(cell is None for cell in cells):
+                continue
 
             rows.append(
                 Row(

@@ -19,6 +19,8 @@ class Prask2025(BestSubmitRuleEngine, PreviousProblemSetRuleEngine, RuleEngine):
         if "problem_types_mappings" in options:
             self.problem_types_mappings = options["problem_types_mappings"]
 
+        return super().parse_options(options)
+
     # === Contestant frontend ===
 
     def get_chips(self, user: "User") -> dict["Problem", list[Chip]]:

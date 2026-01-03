@@ -119,6 +119,13 @@ class PreviousProblemSetRuleEngine(RuleEngine):
         ).first()
 
     @cached_property
+    def previous_rule_engine(self) -> RuleEngine | None:
+        if self.previous_problem_set is None:
+            return None
+
+        return self.previous_problem_set.get_rule_engine()
+
+    @cached_property
     def data_effective_date(self) -> datetime:
         if self.previous_problem_set is None:
             return super().data_effective_date
@@ -130,13 +137,25 @@ class PreviousProblemSetRuleEngine(RuleEngine):
 
         return super().parse_options(options)
 
+    def get_enrollment(self, user: User, create: bool = False) -> Enrollment | None:
+        if self.previous_rule_engine is not None:
+            return self.previous_rule_engine.get_enrollment(user, create)
+
+        return super().get_enrollment(user, create)
+
+    def get_enrollments(self) -> QuerySet[Enrollment]:
+        if self.previous_rule_engine is not None:
+            return self.previous_rule_engine.get_enrollments()
+
+        return super().get_enrollments()
+
     def result_table_get_context(
         self, table: str, enrollments: QuerySet[Enrollment, Enrollment]
     ) -> dict:
         context = super().result_table_get_context(table, enrollments)
-        if self.previous_problem_set:
+        if self.previous_rule_engine:
             context["previous_problemset_data"] = (
-                self.previous_problem_set.get_rule_engine().get_result_table(table)
+                self.previous_rule_engine.get_result_table(table)
             )
         return context
 
