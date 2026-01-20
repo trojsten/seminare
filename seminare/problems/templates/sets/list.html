@@ -14,7 +14,7 @@
 
 {% block body %}
   {% if current_sets %}
-    <h1 class="text-3xl font-bold mb-4">Aktuálne zadania</h1>
+    <h1 class="text-3xl font-semibold mb-4">Aktuálne zadania</h1>
 
     {% for current_set in current_sets %}
       {% include "sets/_problem_list.html" with problem_set=current_set problems=current_set.problems_with_score %}
@@ -22,7 +22,7 @@
     {% endfor %}
   {% endif %}
 
-  <h2 class="text-3xl font-bold mb-4">Archív zadaní</h2>
+  <h2 class="text-3xl font-semibold mb-4">Archív zadaní</h2>
 
   {% include "./_list.html" with sets=object_list %}
 {% endblock %}
