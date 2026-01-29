@@ -171,7 +171,14 @@ class GradingSubmitView(ContestOrganizerRequired, WithSubmit, WithSubmitList, Fo
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self):
-        return reverse("org:grading_submit", args=[self.submit.submit_id])
+        return reverse(
+            "org:grading_submit",
+            args=[
+                self.submit.problem.problem_set.slug,
+                self.submit.problem.number,
+                self.submit.submit_id,
+            ],
+        )
 
 
 class BulkGradingView(ContestOrganizerRequired, WithSubmitList, GenericFormView):
