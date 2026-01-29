@@ -71,7 +71,7 @@ class ProblemSetCreateView(
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self) -> str:
-        return reverse("problemset_list")
+        return reverse("problem_set_list")
 
 
 class ProblemSetUpdateView(
