@@ -1,4 +1,3 @@
-from collections import defaultdict
 from datetime import datetime
 from decimal import Decimal
 from typing import Iterable
@@ -8,7 +7,7 @@ from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 
 from seminare.problems.models import Problem
-from seminare.rules import Chip
+from seminare.rules import Chip, RuleEngine
 from seminare.rules.common import (
     LevelRuleEngine,
     LimitedSubmitRuleEngine,
@@ -20,15 +19,12 @@ from seminare.rules.results import (
     ScoreCell,
     Table,
 )
-from seminare.rules.scores import Score
 from seminare.submits.models import BaseSubmit, FileSubmit
 from seminare.users.models import Enrollment, Grade, User
 
 
 class KSP2025(
-    LevelRuleEngine,
-    PreviousProblemSetRuleEngine,
-    LimitedSubmitRuleEngine,
+    LevelRuleEngine, PreviousProblemSetRuleEngine, LimitedSubmitRuleEngine, RuleEngine
 ):
     max_level = 4
 
@@ -88,31 +84,6 @@ class KSP2025(
             )
             .distinct("enrollment_id", "problem_id")
         )
-
-    def get_enrollments_problems_scores(
-        self, enrollments: Iterable[Enrollment], problems: Iterable[Problem]
-    ) -> dict[tuple[int, int], Score]:
-        user_problem_submits: dict[tuple[int, int], list[BaseSubmit]]
-        user_problem_submits = defaultdict(list)
-
-        for type_ in BaseSubmit.get_submit_types():
-            submits = self.get_enrollments_problems_effective_submits(
-                type_, enrollments, problems
-            ).select_related("enrollment")
-            for submit in submits:
-                key = (submit.enrollment.user_id, submit.problem_id)
-                user_problem_submits[key].append(submit)
-
-        output = {}
-        for key, submits in user_problem_submits.items():
-            output[key] = Score(submits)
-        return output
-
-    def get_enrollments(self) -> QuerySet[Enrollment]:
-        # TODO: Ignore organizers
-        # chceme ich naozaj ignorovat? lebo pouzivato to napr. get_result_table a tam je
-        # ich vhodne mat... (Andrej)
-        return self.problem_set.enrollment_set.get_queryset()
 
     def get_result_tables(self) -> dict[str, str]:
         return {"all": "Spoločná"} | {f"L{x}": f"Level {x}" for x in (1, 2, 3, 4)}
