@@ -86,7 +86,7 @@ class KSP2025(
         )
 
     def get_result_tables(self) -> dict[str, str]:
-        return {"all": "Spoločná"} | {f"L{x}": f"Level {x}" for x in (1, 2, 3, 4)}
+        return {"all": "Spoločná"} | super().get_result_tables()
 
     def get_default_result_table(self, user: User | None = None) -> str:
         return "all"
@@ -113,14 +113,6 @@ class KSP2025(
         if table and table[0] == "L" and problem_number < int(table[1]):
             return Decimal(0)
         return Decimal(1)
-
-    def result_table_is_excluded(
-        self, table: str, context: dict, enrollment: Enrollment
-    ) -> bool:
-        level = int(table[1:]) if table.startswith("L") else 0
-        return (
-            level > 0 and context["levels"][enrollment.user] > level
-        ) or super().result_table_is_excluded(table, context, enrollment)
 
     def result_table_is_ghost(
         self, table: str, context: dict, enrollment: Enrollment

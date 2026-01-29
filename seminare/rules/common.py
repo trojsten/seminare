@@ -53,6 +53,16 @@ class LevelRuleEngine(RuleEngine):
         """Returns the new level for a user based on the result tables."""
         raise NotImplementedError()
 
+    def get_result_tables(self) -> dict[str, str]:
+        return {f"L{x}": f"Level {x}" for x in range(1, self.max_level + 1)}
+
+    def get_default_result_table(self, user: User | None = None) -> str:
+        if user is None:
+            return "L1"
+
+        level = self.get_level_for_user(user)
+        return f"L{level}"
+
     def result_table_get_context(
         self, table: str, enrollments: QuerySet[Enrollment, Enrollment]
     ) -> dict:
@@ -76,6 +86,14 @@ class LevelRuleEngine(RuleEngine):
         return cells + super().result_table_get_cells(
             table, enrollment, context, **kwargs
         )
+
+    def result_table_is_excluded(
+        self, table: str, context: dict, enrollment: Enrollment
+    ) -> bool:
+        level = int(table[1:]) if table.startswith("L") else 0
+        return (
+            level > 0 and context["levels"][enrollment.user] > level
+        ) or super().result_table_is_excluded(table, context, enrollment)
 
     def close_problemset(self):
         if not self.should_update_levels():
