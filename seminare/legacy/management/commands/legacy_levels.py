@@ -195,10 +195,7 @@ class Command(BaseCommand):
                         key="level",
                         user=user,
                         engine=options["rule_engine"],
-                        data={
-                            "level": level["new_level"],
-                            "_legacy_migration_row_id": level["id"],
-                        },
+                        data=level["new_level"],
                     )
 
                     self.stderr.write(self.style.SUCCESS("   - Done."))
