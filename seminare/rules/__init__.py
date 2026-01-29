@@ -166,6 +166,12 @@ class AbstractRuleEngine:
         """
         return Decimal(1)
 
+    def get_relevant_problems(self, table: str) -> QuerySet["Problem"]:
+        """
+        Returns QuerySet of problems that are relevant for a given result table.
+        """
+        raise NotImplementedError()
+
     def result_table_get_context(
         self, table: str, enrollments: QuerySet[Enrollment, Enrollment]
     ) -> dict:
@@ -372,6 +378,9 @@ class RuleEngine(RuleEngineDataMixin, AbstractRuleEngine):
     def get_enrollments(self) -> QuerySet[Enrollment]:
         return self.problem_set.enrollment_set.get_queryset()
 
+    def get_relevant_problems(self, table: str) -> QuerySet["Problem"]:
+        return self.problem_set.problems.order_by("number").all()
+
     def result_table_get_context(
         self, table: str, enrollments: QuerySet[Enrollment, Enrollment]
     ) -> dict:
@@ -379,7 +388,7 @@ class RuleEngine(RuleEngineDataMixin, AbstractRuleEngine):
         preload_contest_roles(users, self.problem_set.contest)
 
         context = super().result_table_get_context(table, enrollments)
-        context["problems"] = self.problem_set.problems.order_by("number").all()
+        context["problems"] = self.get_relevant_problems(table)
         context["scores"] = self.get_enrollments_problems_scores(
             enrollments, context["problems"]
         )
