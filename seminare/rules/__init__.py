@@ -12,7 +12,14 @@ from django.urls import reverse
 from django.utils import timezone
 
 from seminare.contests.models import RuleData
-from seminare.rules.results import Cell, ColumnHeader, Row, ScoreCell, Table
+from seminare.rules.results import (
+    Cell,
+    ColumnHeader,
+    PreviousScoreCell,
+    Row,
+    ScoreCell,
+    Table,
+)
 from seminare.rules.scores import Score
 from seminare.submits.models import BaseSubmit
 from seminare.submits.utils import JSON
@@ -439,7 +446,10 @@ class RuleEngine(RuleEngineDataMixin, AbstractRuleEngine):
                 table, enrollment, context
             )
 
-            if all(cell is None for cell in cells):
+            # ignore rows without any score (eg having only solved problem irelevant for that table)
+            if not any(
+                isinstance(cell, ScoreCell | PreviousScoreCell) for cell in cells
+            ):
                 continue
 
             rows.append(
