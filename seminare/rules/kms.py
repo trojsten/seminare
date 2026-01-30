@@ -3,7 +3,6 @@ from decimal import Decimal
 from typing import Iterable
 
 from django.db.models import F, QuerySet
-from django.utils import timezone
 
 from seminare.problems.models import Problem
 from seminare.rules import Chip
@@ -19,7 +18,7 @@ from seminare.rules.results import (
     Table,
 )
 from seminare.rules.scores import Score
-from seminare.submits.models import BaseSubmit, FileSubmit
+from seminare.submits.models import BaseSubmit
 from seminare.users.models import Enrollment, Grade, User
 
 
@@ -29,19 +28,16 @@ class KMS2025(
     LimitedSubmitRuleEngine,
 ):
     max_level = 5
-    PROBLEMS_IN_LEVEL = [[], range(1, 9), range(2, 9), range(3, 9), range(4, 11), range(5, 11)]
-    POINTS_FOR_SUCCESSFUL_LEVEL = [0, 84, 84, 84, 93, 93]  # 0 is just padding, levels start at 1
-
-    def can_submit(
-        self,
-        submit_cls: type[BaseSubmit],
-        problem: "Problem",
-        enrollment: Enrollment | None,
-    ) -> bool:
-        if submit_cls == FileSubmit and timezone.now() > self.doprogramovanie_date:
-            return False
-
-        return super().can_submit(submit_cls, problem, enrollment)
+    PROBLEMS_IN_LEVEL = [
+        [],
+        range(1, 9),
+        range(2, 9),
+        range(3, 9),
+        range(4, 11),
+        range(5, 11)
+    ]
+    # 0 is just padding, levels start at 1
+    POINTS_FOR_SUCCESSFUL_LEVEL = [0, 84, 84, 84, 93, 93]
 
     def get_enrollments_problems_effective_submits(
         self,
@@ -122,7 +118,8 @@ class KMS2025(
         self, table: str, context: dict, enrollment: Enrollment
     ) -> bool:
         level = int(table[1:])
-        return context["levels"][enrollment.user] > level or super().result_table_is_excluded(table, context, enrollment)
+        return context["levels"][enrollment.user] > level or \
+            super().result_table_is_excluded(table, context, enrollment)
 
     def result_table_is_ghost(
         self, table: str, context: dict, enrollment: Enrollment
