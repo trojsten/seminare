@@ -34,7 +34,7 @@ class KMS2025(
         range(2, 9),
         range(3, 9),
         range(4, 11),
-        range(5, 11)
+        range(5, 11),
     ]
     # 0 is just padding, levels start at 1
     POINTS_FOR_SUCCESSFUL_LEVEL = [0, 84, 84, 84, 93, 93]
@@ -118,8 +118,9 @@ class KMS2025(
         self, table: str, context: dict, enrollment: Enrollment
     ) -> bool:
         level = int(table[1:])
-        return context["levels"][enrollment.user] > level or \
-            super().result_table_is_excluded(table, context, enrollment)
+        return context["levels"][
+            enrollment.user
+        ] > level or super().result_table_is_excluded(table, context, enrollment)
 
     def result_table_is_ghost(
         self, table: str, context: dict, enrollment: Enrollment
