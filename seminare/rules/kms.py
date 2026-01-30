@@ -24,7 +24,9 @@ class KMS2026(LevelRuleEngine, PreviousProblemSetRuleEngine, RuleEngine):
 
     # === KMS helpers ===
 
-    kms_level_boundaries: dict[int, tuple[int, int]] = {
+    KMS_POINTS_FOR_SUCCESSFUL_LEVEL: list[int] = [0, 84, 84, 84, 94, 94]
+
+    KMS_LEVEL_BOUNDARIES: dict[int, tuple[int, int]] = {
         1: (1, 8),
         2: (2, 8),
         3: (3, 8),
@@ -33,9 +35,9 @@ class KMS2026(LevelRuleEngine, PreviousProblemSetRuleEngine, RuleEngine):
     }
 
     def kms_can_solve_problem(
-        self, problem_number: int, level: int, strict=True
+        self, problem_number: int, level: int, strict=False
     ) -> bool:
-        boundary = self.kms_level_boundaries.get(level, (-1, -1))
+        boundary = self.KMS_LEVEL_BOUNDARIES.get(level, (-1, -1))
 
         if problem_number >= boundary[0] and (
             not strict or problem_number <= boundary[1]
@@ -53,7 +55,7 @@ class KMS2026(LevelRuleEngine, PreviousProblemSetRuleEngine, RuleEngine):
             level = self.get_level_for_user(user)
 
             for problem in self.problem_set.problems.all():
-                if not self.kms_can_solve_problem(problem.number, level, False):
+                if not self.kms_can_solve_problem(problem.number, level):
                     chips[problem].append(
                         Chip(
                             message="Nebodovaná",
@@ -108,7 +110,7 @@ class KMS2026(LevelRuleEngine, PreviousProblemSetRuleEngine, RuleEngine):
         if (
             table
             and table[0] == "L"
-            and not self.kms_can_solve_problem(problem_number, int(table[1:]))
+            and not self.kms_can_solve_problem(problem_number, int(table[1:]), True)
         ):
             return Decimal(0)
 
@@ -119,7 +121,7 @@ class KMS2026(LevelRuleEngine, PreviousProblemSetRuleEngine, RuleEngine):
 
         if table[0] == "L":
             level = int(table[1:])
-            boundary = self.kms_level_boundaries.get(level, (-1, -1))
+            boundary = self.KMS_LEVEL_BOUNDARIES.get(level, (-1, -1))
 
             problems = problems.filter(number__range=boundary)
 
@@ -148,11 +150,13 @@ class KMS2026(LevelRuleEngine, PreviousProblemSetRuleEngine, RuleEngine):
 
             # aspon 80% leveli L => L + 1
             for row in table.rows:
+                if row.total < self.KMS_POINTS_FOR_SUCCESSFUL_LEVEL[table_level]:
+                    break
                 if row.enrollment.user == user:
-                    if (table_level <= 3 and row.total >= 84) or (
-                        table_level == 4 and row.total >= 94
-                    ):
-                        current_level = max(current_level, table_level + 1)
+                    current_level = min(
+                        self.max_level, max(current_level, table_level + 1)
+                    )
+                    break
 
             # TODO: sustredenia (ak si sa zucastnil, tak +1)
         return current_level
