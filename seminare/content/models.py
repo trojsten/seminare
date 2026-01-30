@@ -21,7 +21,7 @@ class Page(models.Model):
     id: int
     contest = models.ForeignKey("contests.Contest", on_delete=models.CASCADE)
     contest_id: int
-    slug = models.CharField(validators=[path_validator], unique=True, max_length=256)
+    slug = models.CharField(validators=[path_validator], max_length=256)
     title = models.CharField(max_length=256)
     content = models.TextField(blank=True)
 
@@ -38,7 +38,7 @@ class Page(models.Model):
 class Post(models.Model):
     id: int
     contests = models.ManyToManyField("contests.Contest", related_name="+")
-    slug = models.SlugField()
+    slug = models.SlugField(unique=True, max_length=256)
     title = models.CharField(max_length=256)
     content = models.TextField(blank=True)
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
