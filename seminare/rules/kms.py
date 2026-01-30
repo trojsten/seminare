@@ -32,10 +32,14 @@ class KMS2026(LevelRuleEngine, PreviousProblemSetRuleEngine, RuleEngine):
         5: (5, 10),
     }
 
-    def kms_can_solve_problem(self, problem_number: int, level: int) -> bool:
+    def kms_can_solve_problem(
+        self, problem_number: int, level: int, strict=True
+    ) -> bool:
         boundary = self.kms_level_boundaries.get(level, (-1, -1))
 
-        if problem_number >= boundary[0] and problem_number <= boundary[1]:
+        if problem_number >= boundary[0] and (
+            not strict or problem_number <= boundary[1]
+        ):
             return True
 
         return False
@@ -49,7 +53,7 @@ class KMS2026(LevelRuleEngine, PreviousProblemSetRuleEngine, RuleEngine):
             level = self.get_level_for_user(user)
 
             for problem in self.problem_set.problems.all():
-                if not self.kms_can_solve_problem(problem.number, level):
+                if not self.kms_can_solve_problem(problem.number, level, False):
                     chips[problem].append(
                         Chip(
                             message="Nebodovaná",
