@@ -1,11 +1,32 @@
 {# django #}
 
+<dl class="grid grid-cols-1 sm:grid-cols-3 -mx-2 text-sm md:-mx-4 mb-2">
+  <div class="p-2 md:p-4">
+    <dt class="font-semibold text-gray-900">Koniec kola:</dt>
+    <dd class="text-gray-700">
+      {{ problem_set.end_date }}
+      <span class="text-gray-500 text-xs block">({{ problem_set.end_date|timeuntil }})</span>
+    </dd>
+  </div>
+</dl>
+
+<div class="flex w-full mb-4 gap-2 flex-wrap">
+  <a class="btn btn-primary" href="{% url "problem_set_results" problem_set.slug %}">Výsledky</a>
+
+  {% if "PS" in visible_pdfs and problem_set.statement_pdf %}
+    <a class="btn btn-default" href="{% url "problem_set_statement_pdf" problem_set.slug %}">Zadania (PDF)</a>
+  {% endif %}
+  {% if "ES" in visible_pdfs and problem_set.solution_pdf %}
+    <a class="btn btn-default" href="{% url "problem_set_solution_pdf" problem_set.slug %}">Vzoráky (PDF)</a>
+  {% endif %}
+</div>
+
 <div>
   <div class="border divide-y rounded-md overflow-hidden">
     <div class="flex justify-between text-sm text-gray-600 bg-gray-100 font-semibold py-3 px-4">
       <div>Úloha</div>
       {% if user.is_authenticated %}
-      <div>Tvoje body</div>
+        <div>Tvoje body</div>
       {% endif %}
     </div>
     {% for problem in problems %}
