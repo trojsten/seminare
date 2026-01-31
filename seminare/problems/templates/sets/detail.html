@@ -14,18 +14,7 @@
 {% endblock %}
 
 {% block body %}
-  {% include "sets/_header.html" with problem_set=object %}
-
-  <div class="flex w-full mb-4 gap-2 flex-wrap">
-    <a class="btn btn-primary" href="{% url "problem_set_results" object.slug %}">Výsledky</a>
-
-    {% if "PS" in visible_pdfs and object.statement_pdf %}
-    <a class="btn btn-default" href="{% url "problem_set_statement_pdf" object.slug %}">Zadania (PDF)</a>
-    {% endif %}
-    {% if "ES" in visible_pdfs and object.solution_pdf %}
-    <a class="btn btn-default" href="{% url "problem_set_solution_pdf" object.slug %}">Vzoráky (PDF)</a>
-    {% endif %}
-  </div>
+  <h1 class="text-3xl font-semibold">{{ object.name }}</h1>
 
   {% include "sets/_problem_list.html" with problem_set=object %}
 

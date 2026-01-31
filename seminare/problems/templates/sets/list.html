@@ -17,12 +17,14 @@
     <h1 class="text-3xl font-semibold mb-4">Aktuálne zadania</h1>
 
     {% for current_set in current_sets %}
+      <h2 class="text-2xl font-semibold"><a href="{% url "problem_set_detail" current_set.slug %}">{{ current_set.name }}</a></h2>
+
       {% include "sets/_problem_list.html" with problem_set=current_set problems=current_set.problems_with_score %}
       <hr class="my-8">
     {% endfor %}
   {% endif %}
 
-  <h2 class="text-3xl font-semibold mb-4">Archív zadaní</h2>
+  <h1 class="text-3xl font-semibold mb-4">Archív zadaní</h1>
 
   {% include "./_list.html" with sets=object_list %}
 {% endblock %}
