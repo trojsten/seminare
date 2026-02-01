@@ -1,4 +1,5 @@
 import os
+import unicodedata
 
 import psycopg
 import requests
@@ -37,7 +38,7 @@ class Command(BaseCommand):
         parser.add_argument(
             "--old-contest-name",
             type=str,
-            choices=["fks", "ksp"],
+            choices=["fks", "ksp", "kms"],
             help="Contest ID on old site.",
             required=True,
         )
@@ -54,12 +55,31 @@ class Command(BaseCommand):
             required=True,
         )
         parser.add_argument(
+            "--levels-json",
+            type=str,
+            help="Path to JSON with users and levels (KMS).",
+        )
+        parser.add_argument(
             "--clear",
             action="store_true",
             help="Clear old data.",
         )
 
-    def fetch_users(self):
+    def normalized_compare(self, a: str, b: str):
+        return (
+            "".join(
+                c
+                for c in unicodedata.normalize("NFD", a)
+                if unicodedata.category(c) != "Mn"
+            ).lower()
+            == "".join(
+                c
+                for c in unicodedata.normalize("NFD", b)
+                if unicodedata.category(c) != "Mn"
+            ).lower()
+        )
+
+    def fetch_users(self) -> list[dict]:
         response = self.session.get("https://id.trojsten.sk/api/users/")
         response.raise_for_status()
         self.stderr.write(
@@ -80,7 +100,7 @@ class Command(BaseCommand):
                 )
                 return u
         for u in users:
-            if u["username"] == user["username"]:
+            if self.normalized_compare(u["username"], user["username"]):
                 self.stderr.write(
                     self.style.WARNING(f"   - Found by username: {u['username']}")
                 )
@@ -89,15 +109,13 @@ class Command(BaseCommand):
                         "     - Is this OK? Please manually check [y/n]: "
                     )
                 )
-                if input().strip().lower() != "y":
-                    return None
+                if input().strip().lower() == "y":
+                    return u
 
-                return u
         for u in users:
-            if (
-                u["first_name"] == user["first_name"]
-                and u["last_name"] == user["last_name"]
-            ):
+            if self.normalized_compare(
+                u["first_name"], user["first_name"]
+            ) and self.normalized_compare(u["last_name"], user["last_name"]):
                 self.stderr.write(
                     self.style.WARNING(
                         f"   - Found by name: {u['first_name']} {u['last_name']}"
@@ -108,9 +126,8 @@ class Command(BaseCommand):
                         "     - Is this OK? Please manually check [y/n]: "
                     )
                 )
-                if input().strip().lower() != "y":
-                    return None
-                return u
+                if input().strip().lower() == "y":
+                    return u
 
         self.stderr.write(self.style.ERROR("   - User not found."))
         return None
@@ -132,6 +149,54 @@ class Command(BaseCommand):
                 )
             )
         return user
+
+    def migrate_levels(
+        self, levels: list[dict], users: list[dict], rule_engine: str
+    ) -> None:
+        failed = False
+
+        for level in levels:
+            user = self.find_user(level, users)
+            if user is None:
+                failed = True
+
+            level["trojsten_id_user"] = user
+
+        if failed:
+            self.stderr.write(self.style.ERROR("Some users were not found, aborting."))
+
+            data = []
+            for level in levels:
+                if level["trojsten_id_user"] is None:
+                    del level["trojsten_id_user"]
+                    del level["new_level"]
+                    data.append(level)
+
+            import json
+
+            self.stdout.write(json.dumps(data, indent=4, ensure_ascii=False))
+
+            self.stderr.write(self.style.ERROR("Some users were not found, aborting."))
+            exit(1)
+
+        for level in levels:
+            self.stderr.write(
+                self.style.MIGRATE_HEADING(
+                    f" - Migrating level for {level['first_name']} {level['last_name']} ({level['username']}) {level['email']}..."
+                )
+            )
+
+            user = self.get_or_create_user(level["trojsten_id_user"])
+
+            RuleData.objects.create(
+                contest=self.contest,
+                key="level",
+                user=user,
+                engine=rule_engine,
+                data=level["new_level"],
+            )
+
+            self.stderr.write(self.style.SUCCESS("   - Done."))
 
     def execute(self, *args, **options):
         if "LEGACY_DB" not in os.environ:
@@ -157,45 +222,25 @@ class Command(BaseCommand):
 
         users = self.fetch_users()
 
-        with psycopg.connect(os.environ["LEGACY_DB"]) as conn:
-            with conn.cursor(row_factory=dict_row) as cur:
-                levels = cur.execute(
-                    LEVELS_EXPORT_SQL[
-                        options["old_contest_name"]
-                    ],  # ty:ignore[invalid-argument-type]
-                    (options["min_graduation"],),
-                ).fetchall()
+        if options["old_contest_name"] == "kms":
+            if "levels_json" not in options or options["levels_json"] is None:
+                self.stderr.write(
+                    self.style.ERROR("For KMS, --levels-json argument is required.")
+                )
+                exit(1)
 
-                failed = False
+            import json
 
-                for level in levels:
-                    user = self.find_user(level, users)
-                    if user is None:
-                        failed = True
+            with open(options["levels_json"], "r", encoding="utf-8") as f:
+                levels = json.load(f)
+        else:
+            with psycopg.connect(os.environ["LEGACY_DB"]) as conn:
+                with conn.cursor(row_factory=dict_row) as cur:
+                    levels = cur.execute(
+                        LEVELS_EXPORT_SQL[
+                            options["old_contest_name"]
+                        ],  # ty:ignore[invalid-argument-type]
+                        (options["min_graduation"],),
+                    ).fetchall()
 
-                    level["trojsten_id_user"] = user
-
-                if failed:
-                    self.stderr.write(
-                        self.style.ERROR("Some users were not found, aborting.")
-                    )
-                    exit(1)
-
-                for level in levels:
-                    self.stderr.write(
-                        self.style.MIGRATE_HEADING(
-                            f" - Migrating level for {level['first_name']} {level['last_name']} ({level['username']}) {level['email']}..."
-                        )
-                    )
-
-                    user = self.get_or_create_user(level["trojsten_id_user"])
-
-                    RuleData.objects.create(
-                        contest=self.contest,
-                        key="level",
-                        user=user,
-                        engine=options["rule_engine"],
-                        data=level["new_level"],
-                    )
-
-                    self.stderr.write(self.style.SUCCESS("   - Done."))
+        self.migrate_levels(levels, users, options["rule_engine"])
