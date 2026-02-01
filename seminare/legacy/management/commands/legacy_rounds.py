@@ -43,10 +43,13 @@ class HTMLMarkdownParser(HTMLParser):
         super().__init__(convert_charrefs=False)
         self.output = []
         self.href_stack = []
-        self.math_stack = []
+        self.span_stack = []
         self.in_pre = False
         self.pre_lang = ""
         self.in_style = False
+        self.in_alert = False
+        self.in_footnote = False
+        self.in_footnote_list = False
         self.list_stack = []
 
     def handle_starttag(self, tag, attrs):
@@ -68,25 +71,31 @@ class HTMLMarkdownParser(HTMLParser):
             self.in_pre = True
             return
 
-        if self.in_style or self.in_pre:
+        if self.in_style or self.in_pre or self.in_footnote:
             return
+
+        nl = "\n"
+        if self.in_alert:
+            nl = "\n> "
 
         if tag == "ul":
             self.list_stack.append({"type": "ul"})
-            return
         elif tag == "ol":
-            self.list_stack.append({"type": "ol", "counter": 1})
-            return
+            if not self.in_footnote_list:
+                self.list_stack.append({"type": "ol", "counter": 1})
         elif tag == "li":
-            level = len(self.list_stack)
-            indent = "  " * (level - 1) if level > 0 else ""
-            top = self.list_stack[-1]
-            if top["type"] == "ul":
-                prefix = "- "
+            if self.in_footnote_list:
+                self.output.append(f"[^{attr_dict['id'].lstrip('fn')}]: ")
             else:
-                prefix = f"{top['counter']}. "
-                top["counter"] += 1
-            self.output.append("\n" + indent + prefix)
+                level = len(self.list_stack)
+                indent = "  " * (level - 1) if level > 0 else ""
+                top = self.list_stack[-1]
+                if top["type"] == "ul":
+                    prefix = "- "
+                else:
+                    prefix = f"{top['counter']}. "
+                    top["counter"] += 1
+                self.output.append("\n" + indent + prefix)
         elif tag == "img":
             alt = attr_dict.get("alt", "")
             src = attr_dict.get("src", "")
@@ -95,35 +104,50 @@ class HTMLMarkdownParser(HTMLParser):
             self.output.append(f"![{alt}]({src}{title_part})")
         elif tag in ("h1", "h2", "h3", "h4", "h5", "h6"):
             level = int(tag[1])
-            self.output.append("\n" + "#" * level + " ")
+            self.output.append(nl + "#" * level + " ")
         elif tag == "p":
-            if not self.list_stack:
-                self.output.append("\n\n")
+            if not self.list_stack and not self.in_footnote_list:
+                self.output.append(nl * 2)
         elif tag == "a":
-            href = attr_dict.get("href", "")
-            self.href_stack.append(href)
-            self.output.append("[")
+            href = attr_dict.get("href")
+            if (
+                href is None or href == "mailto:"
+            ):  # KMS adds some empty mailto: links...
+                self.href_stack.append(None)
+            elif "id" in attr_dict and attr_dict["id"].startswith("fnref"):
+                self.in_footnote = True
+                self.output.append(f"[^{href.lstrip('#fn')}]")
+            elif href.startswith("#fnref") and self.in_footnote_list:
+                self.in_footnote = True
+            else:
+                self.href_stack.append(("a", href))
+                self.output.append("[")
         elif tag == "code":
             self.output.append("`")
         elif tag == "pre":
             lang = attr_dict.get("class", "").replace("language-", "")
             fence = "```" + (lang if lang else "")
-            self.output.append("\n\n" + fence + "\n")
-        elif (
-            tag == "span"
-            and "class" in attr_dict
-            and "math" in attr_dict["class"].split()
-        ):
-            stack = "$" if "inline" in attr_dict["class"].split() else "$$"
-            self.math_stack.append(stack)
-            self.output.append(stack)
+            self.output.append((nl * 2) + fence + nl)
+        elif tag == "span":
+            if "class" in attr_dict and "math" in attr_dict["class"].split():
+                stack = "$" if "inline" in attr_dict["class"].split() else "$$"
+                self.span_stack.append(("math", stack))
+                self.output.append(stack)
+            else:
+                self.span_stack.append(None)
         elif tag in ("strong", "b"):
             self.output.append("**")
         elif tag in ("em", "i", "figcaption"):
             self.output.append("*")
         elif tag == "u":
             self.output.append("<u>")
-        elif tag == "figure":
+        elif tag == "section":
+            if "class" in attr_dict and "footnotes" in attr_dict["class"].split():
+                self.in_footnote_list = True
+        elif tag == "div":
+            if "class" in attr_dict and "alert" in attr_dict["class"].split():
+                self.in_alert = True
+        elif tag in ("figure", "div") or (tag == "hr" and self.in_footnote_list):
             return
         else:
             parts = [tag]
@@ -135,63 +159,81 @@ class HTMLMarkdownParser(HTMLParser):
     def handle_endtag(self, tag):
         tag = tag.lower()
 
+        nl = "\n"
+        if self.in_alert:
+            nl = "\n> "
+
         if tag == "style":
             self.in_style = False
             return
 
         if tag == "pre" and self.in_pre:
-            self.output.append("\n```" + "\n\n")
+            self.output.append(nl + "```" + (nl * 2))
             self.in_pre = False
             self.pre_lang = ""
             return
 
-        if self.in_pre or self.in_style:
+        if tag == "a" and self.in_footnote:
+            self.in_footnote = False
+            return
+
+        if self.in_pre or self.in_style or self.in_footnote:
             return
 
         if tag in ("ul", "ol"):
-            if self.list_stack:
+            if self.list_stack and not self.in_footnote_list:
                 self.list_stack.pop()
         elif tag == "li" or tag == "img":
             return
         elif tag in ("h1", "h2", "h3", "h4", "h5", "h6"):
-            self.output.append("\n\n")
+            self.output.append(nl * 2)
         elif tag == "p":
-            self.output.append("\n\n")
+            if not self.in_footnote_list:
+                self.output.append(nl * 2)
         elif tag == "a":
-            href = self.href_stack.pop() if self.href_stack else ""
-            self.output.append(f"]({href})")
+            href = self.href_stack.pop() if self.href_stack else None
+            if href is not None and href[0] == "a":
+                self.output.append(f"]({href[1]})")
         elif tag == "code":
             self.output.append("`")
         elif tag == "pre":
-            self.output.append("\n```" + "\n\n")
+            self.output.append(nl + "```" + (nl * 2))
         elif tag == "span":
-            if self.math_stack:
-                self.output.append(self.math_stack.pop())
-            else:
-                self.output.append("</span>")
+            if self.span_stack and (top := self.span_stack.pop()) is not None:
+                if top[0] == "math":
+                    self.output.append(top[1])
         elif tag in ("strong", "b"):
             self.output.append("**")
         elif tag in ("em", "i", "figcaption"):
             self.output.append("*")
         elif tag == "u":
             self.output.append("</u>")
-        elif tag == "figure":
+        elif tag == "section":
+            if self.in_footnote_list:
+                self.in_footnote_list = False
+        elif tag == "div":
+            if self.in_alert:
+                self.in_alert = False
+        elif tag in ("figure") or (tag == "hr" and self.in_footnote_list):
             return
         else:
             self.output.append(f"</{tag}>")
 
     def handle_data(self, data):
-        if self.in_style:
+        if self.in_style or self.in_footnote:
             return
-        self.output.append(unescape(data))
+        data = unescape(data)
+        if self.in_alert:
+            data = data.replace("\n ", "\n").replace("\n", "\n> ")
+        self.output.append(data)
 
     def handle_entityref(self, name):
-        if self.in_style:
+        if self.in_style or self.in_footnote:
             return
         self.output.append(unescape(f"&{name};"))
 
     def handle_charref(self, name):
-        if self.in_style:
+        if self.in_style or self.in_footnote:
             return
         self.output.append(unescape(f"&#{name};"))
 
@@ -208,9 +250,14 @@ class HTMLMarkdownParser(HTMLParser):
 
     def get_markdown(self):
         text = "".join(self.output).strip()
+        while "\n>  \n" in text:
+            text = text.replace("\n>  \n", "\n> \n")
+        # lines with only space
+        while "\n \n" in text:
+            text = text.replace("\n \n", "\n\n")
         # collapse multiple blank lines to max two
-        while "\n\n\n" in text:
-            text = text.replace("\n\n\n", "\n\n")
+        while "\n\n\n" in text or "\n> \n> \n" in text:
+            text = text.replace("\n\n\n", "\n\n").replace("\n> \n> \n", "\n> \n")
 
         text = re.sub(r"\$\\\((.+?)\\\)\$", r"$\1$", text, flags=re.DOTALL)
         text = re.sub(r"\$\$\\\[(.+?)\\\]\$\$", r"$$\1$$", text, flags=re.DOTALL)
