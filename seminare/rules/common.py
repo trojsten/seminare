@@ -82,7 +82,7 @@ class LevelRuleEngine(RuleEngine):
         self, table: str, enrollment: Enrollment, context: dict, **kwargs
     ) -> list[Cell | None]:
         levels = context["levels"]
-        cells = [TextCell(str(levels[enrollment.user]), None)]
+        cells = [TextCell(str(levels[enrollment.user.id]), None)]
         return cells + super().result_table_get_cells(
             table, enrollment, context, **kwargs
         )
@@ -92,7 +92,7 @@ class LevelRuleEngine(RuleEngine):
     ) -> bool:
         level = int(table[1:]) if table.startswith("L") else 0
         return (
-            level > 0 and context["levels"][enrollment.user] > level
+            level > 0 and context["levels"][enrollment.user.id] > level
         ) or super().result_table_is_excluded(table, context, enrollment)
 
     def close_problemset(self):
@@ -113,9 +113,9 @@ class LevelRuleEngine(RuleEngine):
         new_levels: dict[User, int] = {}
 
         for user in users:
-            if (new_level := self.get_new_level(user, levels[user], tables)) != levels[
-                user
-            ]:
+            if (
+                new_level := self.get_new_level(user, levels[user.id], tables)
+            ) != levels[user.id]:
                 new_levels[user] = new_level
 
         self.set_levels_for_users(new_levels)
@@ -232,7 +232,7 @@ class LimitedSubmitRuleEngine(RuleEngine):
     def get_override(self, user: User) -> dict:
         return defaultdict(
             lambda: None, self.get_data_for_users("max_submits_override", [user])
-        )[user]  # pyright:ignore
+        )[user.id]  # pyright:ignore
 
     @cache
     def get_max_submits(
