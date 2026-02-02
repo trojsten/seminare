@@ -497,10 +497,12 @@ class Command(BaseCommand):
                     c["tooltip"] = col["task"]["name"]
                 data["columns"].append(c)
 
+            previous_rank = None
+
             for r in results["rows"]:
                 data["rows"].append(
                     {
-                        "rank": r["rank"],
+                        "rank": r["rank"] if r["rank"] != previous_rank else None,
                         "ghost": not r["active"],
                         "total": r["cell_list"][-1]["points"],
                         "columns": [
@@ -529,6 +531,8 @@ class Command(BaseCommand):
                         },
                     }
                 )
+
+                previous_rank = r["rank"]
 
                 if r["user"]["school"] is not None:
                     if r["user"]["school"]["id"] not in data["_schools"]:
