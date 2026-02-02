@@ -532,7 +532,8 @@ class Command(BaseCommand):
                     }
                 )
 
-                previous_rank = r["rank"]
+                if r["rank"] is not None:
+                    previous_rank = r["rank"]
 
                 if r["user"]["school"] is not None:
                     if r["user"]["school"]["id"] not in data["_schools"]:
