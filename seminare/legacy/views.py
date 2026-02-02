@@ -75,6 +75,7 @@ def redirect_results(request, id, slug=None, *args, **kwargs):
 
     if slug is not None:
         slug = slug.split("_")[-1]
-        kwargs["table"] = {"ALL": "all"}.get(slug, slug)
+        if slug != "":
+            kwargs["table"] = {"ALL": "all"}.get(slug, slug)
 
     return HttpResponsePermanentRedirect(reverse("problem_set_results", kwargs=kwargs))
