@@ -363,6 +363,11 @@ class RuleEngine(RuleEngineDataMixin, AbstractRuleEngine):
         user_problem_submits = defaultdict(list)
 
         for type_ in BaseSubmit.get_submit_types():
+            if not any(
+                type_ in problem.accepted_submit_classes for problem in problems
+            ):
+                continue
+
             submits = self.get_enrollments_problems_effective_submits(
                 type_, enrollments, problems
             ).select_related("enrollment")
