@@ -160,3 +160,32 @@ class KMS2026(LevelRuleEngine, PreviousProblemSetRuleEngine, RuleEngine):
 
             # TODO: sustredenia (ak si sa zucastnil, tak +1)
         return current_level
+
+
+class KMSLegacy(PreviousProblemSetRuleEngine, RuleEngine):
+    def get_enrollments_problems_effective_submits(
+        self,
+        submit_cls: type[BaseSubmit],
+        enrollments: Iterable[Enrollment],
+        problems: Iterable[Problem],
+    ) -> QuerySet[BaseSubmit]:
+        return (
+            submit_cls.objects.filter(
+                problem__in=problems,
+                enrollment__in=enrollments,
+                created_at__lte=self.problem_set.end_date,
+            )
+            .order_by(
+                "enrollment_id",
+                "problem_id",
+                F("score").desc(nulls_last=True),
+                "-created_at",
+            )
+            .distinct("enrollment_id", "problem_id")
+        )
+
+    def get_result_tables(self) -> dict[str, str]:
+        return {"alfa": "Alfa", "beta": "Beta"}
+
+    def get_default_result_table(self, user: User | None = None) -> str:
+        return "alfa"
