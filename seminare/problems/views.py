@@ -33,9 +33,11 @@ class ProblemSetListView(ListView):
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
 
-        current_sets = ProblemSet.objects.for_user(
-            self.request.user, self.contest
-        ).only_current()
+        current_sets = (
+            ProblemSet.objects.for_user(self.request.user, self.contest)
+            .only_current()
+            .prefetch_related("problems")
+        )
 
         for pset in current_sets:
             pset.problems_with_score = inject_chips(
@@ -54,7 +56,9 @@ class ProblemSetDetailView(DetailView):
 
     def get_queryset(self):
         self.contest = get_current_contest(self.request)
-        return ProblemSet.objects.for_user(self.request.user, self.contest)
+        return ProblemSet.objects.for_user(
+            self.request.user, self.contest
+        ).prefetch_related("problems")
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
