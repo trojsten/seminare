@@ -38,7 +38,10 @@ class ProblemSetListView(ListView):
         ).only_current()
 
         for pset in current_sets:
-            pset.problems_with_score = inject_user_score(pset, self.request.user)
+            pset.problems_with_score = inject_chips(
+                inject_user_score(pset, self.request.user),
+                pset.get_rule_engine().get_chips(self.request.user),
+            )
 
         ctx["current_sets"] = current_sets
         return ctx
@@ -50,8 +53,8 @@ class ProblemSetDetailView(DetailView):
     object: ProblemSet
 
     def get_queryset(self):
-        contest = get_current_contest(self.request)
-        return ProblemSet.objects.for_user(self.request.user, contest)
+        self.contest = get_current_contest(self.request)
+        return ProblemSet.objects.for_user(self.request.user, self.contest)
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
@@ -63,6 +66,10 @@ class ProblemSetDetailView(DetailView):
             rule_engine.get_chips(self.request.user),
         )
         ctx["visible_pdfs"] = rule_engine.get_visible_texts(None)
+
+        ctx["sets"] = ProblemSet.objects.for_user(
+            self.request.user, self.contest
+        ).order_by("-end_date", "-start_date")
         return ctx
 
 

@@ -14,24 +14,17 @@
 
 {% block body %}
   {% if current_sets %}
-    <h1 class="text-3xl font-bold mb-4">Aktuálne zadania</h1>
+    <h1 class="text-3xl font-semibold mb-4">Aktuálne zadania</h1>
 
     {% for current_set in current_sets %}
+      <h2 class="text-2xl font-semibold"><a href="{% url "problem_set_detail" current_set.slug %}">{{ current_set.name }}</a></h2>
+
       {% include "sets/_problem_list.html" with problem_set=current_set problems=current_set.problems_with_score %}
       <hr class="my-8">
     {% endfor %}
   {% endif %}
 
-  <h2 class="text-3xl font-bold mb-4">Archív zadaní</h2>
+  <h1 class="text-3xl font-semibold mb-4">Archív zadaní</h1>
 
-  {% for problem_set in object_list %}
-    {% ifchanged %}
-    <div class="mb-2 mt-4 font-bold text-2xl">
-      {{ problem_set.school_year }} / {{ problem_set.school_year|add:1 }}
-    </div>
-    {% endifchanged %}
-    <div class="my-2">
-      <a class="link" href="{% url "problem_set_detail" problem_set.slug %}">{{ problem_set.name }}</a>
-    </div>
-  {% endfor %}
+  {% include "./_list.html" with sets=object_list %}
 {% endblock %}

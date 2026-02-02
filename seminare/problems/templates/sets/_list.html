@@ -1,0 +1,22 @@
+{# django #}
+
+{% regroup sets by school_year as set_list %}
+
+{% for school_year, sets in set_list %}
+<div class="border divide-y rounded-md overflow-hidden mb-6">
+  <div class="text-sm text-gray-600 bg-gray-100 font-semibold py-3 px-4">
+    {{ school_year }} / {{ school_year|add:1 }}
+  </div>
+  {% for problem_set in sets %}
+  <div class="py-3 px-4 flex justify-between items-center flex-wrap">
+    <div>
+      {{ problem_set.name }}
+    </div>
+    <div>
+      <a href="{% url "problem_set_detail" problem_set.slug %}" class="btn btn-default">Zadania</a>
+      <a href="{% url "problem_set_results" problem_set.slug %}" class="btn btn-default">Výsledky</a>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endfor %}
