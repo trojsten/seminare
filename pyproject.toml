@@ -23,6 +23,7 @@ dependencies = [
     "djangorestframework>=3.16.1",
     "djangorestframework-stubs>=3.15.2",
     "sentry-sdk>=2.29.1",
+    "requests>=2.32.5",
 ]
 
 [tool.uv]
