@@ -1,0 +1,9 @@
+<dl class="grid grid-cols-1 sm:grid-cols-3 -mx-2 text-sm md:-mx-4 mb-2">
+  <div class="p-2 md:p-4">
+    <dt class="font-semibold text-gray-900">Koniec kola:</dt>
+    <dd class="text-gray-700">
+      {{ problem_set.end_date }}
+      <span class="text-gray-500 text-xs block">({{ problem_set.end_date|timeuntil }})</span>
+    </dd>
+  </div>
+</dl>

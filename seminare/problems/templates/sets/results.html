@@ -15,6 +15,8 @@
 {% endblock %}
 
 {% block body %}
+  <h1 class="text-3xl font-semibold">{{ object.name }}</h1>
+
   {% include "sets/_header.html" with problem_set=object %}
 
   <div class="flex w-full mb-4">
