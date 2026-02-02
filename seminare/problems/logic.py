@@ -29,9 +29,9 @@ def inject_user_score(
         pending_submits = False
         score = None
 
-        if (enrollment.id, problem.id) in scores:
-            score = scores[(enrollment.id, problem.id)].points
-            pending_submits = scores[(enrollment.id, problem.id)].pending
+        if (enrollment.user_id, problem.id) in scores:
+            score = scores[(enrollment.user_id, problem.id)].points
+            pending_submits = scores[(enrollment.user_id, problem.id)].pending
 
         setattr(problem, "users_score", score)
         setattr(problem, "users_score_pending", pending_submits)
