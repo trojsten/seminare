@@ -1,6 +1,6 @@
 {# django #}
 
-{% include "sets/_header.html" with problem_set=object %}
+{% include "sets/_header.html" with problem_set=problem_set %}
 
 <div class="flex w-full mb-4 gap-2 flex-wrap">
   <a class="btn btn-primary" href="{% url "problem_set_results" problem_set.slug %}">Výsledky</a>
