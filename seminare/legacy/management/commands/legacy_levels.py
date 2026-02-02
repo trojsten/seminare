@@ -1,9 +1,11 @@
+import json
 import os
 import unicodedata
 
 import psycopg
 import requests
 from django.core.management.base import BaseCommand
+from django.db import transaction
 from psycopg.rows import dict_row
 
 from seminare.contests.models import Contest, RuleData
@@ -151,7 +153,7 @@ class Command(BaseCommand):
         return user
 
     def migrate_levels(
-        self, levels: list[dict], users: list[dict], rule_engine: str
+        self, conn, levels: list[dict], users: list[dict], rule_engine: str
     ) -> None:
         failed = False
 
@@ -170,6 +172,14 @@ class Command(BaseCommand):
                 if level["trojsten_id_user"] is None:
                     del level["trojsten_id_user"]
                     del level["new_level"]
+                    if "password" not in level:
+                        with conn.cursor(row_factory=dict_row) as cur:
+                            cur.execute(
+                                "SELECT password FROM people_user WHERE id = %s",
+                                (level["user_id"],),
+                            )
+                            row = cur.fetchone()
+                            level["password"] = row["password"]
                     data.append(level)
 
             import json
@@ -198,6 +208,7 @@ class Command(BaseCommand):
 
             self.stderr.write(self.style.SUCCESS("   - Done."))
 
+    @transaction.atomic
     def execute(self, *args, **options):
         if "LEGACY_DB" not in os.environ:
             self.stderr.write(
@@ -222,19 +233,17 @@ class Command(BaseCommand):
 
         users = self.fetch_users()
 
-        if options["old_contest_name"] == "kms":
-            if "levels_json" not in options or options["levels_json"] is None:
-                self.stderr.write(
-                    self.style.ERROR("For KMS, --levels-json argument is required.")
-                )
-                exit(1)
+        with psycopg.connect(os.environ["LEGACY_DB"]) as conn:
+            if options["old_contest_name"] == "kms":
+                if "levels_json" not in options or options["levels_json"] is None:
+                    self.stderr.write(
+                        self.style.ERROR("For KMS, --levels-json argument is required.")
+                    )
+                    exit(1)
 
-            import json
-
-            with open(options["levels_json"], "r", encoding="utf-8") as f:
-                levels = json.load(f)
-        else:
-            with psycopg.connect(os.environ["LEGACY_DB"]) as conn:
+                with open(options["levels_json"], "r", encoding="utf-8") as f:
+                    levels = json.load(f)
+            else:
                 with conn.cursor(row_factory=dict_row) as cur:
                     levels = cur.execute(
                         LEVELS_EXPORT_SQL[
@@ -243,4 +252,25 @@ class Command(BaseCommand):
                         (options["min_graduation"],),
                     ).fetchall()
 
-        self.migrate_levels(levels, users, options["rule_engine"])
+            self.migrate_levels(conn, levels, users, options["rule_engine"])
+
+            self.stderr.write(self.style.SUCCESS("All done."))
+            self.stderr.write(self.style.NOTICE("Please link following accounts:"))
+            data = []
+            for u in levels:
+                data.append(
+                    {
+                        "id": u["trojsten_id_user"]["id"],
+                        "uid": u["user_id"],
+                        "extra": {
+                            "sub": str(u["user_id"]),
+                            "name": f"{u['first_name']} {u['last_name']}",
+                            "email": u["email"],
+                            "given_name": u["first_name"],
+                            "family_name": u["last_name"],
+                            "preferred_username": u["username"],
+                        },
+                    }
+                )
+
+            self.stdout.write(json.dumps(data, indent=4, ensure_ascii=False))
