@@ -5,6 +5,7 @@ from seminare.organizer.api.files import FileAPIView
 from seminare.organizer.api.problem import ProblemViewSet
 from seminare.organizer.api.problemset import ProblemSetViewSet
 from seminare.organizer.api.text import TextViewSet
+from seminare.organizer.api.users import UserPushAPIView
 
 router = DefaultRouter()
 router.register("problemsets", ProblemSetViewSet, basename="problemset")
@@ -20,6 +21,7 @@ router.register(
 )
 
 urlpatterns = [
+    path("users/push/", UserPushAPIView.as_view()),
     path("files/", FileAPIView.as_view()),
     path("files/<path:path>", FileAPIView.as_view()),
 ] + router.urls

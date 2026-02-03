@@ -1,7 +1,8 @@
+from datetime import date
 from typing import TYPE_CHECKING
 
 from django.conf import settings
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, UserManager
 from django.db import models
 
 if TYPE_CHECKING:
@@ -47,6 +48,8 @@ class User(AbstractUser):
 
     enrollment_set: "RelatedManager[Enrollment]"
 
+    objects: "UserManager[User]"
+
     @property
     def profile_url(self):
         return f"https://id.trojsten.sk/profile/{self.username}/"
@@ -60,6 +63,35 @@ class User(AbstractUser):
         if self.first_name and self.last_name:
             return self.get_full_name()
         return self.username
+
+    def update_school_info(self, school_info: dict | None):
+        from seminare.users.logic.schools import get_grade_from_type_year
+
+        if not school_info:
+            self.current_school = None
+            self.current_grade = ""
+            return
+
+        end_date = school_info["end_date"]
+        is_expired = end_date and date.fromisoformat(end_date) < date.today()
+        if is_expired:
+            self.current_school = None
+            self.current_grade = ""
+            return
+
+        school_data = school_info["school"]
+        school, _ = School.objects.get_or_create(
+            edu_id=school_data["eduid"],
+            defaults={
+                "name": school_data["name"],
+                "address": school_data["address"],
+            },
+        )
+        self.current_school = school
+
+        school_type = school_info["school_type"]
+        current_year = int(school_info["current_year"])
+        self.current_grade = get_grade_from_type_year(school_type, current_year) or ""
 
 
 class School(models.Model):
