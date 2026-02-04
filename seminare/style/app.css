@@ -19,7 +19,8 @@
   --primary-text: white;
 }
 
-.theme-fks {
+.theme-fks,
+.theme-fx {
   --primary-dark: oklch(65.17% 0.1373 72.58);
   --primary: oklch(75.17% 0.1373 72.58);
   --primary-light: oklch(85.17% 0.1373 72.58);
@@ -60,6 +61,10 @@
 
 .btn-amber {
   @apply bg-amber-600 text-white hover:bg-amber-700;
+}
+
+.text-shadow {
+  text-shadow: 0 0 4px #000;
 }
 
 .input {
