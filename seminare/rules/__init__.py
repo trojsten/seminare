@@ -156,10 +156,7 @@ class AbstractRuleEngine:
         raise NotImplementedError()
 
     def get_coefficient_for_problem(
-        self,
-        problem_number: int,
-        enrollment: Enrollment,
-        table: str,
+        self, problem_number: int, enrollment: Enrollment, table: str, context: dict
     ) -> Decimal:
         """
         Returns the score coefficient for a given problem in a results table.
@@ -420,7 +417,7 @@ class RuleEngine(RuleEngineDataMixin, AbstractRuleEngine):
             if (key := (enrollment.user_id, problem.id)) in context["scores"]:
                 score = context["scores"][key]
                 coeff = self.get_coefficient_for_problem(
-                    problem.number, enrollment, table
+                    problem.number, enrollment, table, context
                 )
                 cells.append(ScoreCell(score, coeff))
             else:

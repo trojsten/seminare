@@ -1,7 +1,8 @@
 from decimal import Decimal
 from typing import Iterable
 
-from django.db.models import F, QuerySet
+from django.db.models import QuerySet
+from django.utils import timezone
 
 from seminare.problems.models import Problem
 from seminare.rules import Chip, RuleEngine
@@ -20,34 +21,19 @@ from seminare.submits.models import BaseSubmit
 from seminare.users.models import Enrollment, Grade, User
 
 
-class KMS2026(
+class FKS2026(
     LevelRuleEngine, PreviousProblemSetRuleEngine, BestSubmitRuleEngine, RuleEngine
 ):
-    max_level = 5
+    max_level = 4
 
-    # === KMS helpers ===
+    num_rounds = 3
 
-    KMS_POINTS_FOR_SUCCESSFUL_LEVEL: list[int] = [0, 84, 84, 84, 94, 94]
+    def parse_options(self, options: dict) -> None:
+        super().parse_options(options)
 
-    KMS_LEVEL_BOUNDARIES: dict[int, tuple[int, int]] = {
-        1: (1, 8),
-        2: (2, 8),
-        3: (3, 8),
-        4: (4, 10),
-        5: (5, 10),
-    }
+        self.num_rouds = options.get("num_rounds", 3)
 
-    def kms_can_solve_problem(
-        self, problem_number: int, level: int, strict=False
-    ) -> bool:
-        boundary = self.KMS_LEVEL_BOUNDARIES.get(level, (-1, -1))
-
-        if problem_number >= boundary[0] and (
-            not strict or problem_number <= boundary[1]
-        ):
-            return True
-
-        return False
+        return super().parse_options(options)
 
     # === Contestant frontend ===
 
@@ -58,7 +44,7 @@ class KMS2026(
             level = self.get_level_for_user(user)
 
             for problem in self.problem_set.problems.all():
-                if not self.kms_can_solve_problem(problem.number, level):
+                if problem.number < level:
                     chips[problem].append(
                         Chip(
                             message="Nebodovaná",
@@ -69,9 +55,29 @@ class KMS2026(
 
         return chips
 
+    def can_submit(
+        self,
+        submit_cls: type[BaseSubmit],
+        problem: "Problem",
+        enrollment: Enrollment | None,
+    ) -> bool:
+        if timezone.now() > self.problem_set.end_date:
+            return False
+
+        return super().can_submit(submit_cls, problem, enrollment)
+
     # === Grading & results ===
 
     # === Results tables ===
+
+    def get_result_tables(self) -> dict[str, str]:
+        return {"all": "Spoločná"} | super().get_result_tables()
+
+    def get_default_result_table(self, user: User | None = None) -> str:
+        if user is None or not user.is_authenticated:
+            return "all"
+
+        return super().get_default_result_table(user)
 
     def calculate_total(self, scores: Iterable[Cell | None]) -> Decimal:
         best: list[Decimal] = []
@@ -84,16 +90,16 @@ class KMS2026(
 
         best.sort(reverse=True)
 
-        return sum(best[:5]) + previous
+        return sum(best[:4]) + previous
 
     def get_coefficient_for_problem(
         self, problem_number: int, enrollment: Enrollment, table: str, context: dict
     ) -> Decimal:
-        if (
-            table
-            and table[0] == "L"
-            and not self.kms_can_solve_problem(problem_number, int(table[1:]), True)
-        ):
+        if table and table[0] == "L" and problem_number < int(table[1:]):
+            return Decimal(0)
+
+        level = context["levels"][enrollment.user_id]
+        if problem_number < level:
             return Decimal(0)
 
         return Decimal(1)
@@ -103,9 +109,8 @@ class KMS2026(
 
         if table[0] == "L":
             level = int(table[1:])
-            boundary = self.KMS_LEVEL_BOUNDARIES.get(level, (-1, -1))
 
-            problems = problems.filter(number__range=boundary)
+            problems = problems.filter(number__gte=level)
 
         return problems
 
@@ -119,7 +124,7 @@ class KMS2026(
     # === Level stuff ===
 
     def should_update_levels(self) -> bool:
-        return self.problem_set.slug.endswith("3")
+        return self.problem_set.slug.endswith(str(self.num_rounds))
 
     def get_new_level(
         self, user: "User", current_level: int, tables: dict[str, Table]
@@ -130,44 +135,70 @@ class KMS2026(
 
             table_level = int(slug[1:])
 
-            # aspon 80% leveli L => L + 1
+            # aspon 60b a v prvej 3 v leveli L => L + 1
             for row in table.rows:
-                if row.total < self.KMS_POINTS_FOR_SUCCESSFUL_LEVEL[table_level]:
+                if (row.rank is not None and row.rank > 3) or row.total < 60:
                     break
+
                 if row.enrollment.user == user:
                     current_level = min(
                         self.max_level, max(current_level, table_level + 1)
                     )
                     break
 
-            # TODO: sustredenia (ak si sa zucastnil, tak +1)
+            # TODO: sustredenia (ak si sa zucastnil a v celkovej vysledkovke mal aspon 42b, tak +1)
         return current_level
 
 
-class KMSLegacy(PreviousProblemSetRuleEngine, RuleEngine):
-    def get_enrollments_problems_effective_submits(
+class FX2026(PreviousProblemSetRuleEngine, BestSubmitRuleEngine, RuleEngine):
+    num_rounds = 2
+
+    def parse_options(self, options: dict) -> None:
+        super().parse_options(options)
+
+        self.num_rouds = options.get("num_rounds", 2)
+
+        return super().parse_options(options)
+
+    # === Contestant frontend ===
+
+    def can_submit(
         self,
         submit_cls: type[BaseSubmit],
-        enrollments: Iterable[Enrollment],
-        problems: Iterable[Problem],
-    ) -> QuerySet[BaseSubmit]:
-        return (
-            submit_cls.objects.filter(
-                problem__in=problems,
-                enrollment__in=enrollments,
-                created_at__lte=self.problem_set.end_date,
-            )
-            .order_by(
-                "enrollment_id",
-                "problem_id",
-                F("score").desc(nulls_last=True),
-                "-created_at",
-            )
-            .distinct("enrollment_id", "problem_id")
-        )
+        problem: "Problem",
+        enrollment: Enrollment | None,
+    ) -> bool:
+        if timezone.now() > self.problem_set.end_date:
+            return False
+
+        return super().can_submit(submit_cls, problem, enrollment)
+
+    # === Grading & results ===
+
+    # === Results tables ===
 
     def get_result_tables(self) -> dict[str, str]:
-        return {"alfa": "Alfa", "beta": "Beta"}
+        return {"all": "Spoločná"}
 
     def get_default_result_table(self, user: User | None = None) -> str:
-        return "alfa"
+        return "all"
+
+    def calculate_total(self, scores: Iterable[Cell | None]) -> Decimal:
+        best: list[Decimal] = []
+        previous = Decimal(0)
+        for score in scores:
+            if isinstance(score, PreviousScoreCell):
+                previous = score.points
+            elif isinstance(score, ScoreCell):
+                best.append(score.score.points * score.coefficient)
+
+        best.sort(reverse=True)
+
+        return sum(best) + previous
+
+    def result_table_is_ghost(
+        self, table: str, context: dict, enrollment: Enrollment
+    ) -> bool:
+        return Grade.is_old(enrollment.grade) or super().result_table_is_ghost(
+            table, context, enrollment
+        )
