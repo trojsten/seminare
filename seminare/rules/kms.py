@@ -6,6 +6,7 @@ from django.db.models import F, QuerySet
 from seminare.problems.models import Problem
 from seminare.rules import Chip, RuleEngine
 from seminare.rules.common import (
+    BestSubmitRuleEngine,
     LevelRuleEngine,
     PreviousProblemSetRuleEngine,
 )
@@ -19,7 +20,9 @@ from seminare.submits.models import BaseSubmit
 from seminare.users.models import Enrollment, Grade, User
 
 
-class KMS2026(LevelRuleEngine, PreviousProblemSetRuleEngine, RuleEngine):
+class KMS2026(
+    LevelRuleEngine, PreviousProblemSetRuleEngine, BestSubmitRuleEngine, RuleEngine
+):
     max_level = 5
 
     # === KMS helpers ===
@@ -67,27 +70,6 @@ class KMS2026(LevelRuleEngine, PreviousProblemSetRuleEngine, RuleEngine):
         return chips
 
     # === Grading & results ===
-
-    def get_enrollments_problems_effective_submits(
-        self,
-        submit_cls: type[BaseSubmit],
-        enrollments: Iterable[Enrollment],
-        problems: Iterable[Problem],
-    ) -> QuerySet[BaseSubmit]:
-        return (
-            submit_cls.objects.filter(
-                problem__in=problems,
-                enrollment__in=enrollments,
-                created_at__lte=self.problem_set.end_date,
-            )
-            .order_by(
-                "enrollment_id",
-                "problem_id",
-                F("score").desc(nulls_last=True),
-                "-created_at",
-            )
-            .distinct("enrollment_id", "problem_id")
-        )
 
     # === Results tables ===
 

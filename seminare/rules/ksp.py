@@ -45,6 +45,8 @@ class KSP2025(
 
         self.doprogramovanie_date = date
 
+        return super().parse_options(options)
+
     def get_important_dates(self) -> list[tuple[datetime, str]]:
         dates = super().get_important_dates()
 
