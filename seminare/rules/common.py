@@ -82,7 +82,7 @@ class LevelRuleEngine(RuleEngine):
         self, table: str, enrollment: Enrollment, context: dict, **kwargs
     ) -> list[Cell | None]:
         levels = context["levels"]
-        cells = [TextCell(str(levels[enrollment.user.id]), None)]
+        cells = [TextCell(str(levels[enrollment.user_id]), None)]
         return cells + super().result_table_get_cells(
             table, enrollment, context, **kwargs
         )
@@ -92,7 +92,7 @@ class LevelRuleEngine(RuleEngine):
     ) -> bool:
         level = int(table[1:]) if table.startswith("L") else 0
         return (
-            level > 0 and context["levels"][enrollment.user.id] > level
+            level > 0 and context["levels"][enrollment.user_id] > level
         ) or super().result_table_is_excluded(table, context, enrollment)
 
     def close_problemset(self):

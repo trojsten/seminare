@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ contest.name }}{% endblock %}
+
+{% block body_container %}
+  <div class="bg-cover bg-center bg-no-repeat" style="background-image: url('{% static "homepage/fks/hero.webp" %}')">
+    <div class="px-4 py-32 mx-auto max-w-4xl text-center text-white">
+      <h1 class="font-bold text-3xl text-shadow sm:text-4xl">Chceš sa posunúť vo svete fyziky míľovými krokmi dopredu? Chceš vedieť viac?</h1>
+      <p class="text-2xl text-shadow sm:text-3xl mt-4">Práve pre Teba je tu FX!</p>
+
+      <p class="mt-6">
+        <a href="{% url 'problem_set_list' %}" class="btn btn-primary">Začať riešiť</a>
+        <a href="{% url 'page_detail' 'pravidla' %}" class="btn btn-default">Pravidlá</a>
+      </p>
+    </div>
+  </div>
+
+  <div class="mx-auto max-w-4xl px-4 py-16">
+    <h2 class="font-bold text-2xl mb-4">Čo je FX?</h2>
+
+    <p>
+      FX je súťaž určená pre tých, ktorí sa chcú vo svete fyziky pohnúť míľovými krokmi dopredu. Za predošlých desať rokov priniesli naši riešitelia cenné kovy z medzinárodných súťaží po celom svete. Každá vyriešená úloha vo FX je vecou prestíže a určite nie je hanbou zapojiť sa do súťaže len jedinou. Počas roka sa objavia postupne štyri série úloh. Každú úlohu môžeš riešiť iteratívne, t.j. do termínu ju môžeš poslať niekoľkokrát, pričom vždy dostaneš od nás spätnú väzbu, vďaka ktorej môžeš riešenie ešte vylepšiť.
+    </p>
+
+    <p class="mt-4">
+      FX zastrešujú študenti fyziky z Fakulty matematiky, fyziky a informatiky UK v Bratislave z občianského združenia Trojsten.
+    </p>
+  </div>
+
+  <div class="bg-gray-50">
+    <div class="mx-auto max-w-4xl px-4 py-16">
+      <h2 class="font-bold text-2xl mb-4">Prečo sa zapojiť?</h2>
+
+      <dl class="grid grid-cols-1 gap-x-10 gap-y-10 sm:grid-cols-2">
+        <div class="relative pl-9">
+          <dt class="inline font-semibold text-gray-900">
+            <iconify-icon icon="mdi:account-group" class="absolute top-1 left-1 size-5 text-primary"></iconify-icon>
+            Skvelá komunita.
+          </dt>
+          <dd class="inline">Za 20 rokov kategória FX vychovala mnoho v súčasnosti úspešných fyzikov a riešiteľov medzinárodných fyzikálnych súťaží. </dd>
+        </div>
+
+        <div class="relative pl-9">
+          <dt class="inline font-semibold text-gray-900">
+            <iconify-icon icon="mdi:trophy" class="absolute top-1 left-1 size-5 text-primary"></iconify-icon>
+            Čakajú ťa sústredenia.
+          </dt>
+          <dd class="inline">Najlepších pozývame na sústredenia plné prednášok, hier a nových kamarátov.</dd>
+        </div>
+
+        <div class="relative pl-9">
+          <dt class="inline font-semibold text-gray-900">
+            <iconify-icon icon="mdi:book-open-page-variant" class="absolute top-1 left-1 size-5 text-primary"></iconify-icon>
+            Pomôže ti to v škole.
+          </dt>
+          <dd class="inline">Vďaka FX sa naučíš kopu novej fyziky a množstvo praktických zručností, napríklad zistíš, ako správne logicky a fakticky argumentovať.</dd>
+        </div>
+
+        <div class="relative pl-9">
+          <dt class="inline font-semibold text-gray-900">
+            <iconify-icon icon="mdi:rocket-launch" class="absolute top-1 left-1 size-5 text-primary"></iconify-icon>
+            Bonus do budúcnosti.
+          </dt>
+          <dd class="inline">Mnoho našich bývalých riešiteľov vďaka FX uspelo na medzinárodných fyzikálnych súťažiach. Viacerí z nich študovali alebo pôsobia na popredných svetových univerzitách ako Cambridge, Oxford, MIT, ETH Zürich, či v popredných svetových spoločnostiach.</dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+
+  <div class="mx-auto max-w-4xl px-4 py-16">
+    <h2 class="font-bold text-2xl mb-4">Prečo riešiť?</h2>
+
+    <p>
+       Okrem toho, že sa posunieš vo svete fyziky o míľové kroky dopredu, získaš zručnosti a skúsenosti, ktoré sa ti budú hodiť pri štúdiu fyziky na vysokej škole, a ktoré sa dajú ľahko preniesť aj do ďalších odborov. 
+    </p>
+  </div>
+
+  <div class="bg-gray-50">
+    <div class="mx-auto max-w-4xl px-4 py-16">
+      <h2 class="font-bold text-2xl mb-4">Ako začať?</h2>
+
+      <p>
+        Pozri si zadania, prečítaj si <a class="link" href="{% url 'page_detail' 'pravidla' %}">pravidlá</a> a dobré rady ako riešiť a prihlás sa na stránku (klikni vpravo hore). Ihneď na to môžeš začať riešiť - účasť je zdarma. Keď budeš mať riešenia hotové, nezabudni ich elektronicky odovzdať :). Ak máš nejakú otázku, napíš nám na <a class="link" href="mailto:fx(zavináč)fks.sk">fx~fks.sk</a>.
+      </p>
+
+      <p class="mt-8 text-center">
+        <a href="{% url 'problem_set_list' %}" class="btn btn-primary">Začať riešiť</a>
+      </p>
+    </div>
+  </div>
+
+  <div class="mx-auto max-w-6xl px-4 py-16">
+    <h2 class="font-bold text-2xl mb-4">Aj takto to vyzerá na sústredení...</h2>
+    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <img src="{% static "homepage/fks/1.webp" %}" alt="Účastníci sústredenia FKS počas prednášky" class="rounded-md">
+      <img src="{% static "homepage/fks/2.webp" %}" alt="Účastníci sústredenia FKS hrajú šach a jedia desiatu" class="rounded-md">
+      <img src="{% static "homepage/fks/3.webp" %}" alt="Účastníci sústredenia FKS hrajú vonku tímovú hru" class="rounded-md">
+      <img src="{% static "homepage/fks/4.webp" %}" alt="Účastníci sústredenia FKS sedia počas prednášky pri stole" class="rounded-md">
+      <img src="{% static "homepage/fks/5.webp" %}" alt="Účastníci sústredenia FKS pália morénu" class="rounded-md">
+      <img src="{% static "homepage/fks/6.webp" %}" alt="Skupinová fotografia účastníkov sústredenia FKS vonku" class="rounded-md">
+    </div>
+  </div>
+{% endblock %}
+
+{% block after_body %}
+  {% include "_footer.html" with activities_template="_footer_activities.fx.html" %}
+{% endblock %}
