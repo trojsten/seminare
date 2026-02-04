@@ -57,6 +57,7 @@ class ProblemSetCreateView(
 ):
     form_class = ProblemSetForm
     form_title = "Nová sada úloh"
+    form_multipart = True
 
     def get_breadcrumbs(self):
         return [
@@ -80,6 +81,7 @@ class ProblemSetUpdateView(
     form_class = ProblemSetForm
     table_class = ProblemTable
     form_table_title = "Upraviť sadu úloh"
+    form_multipart = True
 
     def get_breadcrumbs(self):
         return [

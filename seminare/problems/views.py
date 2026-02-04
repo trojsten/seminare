@@ -40,10 +40,12 @@ class ProblemSetListView(ListView):
         )
 
         for pset in current_sets:
+            rule_engine = pset.get_rule_engine()
             pset.problems_with_score = inject_chips(
                 inject_user_score(pset, self.request.user),
-                pset.get_rule_engine().get_chips(self.request.user),
+                rule_engine.get_chips(self.request.user),
             )
+            pset.visible_pdfs = rule_engine.get_visible_texts(None)
 
         ctx["current_sets"] = current_sets
         return ctx
