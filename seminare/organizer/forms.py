@@ -19,6 +19,8 @@ class ProblemSetForm(forms.ModelForm):
             "is_public",
             "rule_engine",
             "rule_engine_options",
+            "statement_pdf",
+            "solution_pdf",
         ]
         labels = {
             "name": "Názov",
@@ -29,6 +31,8 @@ class ProblemSetForm(forms.ModelForm):
             "is_public": "Zverejniť",
             "rule_engine": "Rule Engine",
             "rule_engine_options": "Nastavenia pre Rule Engine",
+            "statement_pdf": "PDF zadania",
+            "solution_pdf": "PDF vzoráky",
         }
         help_texts = {
             "start_date": "Dátum zverejnenia sady úloh.",
