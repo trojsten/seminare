@@ -6,6 +6,7 @@ from django.utils.safestring import mark_safe
 from seminare.content.models import Page
 from seminare.problems.models import Problem, ProblemSet
 from seminare.style.tables import Table
+from seminare.users.models import ContestRole
 
 
 class ProblemSetTable(Table):
@@ -161,3 +162,26 @@ class FileTable(Table):
             )
         links.append(("mdi:delete", "Vymazať", reverse("org:file_delete") + path_query))
         return links
+
+
+class RoleTable(Table):
+    fields = ["user", "role"]
+    labels = {"user": "Používateľ", "role": "Rola"}
+
+    templates = {"user": "tables/fields/user.html"}
+
+    def get_role_content(self, object: ContestRole):
+        return object.get_role_display()
+        return {
+            ContestRole.Role.ORGANIZER: "Organizátor",
+            ContestRole.Role.ADMINISTRATOR: "Administrátor",
+        }.get(object.role, "?")
+
+    def get_links(
+        self, object: ContestRole, context: dict
+    ) -> list[tuple[str, str] | tuple[str, str, str]]:
+        return [
+            # ("mdi:eye", "Pozrieť", reverse("page_detail", args=[object.slug])),
+            ("mdi:pencil", "Upraviť", reverse("org:role_update", args=[object.id])),
+            ("mdi:delete", "Vymazať", reverse("org:role_delete", args=[object.id])),
+        ]

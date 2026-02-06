@@ -8,6 +8,7 @@ from seminare.organizer.views import (
     post,
     problem,
     problemset,
+    role,
 )
 
 app_name = "org"
@@ -59,6 +60,22 @@ urlpatterns = [
         "kola/<problem_set_slug>/ulohy/vytvorit/",
         problem.ProblemCreateView.as_view(),
         name="problem_create",
+    ),
+    path("organizatori/", role.RoleListView.as_view(), name="role_list"),
+    path(
+        "organizatori/<int:pk>/",
+        role.RoleUpdateView.as_view(),
+        name="role_update",
+    ),
+    path(
+        "organizatori/<int:pk>/vymazat/",
+        role.RoleDeleteView.as_view(),
+        name="role_delete",
+    ),
+    path(
+        "organizatori/vytvorit/",
+        role.RoleCreateView.as_view(),
+        name="role_create",
     ),
     path("prispevky/", post.PostListView.as_view(), name="post_list"),
     path("prispevky/<int:pk>/", post.PostUpdateView.as_view(), name="post_update"),

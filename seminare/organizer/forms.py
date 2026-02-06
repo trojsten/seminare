@@ -5,6 +5,8 @@ from seminare.content.models import Page, Post
 from seminare.problems.models import Problem, ProblemSet, Text
 from seminare.rules import get_rule_engine_class
 from seminare.style.forms import DateTimeInput
+from seminare.users.models import ContestRole
+from seminare.users.widgets import UserAutocompleteInput
 
 
 class ProblemSetForm(forms.ModelForm):
@@ -232,3 +234,41 @@ class FileUploadForm(forms.Form):
         help_text="Ak necháš prázdne, použije sa názov nahraného súboru.",
     )
     file = forms.FileField(label="Súbor")
+
+
+class RoleForm(forms.ModelForm):
+    class Meta:
+        model = ContestRole
+        fields = ["user", "role"]
+        labels = {
+            "user": "Organizátor",
+            "role": "Rola",
+        }
+        widgets = {"user": UserAutocompleteInput}
+
+    def __init__(self, *, contest, **kwargs):
+        super().__init__(**kwargs)
+        self.contest = contest
+
+        if self.instance.pk:
+            self.fields["user"].disabled = True
+
+    def clean_user(self):
+        user = self.cleaned_data["user"]
+
+        if self.instance.pk:
+            return self.instance.user
+
+        obj = ContestRole.objects.filter(contest=self.contest, user=user)
+
+        if obj.exists():
+            raise forms.ValidationError("Tento použivatel už má pre túto súťaž práva.")
+
+        return user
+
+    def save(self, commit: bool = True) -> ContestRole:
+        role: ContestRole = super().save(commit=False)
+        role.contest = self.contest
+        if commit:
+            role.save()
+        return role
