@@ -27,6 +27,7 @@ urlpatterns = [
     path("", include("seminare.problems.urls")),
     path("", include("seminare.submits.urls")),
     path("", include("seminare.legacy.urls")),
+    path("", include("seminare.users.urls")),
     path("org/", include("seminare.organizer.urls")),
     path("__debug__/", include(debug_toolbar.urls)),
     path("", HomepageView.as_view(), name="homepage"),

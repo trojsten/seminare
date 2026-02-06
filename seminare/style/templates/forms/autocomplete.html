@@ -1,0 +1,10 @@
+<div data-controller="autocomplete" data-autocomplete-selected-class="bg-gray-200"
+     data-autocomplete-url-value="{{ autocomplete_url }}" role="combobox">
+
+  <input type="text" class="input mt-2" data-autocomplete-target="input"{% if object %}
+         value="{{ object }}"{% endif %}{% include "django/forms/widgets/attrs.html" %}/>
+  <input type="hidden" name="{{ widget.name }}" value="{{ widget.value|default_if_none:"" }}"
+         data-autocomplete-target="hidden"/>
+
+  <ul class="mt-1 overflow-hidden rounded-md border" data-autocomplete-target="results"></ul>
+</div>

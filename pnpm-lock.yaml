@@ -23,6 +23,9 @@ importers:
       iconify-icon:
         specifier: ^2.3.0
         version: 2.3.0
+      stimulus-autocomplete:
+        specifier: ^3.1.0
+        version: 3.1.0(@hotwired/stimulus@3.2.2)
       stimulus-use:
         specifier: ^0.52.3
         version: 0.52.3(@hotwired/stimulus@3.2.2)(hotkeys-js@3.13.9)
@@ -639,6 +642,11 @@ packages:
   spawn-command@0.0.2:
     resolution: {integrity: sha512-zC8zGoGkmc8J9ndvml8Xksr1Amk9qBujgbF0JAIWO7kXr43w0h/0GJNM/Vustixu+YE8N/MTrQ7N31FvHUACxQ==}
 
+  stimulus-autocomplete@3.1.0:
+    resolution: {integrity: sha512-SmVViCdA8yCl99oV2kzllNOqYjx7wruY+1OjAVsDTkZMNFZG5j+SqDKHMYbu+dRFy/SWq/PParzwZHvLAgH+YA==}
+    peerDependencies:
+      '@hotwired/stimulus': ^3.0.0
+
   stimulus-use@0.52.3:
     resolution: {integrity: sha512-stZ5dID6FUrGCR/ChWUa0FT5Z8iqkzT6lputOAb50eF+Ayg7RzJj4U/HoRlp2NV333QfvoRidru9HLbom4hZVw==}
     peerDependencies:
@@ -1236,6 +1244,10 @@ snapshots:
   source-map-js@1.2.1: {}
 
   spawn-command@0.0.2: {}
+
+  stimulus-autocomplete@3.1.0(@hotwired/stimulus@3.2.2):
+    dependencies:
+      '@hotwired/stimulus': 3.2.2
 
   stimulus-use@0.52.3(@hotwired/stimulus@3.2.2)(hotkeys-js@3.13.9):
     dependencies:

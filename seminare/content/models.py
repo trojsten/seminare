@@ -68,6 +68,7 @@ class MenuGroup(models.Model):
 class MenuItem(models.Model):
     id: int
     group = models.ForeignKey(MenuGroup, on_delete=models.CASCADE)
+    group_id: int
     title = models.CharField(max_length=256)
     order = models.IntegerField()
     icon = models.CharField(max_length=256, blank=True)

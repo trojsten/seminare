@@ -12,7 +12,7 @@
           {% if field.field.required %}<span class="text-red-600">*</span>{% endif %}
         </p>
         {% if field.help_text %}
-          <p class="mt-1.5 text-sm text-gray-600">{{ field.help_text|safe }}</p>
+          <p class="mt-1.5 text-sm text-muted">{{ field.help_text|safe }}</p>
         {% endif %}
       </div>
     </label>
@@ -32,7 +32,7 @@
         <p class="mt-2 text-sm text-red-600">{{ field.errors|first }}</p>
     {% endif %}
     {% if field.help_text %}
-        <p class="mt-2 text-sm text-gray-600">{{ field.help_text|safe }}</p>
+        <p class="mt-2 text-sm text-muted">{{ field.help_text|safe }}</p>
     {% endif %}
 {% endif %}
 </div>

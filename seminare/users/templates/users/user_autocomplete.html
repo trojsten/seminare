@@ -1,0 +1,10 @@
+{% for user in object_list %}
+  <li class="px-3 py-2 hover:bg-gray-200 cursor-pointer" role="option" data-autocomplete-value="{{ user.id }}"
+      data-autocomplete-label="{{ user.username }}">
+    {% include "tables/fields/user.html" with value=user %}
+  </li>
+{% empty %}
+  <li class="px-3 py-2 text-gray-700" role="option" aria-disabled="true">
+    Nebol nájdený žiaden používateľ vyhovujúci výrazu.
+  </li>
+{% endfor %}

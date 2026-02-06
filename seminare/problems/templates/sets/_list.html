@@ -4,7 +4,7 @@
 
 {% for school_year, sets in set_list %}
 <div class="border divide-y rounded-md overflow-hidden mb-6">
-  <div class="text-sm text-gray-600 bg-gray-100 font-semibold py-3 px-4">
+  <div class="text-sm text-muted bg-gray-100 font-semibold py-3 px-4">
     {{ school_year }} / {{ school_year|add:1 }}
   </div>
   {% for problem_set in sets %}

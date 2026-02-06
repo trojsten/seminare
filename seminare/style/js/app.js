@@ -1,6 +1,7 @@
 import { Application } from "@hotwired/stimulus"
 import htmx from 'htmx.org'
 import 'iconify-icon'
+import Autocomplete from "stimulus-autocomplete"
 import { definitions } from 'stimulus:./controllers'
 import tippy from "tippy.js"
 
@@ -14,3 +15,4 @@ htmx.on("htmx:load", () => {
 
 const app = Application.start()
 app.load(definitions)
+app.register('autocomplete', Autocomplete)
