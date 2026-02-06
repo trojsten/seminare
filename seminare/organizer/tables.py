@@ -115,7 +115,10 @@ class PostTable(Table):
         "created_at": "Dátum vytvorenia",
         "author": "Autor",
     }
-    templates = {"created_at": "tables/fields/datetime.html"}
+    templates = {
+        "created_at": "tables/fields/datetime.html",
+        "author": "tables/fields/user.html",
+    }
 
     def get_links(
         self, object: Page, context: dict
