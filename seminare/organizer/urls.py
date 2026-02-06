@@ -4,6 +4,7 @@ from seminare.organizer.views import (
     dashboard,
     files,
     grading,
+    menu,
     page,
     post,
     problem,
@@ -60,6 +61,42 @@ urlpatterns = [
         "kola/<problem_set_slug>/ulohy/vytvorit/",
         problem.ProblemCreateView.as_view(),
         name="problem_create",
+    ),
+    path("menu/", menu.MenuGroupListView.as_view(), name="menu_group_list"),
+    path(
+        "menu/<int:pk>/",
+        menu.MenuGroupUpdateView.as_view(),
+        name="menu_group_update",
+    ),
+    path(
+        "menu/<int:pk>/polozky/",
+        menu.MenuItemListView.as_view(),
+        name="menu_item_list",
+    ),
+    path(
+        "menu/<int:pk>/polozky/<int:item_pk>/",
+        menu.MenuItemUpdateView.as_view(),
+        name="menu_item_update",
+    ),
+    path(
+        "menu/<int:pk>/polozky/<int:item_pk>/vymazat/",
+        menu.MenuItemDeleteView.as_view(),
+        name="menu_item_delete",
+    ),
+    path(
+        "menu/<int:pk>/polozky/vytvorit/",
+        menu.MenuItemCreateView.as_view(),
+        name="menu_item_create",
+    ),
+    path(
+        "menu/<int:pk>/vymazat/",
+        menu.MenuGroupDeleteView.as_view(),
+        name="menu_group_delete",
+    ),
+    path(
+        "menu/vytvorit/",
+        menu.MenuGroupCreateView.as_view(),
+        name="menu_group_create",
     ),
     path("organizatori/", role.RoleListView.as_view(), name="role_list"),
     path(

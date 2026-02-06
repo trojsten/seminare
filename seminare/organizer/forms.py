@@ -1,7 +1,7 @@
 from django import forms
 from django.core.validators import FileExtensionValidator
 
-from seminare.content.models import Page, Post
+from seminare.content.models import MenuGroup, MenuItem, Page, Post
 from seminare.problems.models import Problem, ProblemSet, Text
 from seminare.rules import get_rule_engine_class
 from seminare.style.forms import DateTimeInput
@@ -272,3 +272,51 @@ class RoleForm(forms.ModelForm):
         if commit:
             role.save()
         return role
+
+
+class MenuGroupForm(forms.ModelForm):
+    class Meta:
+        model = MenuGroup
+        fields = ["title", "order"]
+        labels = {
+            "title": "Názov",
+            "order": "Poradie",
+        }
+
+    def __init__(self, *, contest, **kwargs):
+        super().__init__(**kwargs)
+        self.contest = contest
+
+    def save(self, commit: bool = True) -> MenuGroup:
+        menu_group: MenuGroup = super().save(commit=False)
+        menu_group.contest = self.contest
+        if commit:
+            menu_group.save()
+        return menu_group
+
+
+class MenuItemForm(forms.ModelForm):
+    class Meta:
+        model = MenuItem
+        fields = ["title", "order", "url", "icon"]
+        labels = {
+            "title": "Názov",
+            "url": "URL",
+            "icon": "Ikona",
+            "order": "Poradie",
+        }
+        help_texts = {
+            "icon": 'Ikona z Material Design Icons (napr. mdi:home), pozri <a class="link" href="https://icon-sets.iconify.design/mdi/">zoznam</a>.',
+            "url": "Odkaz môze byť buď relatívny: /kola, alebo absolútny: https://trojsten.sk/ls",
+        }
+
+    def __init__(self, *, group, **kwargs):
+        super().__init__(**kwargs)
+        self.group = group
+
+    def save(self, commit: bool = True) -> MenuItem:
+        menu_item: MenuItem = super().save(commit=False)
+        menu_item.group = self.group
+        if commit:
+            menu_item.save()
+        return menu_item

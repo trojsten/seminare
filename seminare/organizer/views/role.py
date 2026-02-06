@@ -47,7 +47,7 @@ class RoleUpdateView(
     def get_breadcrumbs(self) -> list[tuple[str, str]]:
         return [
             ("Organizátori", reverse("org:role_list")),
-            (self.object, ""),
+            (self.object.user.display_name, ""),
             ("Upraviť", ""),
         ]
 
@@ -81,6 +81,6 @@ class RoleDeleteView(ContestAdminRequired, WithRoleQuerySet, GenericDeleteView):
     def get_breadcrumbs(self) -> list[tuple[str, str]]:
         return [
             ("Organizátori", reverse("org:role_list")),
-            (self.object, ""),
+            (self.object.user.display_name, ""),
             ("Vymazať", ""),
         ]
