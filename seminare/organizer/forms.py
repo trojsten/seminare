@@ -1,10 +1,12 @@
 from django import forms
 from django.core.validators import FileExtensionValidator
 
-from seminare.content.models import Page, Post
+from seminare.content.models import MenuGroup, MenuItem, Page, Post
 from seminare.problems.models import Problem, ProblemSet, Text
 from seminare.rules import get_rule_engine_class
 from seminare.style.forms import DateTimeInput
+from seminare.users.models import ContestRole
+from seminare.users.widgets import UserAutocompleteInput
 
 
 class ProblemSetForm(forms.ModelForm):
@@ -232,3 +234,89 @@ class FileUploadForm(forms.Form):
         help_text="Ak necháš prázdne, použije sa názov nahraného súboru.",
     )
     file = forms.FileField(label="Súbor")
+
+
+class RoleForm(forms.ModelForm):
+    class Meta:
+        model = ContestRole
+        fields = ["user", "role"]
+        labels = {
+            "user": "Organizátor",
+            "role": "Rola",
+        }
+        widgets = {"user": UserAutocompleteInput}
+
+    def __init__(self, *, contest, **kwargs):
+        super().__init__(**kwargs)
+        self.contest = contest
+
+        if self.instance.pk:
+            self.fields["user"].disabled = True
+
+    def clean_user(self):
+        user = self.cleaned_data["user"]
+
+        if self.instance.pk:
+            return self.instance.user
+
+        obj = ContestRole.objects.filter(contest=self.contest, user=user)
+
+        if obj.exists():
+            raise forms.ValidationError("Tento použivatel už má pre túto súťaž práva.")
+
+        return user
+
+    def save(self, commit: bool = True) -> ContestRole:
+        role: ContestRole = super().save(commit=False)
+        role.contest = self.contest
+        if commit:
+            role.save()
+        return role
+
+
+class MenuGroupForm(forms.ModelForm):
+    class Meta:
+        model = MenuGroup
+        fields = ["title", "order"]
+        labels = {
+            "title": "Názov",
+            "order": "Poradie",
+        }
+
+    def __init__(self, *, contest, **kwargs):
+        super().__init__(**kwargs)
+        self.contest = contest
+
+    def save(self, commit: bool = True) -> MenuGroup:
+        menu_group: MenuGroup = super().save(commit=False)
+        menu_group.contest = self.contest
+        if commit:
+            menu_group.save()
+        return menu_group
+
+
+class MenuItemForm(forms.ModelForm):
+    class Meta:
+        model = MenuItem
+        fields = ["title", "order", "url", "icon"]
+        labels = {
+            "title": "Názov",
+            "url": "URL",
+            "icon": "Ikona",
+            "order": "Poradie",
+        }
+        help_texts = {
+            "icon": 'Ikona z Material Design Icons (napr. mdi:home), pozri <a class="link" href="https://icon-sets.iconify.design/mdi/">zoznam</a>.',
+            "url": "Odkaz môze byť buď relatívny: /kola, alebo absolútny: https://trojsten.sk/ls",
+        }
+
+    def __init__(self, *, group, **kwargs):
+        super().__init__(**kwargs)
+        self.group = group
+
+    def save(self, commit: bool = True) -> MenuItem:
+        menu_item: MenuItem = super().save(commit=False)
+        menu_item.group = self.group
+        if commit:
+            menu_item.save()
+        return menu_item

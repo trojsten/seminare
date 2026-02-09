@@ -133,8 +133,8 @@ class Enrollment(models.Model):
 
 class ContestRole(models.Model):
     class Role(models.IntegerChoices):
-        ORGANIZER = 1
-        ADMINISTRATOR = 2
+        ORGANIZER = 1, "Organizátor"
+        ADMINISTRATOR = 2, "Administrátor"
 
     id: int
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -146,4 +146,6 @@ class ContestRole(models.Model):
     def __str__(self):
         return f"{self.user}, {self.contest}: {self.get_role_display()}"
 
-    def get_role_display(self) -> str: ...
+    if TYPE_CHECKING:
+
+        def get_role_display(self) -> str: ...

@@ -4,6 +4,7 @@ from django.http import Http404, HttpRequest
 from django.shortcuts import get_object_or_404
 from django.utils.functional import cached_property
 
+from seminare.content.models import MenuGroup, MenuItem
 from seminare.contests.models import Contest
 from seminare.contests.utils import get_current_contest
 from seminare.problems.models import Problem, ProblemSet
@@ -77,4 +78,30 @@ class WithSubmit(MixinProtocol):
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx["submit"] = self.submit
+        return ctx
+
+
+class WithMenuGroup(WithContest, MixinProtocol):
+    @cached_property
+    def menu_group(self) -> MenuGroup:
+        return get_object_or_404(
+            MenuGroup, id=self.kwargs["pk"], contest=get_current_contest(self.request)
+        )
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["menu_group"] = self.menu_group
+        return ctx
+
+
+class WithMenuItem(WithMenuGroup, MixinProtocol):
+    @cached_property
+    def menu_item(self) -> MenuItem:
+        return get_object_or_404(
+            MenuItem, id=self.kwargs["item_pk"], group=self.menu_group
+        )
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["menu_item"] = self.menu_item
         return ctx
