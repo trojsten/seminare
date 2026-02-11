@@ -63,9 +63,14 @@ class GenericFormView(WithBreadcrumbs, FormView):
 
 
 class GenericDeleteView(GenericFormView, DeleteView):
-    template_name = "org/generic/delete.html"
     form_title = "Naozaj?"
     form_submit_label = "Vymazať"
+
+    @property
+    def form_description(self):
+        return (
+            f"Naozaj chceš vymazať {self.object}? Tuto akciu nebude možné vrátiť späť."
+        )
 
 
 class GenericFormTableView(WithBreadcrumbs, FormView, ListView):
