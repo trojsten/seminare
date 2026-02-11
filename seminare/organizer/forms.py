@@ -111,9 +111,10 @@ class ProblemForm(forms.ModelForm):
             "file_points",
             "judge_points",
             "text_points",
+            "text_answer",
             "judge_namespace",
             "judge_task",
-            "text_answer",
+            "points_publicly_visible",
         ]
         labels = {
             "name": "Názov",
@@ -121,6 +122,7 @@ class ProblemForm(forms.ModelForm):
             "file_points": "Body za popis",
             "judge_points": "Body za program",
             "text_points": "Body za odpoveď",
+            "points_publicly_visible": "Zverejniť body za popis",
         }
 
     def __init__(self, *args, **kwargs):

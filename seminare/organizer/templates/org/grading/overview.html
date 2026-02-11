@@ -1,4 +1,5 @@
 {% extends "org/base.html" %}
+{% load ui %}
 
 {% block title %}
 {{ problem }} - hodnotenie {{ block.super }}
@@ -6,6 +7,10 @@
 
 {% block body %}
   {% include "org/generic/_title.html" with title=problem subtitle="Prehľad hodnotení" links=links %}
+
+  {% if not problem.points_publicly_visible %}
+    {% message "Body za túto úlohu ešte nie sú zverejnené!" "warning" %}
+  {% endif %}
 
   <div class="overflow-x-auto mb-4">
     <table class="simple-table">

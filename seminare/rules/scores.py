@@ -1,7 +1,10 @@
 from decimal import Decimal
-from typing import Self, Sequence
+from typing import TYPE_CHECKING, Self, Sequence
 
 from seminare.submits.models import BaseSubmit
+
+if TYPE_CHECKING:
+    from seminare.problems.models import Problem
 
 
 class ResultsSerializable:
@@ -14,24 +17,25 @@ class ResultsSerializable:
 
 
 class Score(ResultsSerializable):
-    def __init__(self, submits: Sequence[BaseSubmit]):
+    def __init__(self, submits: Sequence[BaseSubmit], problem: "Problem"):
         self.submits = submits
+        self.problem = problem
 
     @property
     def points(self) -> Decimal:
         total_score = Decimal(0)
         for submit in self.submits:
-            if submit.score:
+            if submit.points_visible(self.problem):
                 total_score += submit.score
         return total_score
 
     @property
     def pending(self):
-        return any(submit.score is None for submit in self.submits)
+        return any(not submit.points_visible(self.problem) for submit in self.submits)
 
     @property
     def all_pending(self):
-        return all(submit.score is None for submit in self.submits)
+        return all(not submit.points_visible(self.problem) for submit in self.submits)
 
     @property
     def display(self) -> str:
@@ -59,17 +63,15 @@ class Score(ResultsSerializable):
     @classmethod
     def deserialize(cls, data: dict):
         return FrozenScore(
-            submits=[],
             points=Decimal(data["points"]),
             pending=data["pending"],
             display=data["display"],
         )
 
 
-class FrozenScore(Score):
+class FrozenScore(ResultsSerializable):
     def __init__(
         self,
-        submits: Sequence[BaseSubmit],
         points: Decimal,
         pending: bool,
         display: str,
@@ -77,7 +79,6 @@ class FrozenScore(Score):
         self._points = points
         self._pending = pending
         self._display = display
-        super().__init__(submits)
 
     @property
     def points(self) -> Decimal:

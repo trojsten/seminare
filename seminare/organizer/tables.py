@@ -51,15 +51,13 @@ class ProblemSetTable(Table):
 
 
 class ProblemTable(Table):
-    fields = [
-        "number",
-        "name",
-    ]
-
+    fields = ["number", "name", "points_publicly_visible"]
     labels = {
         "name": "Názov",
         "number": "č.",
+        "points_publicly_visible": "Zverejnené body",
     }
+    templates = {"points_publicly_visible": "tables/fields/boolean.html"}
 
     def get_links(
         self, object: Problem, context: dict

@@ -33,6 +33,11 @@ urlpatterns = [
         name="grading_overview",
     ),
     path(
+        "kola/<problem_set_slug>/ulohy/<int:number>/opravovanie/zverejnit/",
+        grading.GradingPublishView.as_view(),
+        name="grading_publish",
+    ),
+    path(
         "kola/<problem_set_slug>/ulohy/<int:number>/opravovanie/hromadne/",
         grading.BulkGradingView.as_view(),
         name="bulk_grading",

@@ -10,12 +10,12 @@
 
 <div class="mb-10 text-sm space-y-1">
   {% for submit in submits.submits %}
-    <a href="{% url "submit_detail" submit.submit_id %}" class="flex items-center gap-1 py-1 px-2 rounded-md {% if submit.score is not None %}text-green-800 bg-green-100 hover:bg-green-200{% else %}hover:bg-gray-200{% endif %}" {% if submit.tooltip %}data-tippy-content="{{ submit.tooltip }}"{% endif %}>
+    <a href="{% url "submit_detail" submit.submit_id %}" class="flex items-center gap-1 py-1 px-2 rounded-md {% if submit.points_visible %}text-green-800 bg-green-100 hover:bg-green-200{% else %}hover:bg-gray-200{% endif %}" {% if submit.tooltip %}data-tippy-content="{{ submit.tooltip }}"{% endif %}>
       <iconify-icon icon="{{ data.icon }}"></iconify-icon>
       <span>{{ submit.created_at|date:"d.m.Y" }} {{ submit.created_at|time:"H:i" }}</span>
 
-      <span class="ml-auto {% if submit.score is None %}text-xs text-gray-500{% endif %}">
-        {% if submit.score is not None %}
+      <span class="ml-auto {% if not submit.points_visible %}text-xs text-gray-500{% endif %}">
+        {% if submit.points_visible %}
           {{ submit.score|floatformat:"g" }} b
         {% else %}
           (neopravené)

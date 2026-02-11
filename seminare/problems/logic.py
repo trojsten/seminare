@@ -4,6 +4,7 @@ from django.contrib.auth.models import AnonymousUser
 
 from seminare.problems.models import Problem, ProblemSet
 from seminare.rules import Chip
+from seminare.submits.models import BaseSubmit
 from seminare.users.models import User
 
 
@@ -38,6 +39,15 @@ def inject_user_score(
         injected.append(problem)
 
     return injected
+
+
+def inject_points_visible(
+    submits: Iterable[BaseSubmit], problem: Problem
+) -> Iterable[BaseSubmit]:
+    for submit in submits:
+        setattr(submit, "points_visible", submit.points_visible(problem))
+
+    return submits
 
 
 def inject_chips(

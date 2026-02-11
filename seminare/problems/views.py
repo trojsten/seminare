@@ -9,7 +9,11 @@ from django.views.generic import DetailView, ListView, View
 from django.views.generic.detail import SingleObjectMixin
 
 from seminare.contests.utils import get_current_contest
-from seminare.problems.logic import inject_chips, inject_user_score
+from seminare.problems.logic import (
+    inject_chips,
+    inject_points_visible,
+    inject_user_score,
+)
 from seminare.problems.models import Problem, ProblemSet, Text
 from seminare.rules import RuleEngine
 from seminare.submits.models import FileSubmit, JudgeSubmit, TextSubmit
@@ -179,8 +183,9 @@ class ProblemDetailView(DetailView):
                 "points": getattr(self.object, f"{id}_points", 0),
                 "chip": self.rule_engine.get_submits_chip(cls, self.object, enrollment),
                 "can_submit": self.rule_engine.can_submit(cls, self.object, enrollment),
-                "submits": cls.objects.filter(
-                    enrollment=enrollment, problem=self.object
+                "submits": inject_points_visible(
+                    cls.objects.filter(enrollment=enrollment, problem=self.object),
+                    self.object,
                 ),
             }
             for id, cls, name, icon in (
