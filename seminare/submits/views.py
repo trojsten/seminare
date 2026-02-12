@@ -141,6 +141,11 @@ class SubmitDetailView(ContestOrganizerRequired, DetailView):
         ).first()
         return self.submit
 
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["points_visible"] = self.submit.points_visible(self.submit.problem)
+        return ctx
+
 
 @method_decorator(csrf_exempt, name="dispatch")
 class JudgeReportView(View):

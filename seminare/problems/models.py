@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Self, Type, TypedDict
 
 from django.core.files.storage import storages
 from django.db import models
-from django.db.models import UniqueConstraint
+from django.db.models import Manager, UniqueConstraint
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
@@ -73,7 +73,7 @@ class ProblemSet(models.Model):
         null=True,
     )
 
-    objects: ProblemSetQuerySet = ProblemSetQuerySet.as_manager()  # pyright:ignore
+    objects: "Manager[ProblemSet]" = ProblemSetQuerySet.as_manager()
     enrollment_set: "RelatedManager[Enrollment]"
     frozen_results: "RelatedManager[ProblemSetFrozenResults]"
     problems: "RelatedManager[Problem]"
@@ -162,6 +162,8 @@ class Problem(models.Model):
     file_points = models.DecimalField(max_digits=5, decimal_places=2, default=0)
     judge_points = models.DecimalField(max_digits=5, decimal_places=2, default=0)
     text_points = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+
+    points_publicly_visible = models.BooleanField(default=False)
 
     judge_namespace = models.CharField(max_length=256, blank=True)
     judge_task = models.CharField(max_length=256, blank=True)

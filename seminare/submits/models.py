@@ -1,8 +1,12 @@
 import os
 import secrets
+from typing import TYPE_CHECKING
 
 from django.conf import settings
 from django.db import models
+
+if TYPE_CHECKING:
+    from seminare.problems.models import Problem
 
 
 def submit_file_filepath(instance: "BaseSubmit", filename):
@@ -51,6 +55,9 @@ class BaseSubmit(models.Model):
     def submit_id(self):
         raise NotImplementedError()
 
+    def points_visible(self, problem: "Problem") -> bool:
+        return self.score is not None
+
     @classmethod
     def get_submit_by_id_queryset(
         cls, submit_id: str, **kwargs
@@ -93,6 +100,9 @@ class FileSubmit(BaseSubmit):
     @property
     def submit_id(self):
         return f"F-{self.id}"
+
+    def points_visible(self, problem: "Problem") -> bool:
+        return problem.points_publicly_visible and super().points_visible(problem)
 
     def is_displayable(self):
         if not self.file:

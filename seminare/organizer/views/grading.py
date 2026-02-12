@@ -7,6 +7,7 @@ from typing import Iterable
 
 from django.core.files.base import ContentFile
 from django.db.models.fields.files import FieldFile
+from django.forms import Form
 from django.http import FileResponse, HttpResponseRedirect
 from django.template.defaultfilters import slugify
 from django.urls import reverse
@@ -96,8 +97,20 @@ class GradingOverviewView(
                     "org:bulk_grading",
                     args=[self.problem_set.slug, self.problem.number],
                 ),
-            )
+            ),
         ]
+        if not self.problem.points_publicly_visible:
+            ctx["links"].append(
+                (
+                    "primary",
+                    "mdi:comment-check",
+                    "Zverejniť body",
+                    reverse(
+                        "org:grading_publish",
+                        args=[self.problem_set.slug, self.problem.number],
+                    ),
+                ),
+            )
         return ctx
 
     def get_breadcrumbs(self):
@@ -178,6 +191,39 @@ class GradingSubmitView(ContestOrganizerRequired, WithSubmit, WithSubmitList, Fo
                 self.submit.problem.number,
                 self.submit.submit_id,
             ],
+        )
+
+
+class GradingPublishView(ContestOrganizerRequired, WithProblem, GenericFormView):
+    form_class = Form
+    form_title = "Zverejniť body?"
+    form_submit_label = "Zverejniť body"
+
+    def get_breadcrumbs(self):
+        return [
+            ("Sady úloh", reverse("org:problemset_list")),
+            (self.problem.problem_set, ""),
+            (
+                "Úlohy",
+                reverse(
+                    "org:problem_list",
+                    args=[self.problem.problem_set.slug],
+                ),
+            ),
+            (self.problem, ""),
+            ("Opravovanie", ""),
+            ("Zverejniť body", ""),
+        ]
+
+    def form_valid(self, form):
+        self.problem.points_publicly_visible = True
+        self.problem.save()
+
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse(
+            "org:grading_overview", args=[self.problem_set.slug, self.problem.number]
         )
 
 

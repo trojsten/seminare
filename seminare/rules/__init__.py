@@ -374,7 +374,10 @@ class RuleEngine(RuleEngineDataMixin, AbstractRuleEngine):
 
         output = {}
         for key, submits in user_problem_submits.items():
-            output[key] = Score(submits)
+            problem: "Problem" = next(
+                problem for problem in problems if problem.id == key[1]
+            )
+            output[key] = Score(submits, problem)
         return output
 
     def get_enrollments(self) -> QuerySet[Enrollment]:
