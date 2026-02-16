@@ -1,6 +1,6 @@
 {# Renders a file submit content #}
 <div data-controller="tabs" data-tabs-active-value="main" class="w-full overflow-y-auto min-h-full">
-  {% if points_visible %}
+  {% if points_visible and submit.comment_file %}
     <div class="simple-tabs-container">
       <div class="simple-tabs-tabs">
         <button data-tabs-target="button" data-tab="main" data-action="click->tabs#switch" 
