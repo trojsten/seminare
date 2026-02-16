@@ -465,6 +465,10 @@ class Command(BaseCommand):
         cur.execute(RESULTS_EXPORT_SQL, (getattr(problem_set, "legacy_id"),))
 
         while row := cur.fetchone():
+            if row["tag"] == "_" and options["legacy_site"] in {"FKS"}:
+                # FKS ma z nejakeho dovodu aj _ vysledkovky, ktore su prazdne (all je vo FKS_ALL)
+                continue
+
             self.stderr.write(f"  results {row['tag']}")
 
             results = row["serialized_results"]
