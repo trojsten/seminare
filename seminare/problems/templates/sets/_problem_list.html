@@ -5,11 +5,15 @@
 <div class="flex w-full mb-4 gap-2 flex-wrap">
   <a class="btn btn-primary" href="{% url "problem_set_results" problem_set.slug %}">Výsledky</a>
 
-  {% if "PS" in visible_pdfs and problem_set.statement_pdf %}
-    <a class="btn btn-default" href="{% url "problem_set_statement_pdf" problem_set.slug %}">Zadania (PDF)</a>
+  {% if problem_set.statement_pdf %}
+    {% if "PS" in visible_pdfs or is_organizer %}
+      <a class="btn btn-default" href="{% url "problem_set_statement_pdf" problem_set.slug %}">Zadania (PDF)</a>
+    {% endif %}
   {% endif %}
-  {% if "ES" in visible_pdfs and problem_set.solution_pdf %}
-    <a class="btn btn-default" href="{% url "problem_set_solution_pdf" problem_set.slug %}">Vzoráky (PDF)</a>
+  {% if problem_set.solution_pdf %}
+    {% if "ES" in visible_pdfs or is_organizer %}
+      <a class="btn btn-default" href="{% url "problem_set_solution_pdf" problem_set.slug %}">Vzoráky (PDF)</a>
+    {% endif %}
   {% endif %}
 </div>
 
