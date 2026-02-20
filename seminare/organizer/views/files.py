@@ -15,7 +15,11 @@ from seminare.organizer.file_utils import (
 from seminare.organizer.forms import FileUploadForm, NewFolderForm
 from seminare.organizer.tables import FileTable
 from seminare.organizer.views import WithContest
-from seminare.organizer.views.generic import GenericFormView, GenericTableView
+from seminare.organizer.views.generic import (
+    GenericDeleteView,
+    GenericFormView,
+    GenericTableView,
+)
 from seminare.users.mixins.permissions import ContestOrganizerRequired
 
 
@@ -93,16 +97,11 @@ class FileUploadView(ContestOrganizerRequired, WithContest, GenericFormView):
         )
 
 
-class FileDeleteView(ContestOrganizerRequired, WithContest, GenericFormView):
+class FileDeleteView(ContestOrganizerRequired, WithContest, GenericDeleteView):
     form_class = Form
-    form_title = "Naozaj?"
-    form_submit_label = "Vymazať"
-    template_name = "org/generic/delete.html"
 
-    def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
-        ctx["object"] = self.request.GET.get("path")
-        return ctx
+    def get_object(self, queryset=None):
+        return self.request.GET.get("path")
 
     def form_valid(self, form) -> HttpResponse:
         delete_subtree(self.contest, self.request.GET.get("path", ""))
