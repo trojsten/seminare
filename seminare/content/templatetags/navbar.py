@@ -3,6 +3,7 @@ from django.urls import reverse
 
 from seminare.content.models import MenuGroup, MenuItem
 from seminare.contests.utils import get_current_contest
+from seminare.users.logic.permissions import is_contest_organizer
 
 register = template.Library()
 
@@ -27,7 +28,7 @@ def navbar_menu(context):
         )
         setattr(logout, "post", True)
 
-        if user.is_staff:
+        if is_contest_organizer(user, contest):
             items.append(
                 MenuItem(
                     group=group,
