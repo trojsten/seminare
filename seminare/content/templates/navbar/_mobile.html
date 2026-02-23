@@ -1,4 +1,4 @@
-<div class="bg-white p-4 text-sm font-semibold border-b shadow space-y-6 absolute w-full md:hidden hidden z-10" data-menu-toggle-target="toggle">
+<div class="bg-white p-4 text-sm font-semibold border-b shadow space-y-6 absolute w-full max-h-[calc(100vh-4.25em)] overflow-y-scroll z-10 md:hidden hidden" data-menu-toggle-target="toggle">
   {% regroup items by group as groups %}
 
   {% for group, group_items in groups %}
