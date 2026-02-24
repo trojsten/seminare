@@ -7,10 +7,12 @@
   {% block after_menu %}{% endblock %}
 
   {% block body_container %}
-    <main class="mx-auto max-w-6xl p-4">
+    <main class="mx-auto max-w-6xl p-4 min-h-[calc(100vh-4.25em)]">
       {% block body %}{% endblock %}
     </main>
   {% endblock %}
 
-  {% block after_body %}{% endblock %}
+  {% block after_body %}
+    {% include "_footer.html" %}
+  {% endblock %}
 {% endblock %}

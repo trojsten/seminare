@@ -42,6 +42,13 @@ class Contest(models.Model):
         return f"/static/contests/{self.short_name.lower()}/logo.svg"
 
     @property
+    def footer_activities_template(self):
+        return [
+            f"_footer_activities.{self.short_name.lower()}.html",
+            "_footer_activities.html",
+        ]
+
+    @property
     def data_root(self) -> PurePath:
         return PurePath("contest") / self.short_name.lower()
 

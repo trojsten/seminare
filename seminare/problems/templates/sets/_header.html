@@ -3,7 +3,9 @@
     <dt class="font-semibold text-gray-900">Koniec kola:</dt>
     <dd class="text-gray-700">
       {{ problem_set.end_date }}
-      <span class="text-gray-500 text-xs block">({{ problem_set.end_date|timeuntil }})</span>
+      {% if problem_set.is_running %}
+        <span class="text-gray-500 text-xs block">({{ problem_set.end_date|timeuntil }})</span>
+      {% endif %}
     </dd>
   </div>
 </dl>
