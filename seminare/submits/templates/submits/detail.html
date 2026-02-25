@@ -16,8 +16,12 @@
 {% block root_body_class %}
   {{ block.super }} flex flex-col min-h-screen
 {% endblock root_body_class %}
+{% block body_container_class %}
+  {{ block.super }} flex flex-col
+{% endblock %}
+
 {% block body_container %}
-<div class="flex-1 flex flex-col md:flex-row w-full h-full max-h-screen">
+<div class="flex-1 flex flex-col md:flex-row w-full max-h-screen">
   <div class="flex-1 flex flex-col">
     <div class="md:h-full h-80 flex-1 flex">
     {% include "submits/content/render.html" %}

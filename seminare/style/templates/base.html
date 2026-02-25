@@ -4,7 +4,7 @@
 {% block root_body %}
   {% navbar_menu %}
 
-  <div class="min-h-[calc(100vh-4.25em)]">
+  <div class="min-h-[calc(100vh-4.25em)] {% block body_container_class %}{% endblock %}">
     {% block after_menu %}{% endblock %}
 
     {% block body_container %}
