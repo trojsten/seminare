@@ -168,8 +168,7 @@ class FX2026(PreviousProblemSetRuleEngine, BestSubmitRuleEngine, RuleEngine):
         problem: "Problem",
         enrollment: Enrollment | None,
     ) -> bool:
-        if timezone.now() > self.problem_set.end_date:
-            return False
+
 
         return super().can_submit(submit_cls, problem, enrollment)
 
