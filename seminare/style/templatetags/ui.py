@@ -23,3 +23,8 @@ def breadcrumbs(*args):
         crumbs.append(args[i : i + 2])
 
     return {"crumbs": crumbs}
+
+
+@register.inclusion_tag("_ui/org_breadcrumbs.html")
+def org_breadcrumbs(*args):
+    return breadcrumbs(*args)

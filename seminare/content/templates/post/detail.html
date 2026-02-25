@@ -6,10 +6,8 @@
 {% endblock %}
 
 {% block after_menu %}
-<div class="border-b px-4 py-3">
-  {% url "post_list" as post_list_url %}
-  {% breadcrumbs "Novinky" post_list_url post.title %}
-</div>
+    {% url "post_list" as post_list_url %}
+    {% breadcrumbs "Novinky" post_list_url post.title %}
 {% endblock %}
 
 {% block body %}
