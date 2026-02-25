@@ -202,3 +202,11 @@ class FX2026(PreviousProblemSetRuleEngine, BestSubmitRuleEngine, RuleEngine):
         return Grade.is_old(enrollment.grade) or super().result_table_is_ghost(
             table, context, enrollment
         )
+
+
+class FKSLegacy(PreviousProblemSetRuleEngine, BestSubmitRuleEngine, RuleEngine):
+    def get_result_tables(self) -> dict[str, str]:
+        return {"B": "B", "A": "A"}
+
+    def get_default_result_table(self, user: User | None = None) -> str:
+        return "B"
