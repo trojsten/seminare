@@ -6,12 +6,10 @@
 {% endblock %}
 
 {% block after_menu %}
-<div class="border-b px-4 py-3">
   {% url "problem_set_list" as set_list_url %}
   {% url "problem_set_detail" object.slug as set_url %}
   {% url "problem_set_results" object.slug as results_url %}
   {% breadcrumbs "Zadania" set_list_url object set_url "Výsledky" results_url selected_table_name %}
-</div>
 {% endblock %}
 
 {% block body %}

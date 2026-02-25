@@ -6,10 +6,8 @@
 {% endblock %}
 
 {% block after_menu %}
-<div class="border-b px-4 py-3">
   {% url "problem_set_list" as set_list_url %}
   {% breadcrumbs "Zadania" set_list_url %}
-</div>
 {% endblock %}
 
 {% block body %}

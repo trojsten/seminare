@@ -4,8 +4,7 @@
 
 {% block title %}{{ problem.name }} {{ block.super }}{% endblock %}
 
-{% block body_container %}
-<div class="border-b px-4 py-3">
+{% block after_menu %}
   {% url "problem_set_list" as set_list_url %}
   {% url "problem_set_detail" problem.problem_set.slug as set_url %}
   {% if solution %}
@@ -14,13 +13,15 @@
   {% else %}
     {% breadcrumbs "Zadania" set_list_url problem.problem_set set_url problem %}
   {% endif %}
-</div>
+{% endblock %}
 
-<div data-controller="submit--cta">
+{% block body_container %}
+
+<div data-controller="submit--cta" class="h-full">
   <div class="flex flex-col lg:flex-row" data-controller="toggle" data-toggle-toggle-class="hidden">
     {% include "problems/_sidebar.html" with problem_set=problem.problem_set %}
 
-    <div class="flex-1 p-4 lg:py-8">
+    <div class="flex-1 p-4 lg:py-8 min-h-screen">
       <div class="mx-auto max-w-prose">
         <a href="#" class="mb-2 flex justify-end items-center text-blue-700 hover:text-blue-900 lg:hidden"
             data-action="click->toggle#click">
