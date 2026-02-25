@@ -55,17 +55,8 @@ class FKS2026(
 
         return chips
 
-    def can_submit(
-        self,
-        submit_cls: type[BaseSubmit],
-        problem: "Problem",
-        enrollment: Enrollment | None,
-    ) -> bool:
-        if timezone.now() > self.problem_set.end_date:
-            return False
-
-        return super().can_submit(submit_cls, problem, enrollment)
-
+ 
+    
     # === Grading & results ===
 
     # === Results tables ===
