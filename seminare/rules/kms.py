@@ -1,7 +1,7 @@
 from decimal import Decimal
 from typing import Iterable
 
-from django.db.models import F, QuerySet
+from django.db.models import QuerySet
 
 from seminare.problems.models import Problem
 from seminare.rules import Chip, RuleEngine
@@ -16,7 +16,6 @@ from seminare.rules.results import (
     ScoreCell,
     Table,
 )
-from seminare.submits.models import BaseSubmit
 from seminare.users.models import Enrollment, Grade, User
 
 
@@ -144,28 +143,7 @@ class KMS2026(
         return current_level
 
 
-class KMSLegacy(PreviousProblemSetRuleEngine, RuleEngine):
-    def get_enrollments_problems_effective_submits(
-        self,
-        submit_cls: type[BaseSubmit],
-        enrollments: Iterable[Enrollment],
-        problems: Iterable[Problem],
-    ) -> QuerySet[BaseSubmit]:
-        return (
-            submit_cls.objects.filter(
-                problem__in=problems,
-                enrollment__in=enrollments,
-                created_at__lte=self.problem_set.end_date,
-            )
-            .order_by(
-                "enrollment_id",
-                "problem_id",
-                F("score").desc(nulls_last=True),
-                "-created_at",
-            )
-            .distinct("enrollment_id", "problem_id")
-        )
-
+class KMSLegacy(PreviousProblemSetRuleEngine, BestSubmitRuleEngine, RuleEngine):
     def get_result_tables(self) -> dict[str, str]:
         return {"alfa": "Alfa", "beta": "Beta"}
 
