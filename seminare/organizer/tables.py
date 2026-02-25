@@ -39,12 +39,20 @@ class ProblemSetTable(Table):
         ]
 
         if context["is_contest_administrator"]:
+            if object.is_finalized:
+                links.append(
+                    (
+                        "mdi:file-download",
+                        "Export",
+                        reverse("org:problemset_csv_export", args=[object.slug]),
+                    )
+                )
             links.append(
                 (
                     "mdi:pencil",
                     "Upraviť",
                     reverse("org:problemset_update", args=[object.slug]),
-                ),
+                )
             )
 
         return links
@@ -155,11 +163,19 @@ class FileTable(Table):
         path_query = "?" + urlencode({"path": str(object["rel"])})
         if object["is_dir"]:
             links.append(
-                ("mdi:folder-open", "Otvoriť", reverse("org:file_list") + path_query)
+                (
+                    "mdi:folder-open",
+                    "Otvoriť",
+                    reverse("org:file_list") + path_query,
+                )
             )
         else:
             links.append(
-                ("mdi:download", "Stiahnuť", default_storage.url(object["file"]))
+                (
+                    "mdi:download",
+                    "Stiahnuť",
+                    default_storage.url(object["file"]),
+                )
             )
         links.append(("mdi:delete", "Vymazať", reverse("org:file_delete") + path_query))
         return links

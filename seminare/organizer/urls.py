@@ -28,6 +28,11 @@ urlpatterns = [
         name="problemset_update",
     ),
     path(
+        "kola/<problem_set_slug>/export",
+        problemset.ProblemSetCSVExportView.as_view(),
+        name="problemset_csv_export",
+    ),
+    path(
         "kola/<problem_set_slug>/ulohy/<int:number>/opravovanie/",
         grading.GradingOverviewView.as_view(),
         name="grading_overview",

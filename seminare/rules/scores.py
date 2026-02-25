@@ -15,6 +15,12 @@ class ResultsSerializable:
     def deserialize(cls, data: dict) -> Self:
         raise NotImplementedError()
 
+    def export(self) -> str:
+        """
+        Used in CSV export for problem_set results
+        """
+        raise NotImplementedError(self)
+
 
 class Score(ResultsSerializable):
     def __init__(self, submits: Sequence[BaseSubmit], problem: "Problem"):
