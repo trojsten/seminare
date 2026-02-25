@@ -39,12 +39,19 @@ class ProblemSetTable(Table):
         ]
 
         if context["is_contest_administrator"]:
-            links.append(
-                (
-                    "mdi:pencil",
-                    "Upraviť",
-                    reverse("org:problemset_update", args=[object.slug]),
-                ),
+            links.extend(
+                [
+                    (
+                        "mdi:file-download",
+                        "Export",
+                        reverse("org:problemset_csv_export", args=[object.slug]),
+                    ),
+                    (
+                        "mdi:pencil",
+                        "Upraviť",
+                        reverse("org:problemset_update", args=[object.slug]),
+                    ),
+                ]
             )
 
         return links

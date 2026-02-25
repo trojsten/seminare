@@ -87,6 +87,14 @@ class ProblemSetForm(forms.ModelForm):
         return data
 
 
+class ProblemSetCSVExportForm(forms.Form):
+    include_ghost = forms.BooleanField(
+        required=False,
+        label="Zahrnúť ghost používateľov",
+        help_text="Zahrnúť používateľov, ktorí nie sú normálne .",
+    )
+
+
 class GradingForm(forms.Form):
     comment = forms.CharField(required=False)
     comment_file = forms.FileField(required=False)

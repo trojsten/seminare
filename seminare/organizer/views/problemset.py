@@ -1,9 +1,9 @@
 from django.db.models import QuerySet
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.views.generic import CreateView, UpdateView
 
-from seminare.organizer.forms import ProblemSetForm
+from seminare.organizer.forms import ProblemSetCSVExportForm, ProblemSetForm
 from seminare.organizer.tables import ProblemSetTable, ProblemTable
 from seminare.organizer.views import WithContest, WithProblemSet
 from seminare.organizer.views.generic import (
@@ -119,3 +119,29 @@ class ProblemSetUpdateView(
                 self.request.user, self.contest
             ),
         }
+
+
+class ProblemSetCSVExportView(ContestAdminRequired, WithProblemSet, GenericFormView):
+    form_class = ProblemSetCSVExportForm
+    form_title = "Export výsledkovky"
+    form_submit_label = "Exportovať"
+    form_multipart = True
+
+    def get_breadcrumbs(self):
+        return [
+            ("Sady úloh", reverse("org:problemset_list")),
+            (self.problem_set, ""),
+            ("CSV Export", ""),
+        ]
+
+    def form_valid(self, form):
+        response = HttpResponse()
+        response["Content-Type"] = "text/csv"
+        response["Content-Disposition"] = (
+            f'attachment; filename="{self.problem_set.slug}.csv"'
+        )
+        response.write("test")
+        return response
+
+    def get_success_url(self) -> str:
+        return reverse("org:problemset_list")
