@@ -1,4 +1,3 @@
-import filecmp
 import zipfile
 from collections import defaultdict
 from io import BytesIO
@@ -244,8 +243,14 @@ class BulkGradingView(ContestOrganizerRequired, WithSubmitList, GenericFormView)
         with zipfile.ZipFile(form.cleaned_data["file"]) as zip_file:
             for file_info in zip_file.infolist():
                 if not file_info.is_dir():
-                    folder, file_name = file_info.filename.split("/")[:2]
-                    user_id = int(folder.split("-")[-1])
+                    try:
+                        folder, file_name = file_info.filename.split("/")[-2:]
+                        user_id = int(folder.split("-")[-1])
+                    except Exception:
+                        form.add_error(
+                            "file", f"Neplatný súbor: {file_info.filename}. "
+                        )
+                        return self.form_invalid(form)
                     submit = submits[user_id].get("file")
 
                     if submit is None:
@@ -257,7 +262,9 @@ class BulkGradingView(ContestOrganizerRequired, WithSubmitList, GenericFormView)
                         continue
 
                     if file_name == "body.txt":
-                        score = float(zip_file.read(file_info).decode("utf-8").strip())
+                        score = float(
+                            zip_file.read(file_info.filename).decode("utf-8").strip()
+                        )
                         if score == submit.score:
                             continue
 
@@ -265,7 +272,9 @@ class BulkGradingView(ContestOrganizerRequired, WithSubmitList, GenericFormView)
                         submit.scored_by = self.request.user
                         submit.save(update_fields=["score", "scored_by"])
                     elif file_name == "komentar.txt":
-                        comment = zip_file.read(file_info).decode("utf-8").strip()
+                        comment = (
+                            zip_file.read(file_info.filename).decode("utf-8").strip()
+                        )
                         if comment == submit.comment:
                             continue
 
@@ -275,14 +284,14 @@ class BulkGradingView(ContestOrganizerRequired, WithSubmitList, GenericFormView)
                     elif file_name.split(".")[-2] == "komentar":
                         assert isinstance(submit.comment_file, FieldFile)
 
-                        if submit.comment_file and filecmp.cmp(
-                            submit.comment_file.path,
-                            zip_file.open(file_info).read(),
-                            shallow=False,
+                        if (
+                            submit.comment_file
+                            and submit.comment_file.read()
+                            == zip_file.open(file_info.filename).read()
                         ):
                             continue
 
-                        raw_data = zip_file.read(file_info)
+                        raw_data = zip_file.read(file_info.filename)
 
                         submit.comment_file.save(
                             file_name,
