@@ -163,6 +163,7 @@ class GradingSubmitView(ContestOrganizerRequired, WithSubmit, WithSubmitList, Fo
         ctx = super().get_context_data(**kwargs)
         ctx["other_submits"] = self.get_other_submits()
         ctx["other_users"] = self.get_users_with_submits([self.submit.type])
+        ctx["points_visible"] = True
         return ctx
 
     def get_initial(self):
