@@ -1,0 +1,11 @@
+{% extends "emails/base_email.html" %}
+
+{% block content %}
+<mj-text padding-bottom="0px" line-height="1.3">
+  <p>Ahoj,</p>
+
+  <p>V úlohe {{ submit.problem.name }} pribudol nový submit od používateľa {{ submit.enrollment.user.display_name }}, ktorý čaká na ohodnotenie.</p>
+</mj-text>
+
+<mj-button align="left" background-color="#1077C1" href="{{ grade_url }}">Ohodnotiť</mj-button>
+{% endblock %}

@@ -37,7 +37,7 @@ class BaseSubmit(models.Model):
 
     score = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
     scored_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, blank=True, null=True
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, blank=True, null=True
     )
     scored_by_id: int
     comment = models.TextField(blank=True)

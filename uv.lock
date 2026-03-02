@@ -81,6 +81,40 @@ wheels = [
 ]
 
 [[package]]
+name = "click"
+version = "8.3.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "colorama", marker = "sys_platform == 'win32'" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/3d/fa/656b739db8587d7b5dfa22e22ed02566950fbfbcdc20311993483657a5c0/click-8.3.1.tar.gz", hash = "sha256:12ff4785d337a1bb490bb7e9c2b1ee5da3112e94a8622f26a6c77f5d2fc6842a", size = 295065, upload-time = "2025-11-15T20:45:42.706Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/98/78/01c019cdb5d6498122777c1a43056ebb3ebfeef2076d9d026bfe15583b2b/click-8.3.1-py3-none-any.whl", hash = "sha256:981153a64e25f12d547d3426c367a4857371575ee7ad18df2a6183ab0545b2a6", size = 108274, upload-time = "2025-11-15T20:45:41.139Z" },
+]
+
+[[package]]
+name = "colorama"
+version = "0.4.6"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/d8/53/6f443c9a4a8358a93a6792e2acffb9d9d5cb0a5cfd8802644b7b1c9a02e4/colorama-0.4.6.tar.gz", hash = "sha256:08695f5cb7ed6e0531a20572697297273c47b8cae5a63ffc6d6ed5c201be6e44", size = 27697, upload-time = "2022-10-25T02:36:22.414Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/d1/d6/3965ed04c63042e047cb6a3e6ed1a63a35087b6a609aa3a15ed8ac56c221/colorama-0.4.6-py2.py3-none-any.whl", hash = "sha256:4f1d9991f5acc0ca119f9d443620b77f9d6b33703e51011c16baf57afb285fc6", size = 25335, upload-time = "2022-10-25T02:36:20.889Z" },
+]
+
+[[package]]
+name = "croniter"
+version = "6.0.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "python-dateutil" },
+    { name = "pytz" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/ad/2f/44d1ae153a0e27be56be43465e5cb39b9650c781e001e7864389deb25090/croniter-6.0.0.tar.gz", hash = "sha256:37c504b313956114a983ece2c2b07790b1f1094fe9d81cc94739214748255577", size = 64481, upload-time = "2024-12-17T17:17:47.32Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/07/4b/290b4c3efd6417a8b0c284896de19b1d5855e6dbdb97d2a35e68fa42de85/croniter-6.0.0-py2.py3-none-any.whl", hash = "sha256:2f878c3856f17896979b2a4379ba1f09c83e374931ea15cc835c5dd2eee9b368", size = 25468, upload-time = "2024-12-17T17:17:45.359Z" },
+]
+
+[[package]]
 name = "cryptography"
 version = "45.0.7"
 source = { registry = "https://pypi.org/simple" }
@@ -158,6 +192,20 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/3b/10/0d633eb9949ea3d6d87ee3056af6e4be48a9cdf1303ea3d66b5afa69c85b/django_probes-1.7.0.tar.gz", hash = "sha256:bb54c9db54f9c6aaadb032fcf77dfb6c6b17e597df1585d667cfe7491d2747d0", size = 5473, upload-time = "2022-08-11T20:23:14.338Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/a6/b9/caaef098801959efc30002fbdb91fc65e9ab6fb59700cd04b77cf988f6fa/django_probes-1.7.0-py3-none-any.whl", hash = "sha256:60e656b83cbd0e290fca8263b256d7ebc42452f8c55a07044e56736f986c99a5", size = 5813, upload-time = "2022-08-11T20:23:12.643Z" },
+]
+
+[[package]]
+name = "django-rq"
+version = "3.2.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "django" },
+    { name = "redis" },
+    { name = "rq" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/a1/8e/569d9456aba71746c4ae0f5884440825603bf551350a764801282a1f1f75/django_rq-3.2.2.tar.gz", hash = "sha256:2eaac4e05092895ec09b6da978e5ae9fafc917574934bb2db1bebf1b3395c049", size = 39243, upload-time = "2025-12-24T01:39:53.721Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/e8/dc/c6c9b193b8d66b252206e77d6cfdf93724e48ebe5e86e6d70542de9064d5/django_rq-3.2.2-py3-none-any.whl", hash = "sha256:f3808d014a0943774b9425fd1f68366cef23945635b2cf333afcf97af7a3b67d", size = 61844, upload-time = "2025-12-24T01:39:52.225Z" },
 ]
 
 [[package]]
@@ -275,6 +323,20 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/d7/c2/4ab49206c17f75cb08d6311171f2d65798988db4360c4d1485bd0eedd67c/markdown-3.8.2.tar.gz", hash = "sha256:247b9a70dd12e27f67431ce62523e675b866d254f900c4fe75ce3dda62237c45", size = 362071, upload-time = "2025-06-19T17:12:44.483Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/96/2b/34cc11786bc00d0f04d0f5fdc3a2b1ae0b6239eef72d3d345805f9ad92a1/markdown-3.8.2-py3-none-any.whl", hash = "sha256:5c83764dbd4e00bdd94d85a19b8d55ccca20fe35b2e678a1422b380324dd5f24", size = 106827, upload-time = "2025-06-19T17:12:42.994Z" },
+]
+
+[[package]]
+name = "mjml-python"
+version = "1.3.7"
+source = { registry = "https://pypi.org/simple" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/b9/94/78e36181eab438754a86a84140325c13916e32195fcf9292f8a921d34547/mjml_python-1.3.7-cp37-abi3-macosx_10_12_x86_64.whl", hash = "sha256:3438176332bf18a3869dadba2dd2c5864a9f6c35ce37f91d514fb6b90b5bf078", size = 559558, upload-time = "2025-11-01T00:03:40.121Z" },
+    { url = "https://files.pythonhosted.org/packages/d9/ce/5651d7e491645c7c9ceb116ec9d6a4cb2f58430cb9bc2047095aaa3cbf1e/mjml_python-1.3.7-cp37-abi3-macosx_11_0_arm64.whl", hash = "sha256:4b14863717463d4525e4ada60b9903ce8407e9406735ce6c1de0cb1295f91b2a", size = 534316, upload-time = "2025-11-01T00:03:41.684Z" },
+    { url = "https://files.pythonhosted.org/packages/87/47/e4a157b144431a4c21b4e74051b60aa04ab4ea68f0c8880178d5efe8044b/mjml_python-1.3.7-cp37-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:f3aaa5703bf446336e1335c3c10b949c38e8b42fa801adb552c09ca922885e9e", size = 585588, upload-time = "2025-11-01T00:03:42.957Z" },
+    { url = "https://files.pythonhosted.org/packages/4b/c3/13ef13298fb00b722ba462ed06423399de43e2771fd2e34c30dfa4424706/mjml_python-1.3.7-cp37-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:3e60789e2e428181c403145ee7d245b7fdd27b03217a71185dcd85701d5ff559", size = 602967, upload-time = "2025-11-01T00:03:44.122Z" },
+    { url = "https://files.pythonhosted.org/packages/13/99/0fb42d473d264dab23d74af74ff3d783c0ffe1da0c307097926d83b1b89c/mjml_python-1.3.7-cp37-abi3-musllinux_1_2_aarch64.whl", hash = "sha256:bbdf9b12d486bee1a4f723cd38acf2cd5113a1170322ede0fdaa59575f5ab69b", size = 765458, upload-time = "2025-11-01T00:03:45.461Z" },
+    { url = "https://files.pythonhosted.org/packages/22/9d/0a579cd5d79eee11b6df6daf90bc013cdc25d6cd41b675efafb67ea9c7c3/mjml_python-1.3.7-cp37-abi3-musllinux_1_2_x86_64.whl", hash = "sha256:ce2511cd93b61f82c2f005b49045517e2d989064a30dc93f3b973ab04b7e7c3c", size = 682776, upload-time = "2025-11-01T00:03:46.756Z" },
+    { url = "https://files.pythonhosted.org/packages/aa/a9/d461e5be6e31bc71b1d3f2b0dbcc16d81a02ccabab6cf77ba83d60824439/mjml_python-1.3.7-cp37-abi3-win_amd64.whl", hash = "sha256:c7308410451f86d535069e29a3179fd7f8daf19d663b565ffa4560e9f2081d93", size = 425312, upload-time = "2025-11-01T00:03:48.261Z" },
 ]
 
 [[package]]
@@ -415,6 +477,36 @@ wheels = [
 ]
 
 [[package]]
+name = "python-dateutil"
+version = "2.9.0.post0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "six" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/66/c0/0c8b6ad9f17a802ee498c46e004a0eb49bc148f2fd230864601a86dcf6db/python-dateutil-2.9.0.post0.tar.gz", hash = "sha256:37dd54208da7e1cd875388217d5e00ebd4179249f90fb72437e91a35459a0ad3", size = 342432, upload-time = "2024-03-01T18:36:20.211Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ec/57/56b9bcc3c9c6a792fcbaf139543cee77261f3651ca9da0c93f5c1221264b/python_dateutil-2.9.0.post0-py2.py3-none-any.whl", hash = "sha256:a8b2bc7bffae282281c8140a97d3aa9c14da0b136dfe83f850eea9a5f7470427", size = 229892, upload-time = "2024-03-01T18:36:18.57Z" },
+]
+
+[[package]]
+name = "pytz"
+version = "2025.2"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/f8/bf/abbd3cdfb8fbc7fb3d4d38d320f2441b1e7cbe29be4f23797b4a2b5d8aac/pytz-2025.2.tar.gz", hash = "sha256:360b9e3dbb49a209c21ad61809c7fb453643e048b38924c765813546746e81c3", size = 320884, upload-time = "2025-03-25T02:25:00.538Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/81/c4/34e93fe5f5429d7570ec1fa436f1986fb1f00c3e0f43a589fe2bbcd22c3f/pytz-2025.2-py2.py3-none-any.whl", hash = "sha256:5ddf76296dd8c44c26eb8f4b6f35488f3ccbf6fbbd7adee0b7262d43f0ec2f00", size = 509225, upload-time = "2025-03-25T02:24:58.468Z" },
+]
+
+[[package]]
+name = "redis"
+version = "7.2.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/e9/31/1476f206482dd9bc53fdbbe9f6fbd5e05d153f18e54667ce839df331f2e6/redis-7.2.1.tar.gz", hash = "sha256:6163c1a47ee2d9d01221d8456bc1c75ab953cbda18cfbc15e7140e9ba16ca3a5", size = 4906735, upload-time = "2026-02-25T20:05:18.171Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ca/98/1dd1a5c060916cf21d15e67b7d6a7078e26e2605d5c37cbc9f4f5454c478/redis-7.2.1-py3-none-any.whl", hash = "sha256:49e231fbc8df2001436ae5252b3f0f3dc930430239bfeb6da4c7ee92b16e5d33", size = 396057, upload-time = "2026-02-25T20:05:16.533Z" },
+]
+
+[[package]]
 name = "reportlab"
 version = "4.2.5"
 source = { registry = "https://pypi.org/simple" }
@@ -443,6 +535,20 @@ wheels = [
 ]
 
 [[package]]
+name = "rq"
+version = "2.7.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "click" },
+    { name = "croniter" },
+    { name = "redis" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/c5/9b/93b7180220fe462b4128425e687665bcdeffddc51683d41e7fbe509c2d2e/rq-2.7.0.tar.gz", hash = "sha256:c2156fc7249b5d43dda918c4355cfbf8d0d299a5cdd3963918e9c8daf4b1e0c0", size = 679396, upload-time = "2026-02-22T11:10:50.775Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/0d/1a/3b64696bc0c33aa1d86d3e6add03c4e0afe51110264fd41208bd95c2665c/rq-2.7.0-py3-none-any.whl", hash = "sha256:4b320e95968208d2e249fa0d3d90ee309478e2d7ea60a116f8ff9aa343a4c117", size = 115728, upload-time = "2026-02-22T11:10:48.401Z" },
+]
+
+[[package]]
 name = "seminare"
 version = "0.1.0"
 source = { virtual = "." }
@@ -451,6 +557,7 @@ dependencies = [
     { name = "django-debug-toolbar" },
     { name = "django-environ" },
     { name = "django-probes" },
+    { name = "django-rq" },
     { name = "django-stubs" },
     { name = "django-widget-tweaks" },
     { name = "djangorestframework" },
@@ -458,6 +565,7 @@ dependencies = [
     { name = "gunicorn" },
     { name = "judge-client" },
     { name = "markdown" },
+    { name = "mjml-python" },
     { name = "mozilla-django-oidc" },
     { name = "pillow" },
     { name = "psycopg", extra = ["binary"] },
@@ -473,6 +581,7 @@ requires-dist = [
     { name = "django-debug-toolbar", specifier = "~=4.4.6" },
     { name = "django-environ", specifier = "~=0.11.2" },
     { name = "django-probes", specifier = "~=1.7.0" },
+    { name = "django-rq", specifier = ">=3.2.2" },
     { name = "django-stubs", specifier = "~=5.1.1" },
     { name = "django-widget-tweaks", specifier = "~=1.5.0" },
     { name = "djangorestframework", specifier = ">=3.16.1" },
@@ -480,6 +589,7 @@ requires-dist = [
     { name = "gunicorn", specifier = "~=23.0.0" },
     { name = "judge-client", git = "https://github.com/trojsten/judge-client?branch=master" },
     { name = "markdown", specifier = "~=3.7" },
+    { name = "mjml-python", specifier = ">=1.3.7" },
     { name = "mozilla-django-oidc", specifier = "~=4.0.1" },
     { name = "pillow", specifier = "~=11.1.0" },
     { name = "psycopg", extras = ["binary"], specifier = "~=3.2.3" },
@@ -500,6 +610,15 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/b2/22/60fd703b34d94d216b2387e048ac82de3e86b63bc28869fb076f8bb0204a/sentry_sdk-2.38.0.tar.gz", hash = "sha256:792d2af45e167e2f8a3347143f525b9b6bac6f058fb2014720b40b84ccbeb985", size = 348116, upload-time = "2025-09-15T15:00:37.846Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/7a/84/bde4c4bbb269b71bc09316af8eb00da91f67814d40337cc12ef9c8742541/sentry_sdk-2.38.0-py2.py3-none-any.whl", hash = "sha256:2324aea8573a3fa1576df7fb4d65c4eb8d9929c8fa5939647397a07179eef8d0", size = 370346, upload-time = "2025-09-15T15:00:35.821Z" },
+]
+
+[[package]]
+name = "six"
+version = "1.17.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/94/e7/b2c673351809dca68a0e064b6af791aa332cf192da575fd474ed7d6f16a2/six-1.17.0.tar.gz", hash = "sha256:ff70335d468e7eb6ec65b95b99d3a2836546063f63acc5171de367e834932a81", size = 34031, upload-time = "2024-12-04T17:35:28.174Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/b7/ce/149a00dd41f10bc29e5921b496af8b574d8413afcd5e30dfa0ed46c2cc5e/six-1.17.0-py2.py3-none-any.whl", hash = "sha256:4721f391ed90541fddacab5acf947aa0d3dc7d27b2e1e8eda2be8970586c3274", size = 11050, upload-time = "2024-12-04T17:35:26.475Z" },
 ]
 
 [[package]]

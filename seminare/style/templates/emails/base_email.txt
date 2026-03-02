@@ -1,0 +1,5 @@
+{% block content %}{% endblock %}
+
+---
+
+Tento email bol odoslaný automaticky, v prípade problémov kontaktujte {{ contest.contact_email }}.

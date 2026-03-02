@@ -126,6 +126,18 @@ REST_FRAMEWORK = {
     ],
 }
 
+
+EMAIL_CONFIG = env.email("EMAIL_URL", default="consolemail://")
+vars().update(EMAIL_CONFIG)
+
+RQ_QUEUES = {
+    "default": {
+        "HOST": env("REDIS_HOST", default="redis"),
+        "PORT": 6379,
+        "ASYNC": not DEBUG,
+    },
+}
+
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
