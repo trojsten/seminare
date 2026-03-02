@@ -31,6 +31,7 @@ urlpatterns = [
     path("org/", include("seminare.organizer.urls")),
     path("__debug__/", include(debug_toolbar.urls)),
     path("", HomepageView.as_view(), name="homepage"),
+    path("django-rq/", include("django_rq.urls")),
     # fallback to pages if nothing else was matched
     path("", include("seminare.content.urls")),
 ]
