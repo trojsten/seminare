@@ -16,6 +16,7 @@ from seminare.problems.models import Problem
 from seminare.rules import RuleEngine
 from seminare.submits.forms import FileFieldForm, JudgeSubmitForm, TextSubmitForm
 from seminare.submits.models import BaseSubmit, FileSubmit, JudgeSubmit, TextSubmit
+from seminare.submits.tasks import mail_reviewer
 from seminare.submits.utils import combine_images_into_pdf, enqueue_judge_submit
 from seminare.users.mixins.permissions import ContestOrganizerRequired
 from seminare.users.models import User
@@ -45,6 +46,10 @@ class SubmitCreateView(FormView):
 
     def form_valid(self, form):
         self.submit.save()
+
+        if self.problem.reviewer is not None:
+            mail_reviewer.delay(self.submit.submit_id)
+
         return super().form_valid(form)
 
     def get_success_url(self):

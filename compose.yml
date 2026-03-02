@@ -35,5 +35,8 @@ services:
       - ./tailwind.config.js:/app/tailwind.config.js
     tty: true
 
+  redis:
+    image: redis
+
 volumes:
   postgres_data:

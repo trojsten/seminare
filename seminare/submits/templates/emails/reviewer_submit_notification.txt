@@ -1,0 +1,8 @@
+{% extends "emails/base_email.txt" %}
+{% block content %}
+Ahoj,
+
+V úlohe {{ submit.problem.name }} pribudol nový submit od používateľa {{ submit.enrollment.user.display_name }}, ktorý čaká na ohodnotenie.
+
+{{ grade_url }}
+{% endblock %}

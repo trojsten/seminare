@@ -5,6 +5,7 @@ from seminare.content.models import MenuGroup, MenuItem, Page, Post
 from seminare.problems.models import Problem, ProblemSet, Text
 from seminare.rules import get_rule_engine_class
 from seminare.style.forms import DateTimeInput
+from seminare.users.logic.permissions import is_contest_organizer
 from seminare.users.models import ContestRole
 from seminare.users.widgets import UserAutocompleteInput
 
@@ -115,6 +116,7 @@ class ProblemForm(forms.ModelForm):
             "judge_namespace",
             "judge_task",
             "points_publicly_visible",
+            "reviewer",
         ]
         labels = {
             "name": "Názov",
@@ -123,9 +125,15 @@ class ProblemForm(forms.ModelForm):
             "judge_points": "Body za program",
             "text_points": "Body za odpoveď",
             "points_publicly_visible": "Zverejniť body za popis",
+            "reviewer": "Opravovateľ",
         }
+        help_texts = {
+            "reviewer": "Organizátor, ktorému budú chodiť notifikácie o nových submitoch."
+        }
+        widgets = {"reviewer": UserAutocompleteInput}
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, contest, *args, **kwargs):
+        self.contest = contest
         self.problem_set = kwargs.pop("problem_set")
         super(ProblemForm, self).__init__(*args, **kwargs)
 
@@ -142,6 +150,14 @@ class ProblemForm(forms.ModelForm):
             self.fields[f"text_{text_type}"] = forms.CharField(
                 required=False, widget=forms.Textarea, label=label, initial=initial
             )
+
+    def clean_reviewer(self):
+        user = self.cleaned_data["reviewer"]
+
+        if not is_contest_organizer(user, self.contest):
+            raise forms.ValidationError("Tento použivatel nie je organizátor.")
+
+        return user
 
     def save(self, commit=True):
         problem: Problem = super(ProblemForm, self).save(commit=False)
