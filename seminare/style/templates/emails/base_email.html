@@ -1,0 +1,35 @@
+{% load mail_mjml %}
+
+{% mjml %}
+<mjml>
+  <mj-head>
+    <mj-attributes>
+      <mj-all font-family="Source Sans Pro"/>
+    </mj-attributes>
+  </mj-head>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-image width="100px" alt="{{ contest.name }}" src="https://{{ contest.site.domain }}/static/contests/{{ contest.short_name }}/logo-color.svg"></mj-image>
+
+        <mj-divider border-width="1px" border-color="#6b7280"></mj-divider>
+
+        {% block content %}{% endblock %}
+      </mj-column>
+    </mj-section>
+
+    {% block extra_sections %}{% endblock %}
+
+    <mj-section>
+      <mj-column>
+        <mj-divider border-width="1px" border-color="#6b7280"></mj-divider>
+
+        <mj-text font-size="10px" align="center" color="#6b7280">
+          Tento email bol odoslaný automaticky, v prípade problémov kontaktujte
+          <a href="mailto:{{ contest.contact_email }}">{{ contest.contact_email }}</a>.
+        </mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>
+{% endmjml %}

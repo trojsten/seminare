@@ -2,6 +2,7 @@ from django.db.models import QuerySet
 from django.urls import reverse
 from django.views.generic import CreateView, UpdateView
 
+from seminare.contests.utils import get_current_contest
 from seminare.organizer.forms import ProblemForm
 from seminare.organizer.tables import ProblemTable
 from seminare.organizer.views import WithProblem, WithProblemSet
@@ -62,6 +63,7 @@ class ProblemCreateView(
     def get_form_kwargs(self):
         kw = super().get_form_kwargs()
         kw["problem_set"] = self.problem_set
+        kw["contest"] = get_current_contest(self.request)
         return kw
 
     def get_success_url(self) -> str:
@@ -86,6 +88,7 @@ class ProblemUpdateView(ContestAdminRequired, WithProblem, GenericFormView, Upda
     def get_form_kwargs(self):
         kw = super().get_form_kwargs()
         kw["problem_set"] = self.problem_set
+        kw["contest"] = get_current_contest(self.request)
         return kw
 
     def get_object(self, queryset=None):

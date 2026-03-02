@@ -1,6 +1,7 @@
 from pathlib import PurePath
 from typing import TYPE_CHECKING, Self, Type, TypedDict
 
+from django.conf import settings
 from django.core.files.storage import storages
 from django.db import models
 from django.db.models import Manager, UniqueConstraint
@@ -169,6 +170,10 @@ class Problem(models.Model):
     judge_task = models.CharField(max_length=256, blank=True)
 
     text_answer = models.CharField(blank=True, max_length=256)
+
+    reviewer = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, blank=True, null=True
+    )
 
     text_set: "RelatedManager[Text]"
 
