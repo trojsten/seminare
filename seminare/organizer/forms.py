@@ -154,6 +154,9 @@ class ProblemForm(forms.ModelForm):
     def clean_reviewer(self):
         user = self.cleaned_data["reviewer"]
 
+        if user is None:
+            return None
+
         if not is_contest_organizer(user, self.contest):
             raise forms.ValidationError("Tento použivatel nie je organizátor.")
 
