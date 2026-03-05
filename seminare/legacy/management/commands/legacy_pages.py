@@ -143,6 +143,9 @@ class Command(BaseCommand):
                 old_path = Path(res[0])
                 new_path = Path("legacy_images") / f"{file_id}{old_path.suffix}"
                 (new_root / new_path).parent.mkdir(parents=True, exist_ok=True)
+                if not (old_root / old_path).exists():
+                    self.stderr.write(f" - skipping missing image {old_path}")
+                    continue
                 shutil.copy(
                     old_root / old_path,
                     new_root / new_path,
