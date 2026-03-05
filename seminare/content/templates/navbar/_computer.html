@@ -20,7 +20,7 @@
   {% endfor %}
 
   {% if not user.is_authenticated %}
-    <a href="{% url 'oidc_authentication_init' %}" class="rounded-md px-3 py-2 hover:bg-primary-dark">
+    <a href="{% url 'oidc_authentication_init' %}?next={{ request.path_info|urlencode }}" class="rounded-md px-3 py-2 hover:bg-primary-dark">
       Prihlásiť sa
     </a>
   {% endif %}
