@@ -32,9 +32,7 @@
            role="menu" aria-orientation="vertical" aria-labelledby="menu-button-profile" tabindex="-1"
            data-dropdown-target="dropdown"
       >
-        {% with group_items=user_section %}
-          {% include "navbar/_group_items.html" %}
-        {% endwith %}
+        {% include "navbar/_group_items.html" with group_items=user_section %}
       </div>
     </div>
   {% else %}

@@ -5,9 +5,7 @@
   <div>
     <h3 class="text-muted">{{ user.display_name }}</h3>
     <div class="mt-4 flow-root">
-      {% with group_items=user_section %}
-        {% include "navbar/_group_items.html" %}
-      {% endwith %}
+      {% include "navbar/_group_items.html" with group_items=user_section %}
     </div>
   </div>
   {% else %}
