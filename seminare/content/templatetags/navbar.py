@@ -11,9 +11,7 @@ register = template.Library()
 @register.inclusion_tag("navbar/menu.html", takes_context=True)
 def navbar_menu(context):
     contest = get_current_contest(context["request"])
-    items = list(
-        MenuItem.objects.filter(group__contest=contest).select_related("group").all()
-    )
+    items = list()
 
     context["items"] = items
 
@@ -48,6 +46,10 @@ def navbar_menu(context):
                 ),
                 logout,
             ]
+        )
+
+        items.extend(
+            MenuItem.objects.filter(group__contest=contest).select_related("group").all()
         )
 
     return context
