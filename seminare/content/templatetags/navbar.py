@@ -49,7 +49,9 @@ def navbar_menu(context):
         )
 
         items.extend(
-            MenuItem.objects.filter(group__contest=contest).select_related("group").all()
+            MenuItem.objects.filter(group__contest=contest)
+            .select_related("group")
+            .all()
         )
 
     return context
