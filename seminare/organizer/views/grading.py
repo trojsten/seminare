@@ -379,12 +379,18 @@ class BulkGradingDownloadView(ContestOrganizerRequired, WithSubmitList, View):
                                 f"{zip_path}{user_name}.komentar{Path(path).suffix}",
                             )
                         if submit.score is not None:
-                            zip_file.writestr(
-                                f"{zip_path}body.txt",
-                                f"{submit.score}",
-                            )
+                            score = f"{submit.score}"
+                        else:
+                            score = ""
+                        zip_file.writestr(
+                            f"{zip_path}body.txt",
+                            score,
+                        )
                         if submit.comment:
-                            zip_file.writestr(f"{zip_path}komentar.txt", submit.comment)
+                            comment = submit.comment
+                        else:
+                            comment = ""
+                        zip_file.writestr(f"{zip_path}komentar.txt", comment)
                     elif type == "judge":
                         assert isinstance(submit, JudgeSubmit)
                         path = submit.program.path
