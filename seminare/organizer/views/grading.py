@@ -263,9 +263,27 @@ class BulkGradingView(ContestOrganizerRequired, WithSubmitList, GenericFormView)
                         continue
 
                     if file_name == "body.txt":
-                        score = float(
-                            zip_file.read(file_info.filename).decode("utf-8").strip()
-                        )
+                        try:
+                            score_rawtext = (
+                                zip_file.read(file_info.filename)
+                                .decode("utf-8")
+                                .strip()
+                            )
+                        except Exception:
+                            form.add_error(
+                                "file", f"Nečitateľný súbor: {file_info.filename}"
+                            )
+                            return self.form_invalid(form)
+                        if not score_rawtext:
+                            continue
+                        try:
+                            score = float(score_rawtext)
+                        except Exception:
+                            form.add_error(
+                                "file",
+                                f"Neplatný počet bodov v {file_info.filename}: {score_rawtext}",
+                            )
+                            return self.form_invalid(form)
                         if score == submit.score:
                             continue
 
@@ -273,9 +291,17 @@ class BulkGradingView(ContestOrganizerRequired, WithSubmitList, GenericFormView)
                         submit.scored_by = self.request.user
                         submit.save(update_fields=["score", "scored_by"])
                     elif file_name == "komentar.txt":
-                        comment = (
-                            zip_file.read(file_info.filename).decode("utf-8").strip()
-                        )
+                        try:
+                            comment = (
+                                zip_file.read(file_info.filename)
+                                .decode("utf-8")
+                                .strip()
+                            )
+                        except Exception:
+                            form.add_error(
+                                "file", f"Nečitateľný súbor: {file_info.filename}"
+                            )
+                            return self.form_invalid(form)
                         if comment == submit.comment:
                             continue
 
