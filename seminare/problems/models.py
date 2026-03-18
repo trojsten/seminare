@@ -124,12 +124,12 @@ class ProblemSet(models.Model):
     def deadline_color(self) -> int:
         now = timezone.now()
         if now > self.end_date:
-            return "text-gray-500"
+            return "text-muted"
         if now > self.end_date - timedelta(days=2):
-            return "text-red-600"
+            return "text-red-600 font-semibold"
         if now > self.end_date - timedelta(days=7):
             return "text-amber-600"
-        return "text-gray-500"
+        return "text-muted"
 
     def set_frozen_results(self, table: str, data: dict):
         return ProblemSetFrozenResults.objects.update_or_create(
