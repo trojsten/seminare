@@ -1,15 +1,15 @@
 {# Renders a file submit content #}
-<div data-controller="tabs" data-tabs-active-value="main" class="w-full overflow-y-auto min-h-full">
+<div data-controller="tabs" data-tabs-active-value="comment" class="w-full overflow-y-auto min-h-full">
   {% if points_visible and submit.comment_file %}
     <div class="simple-tabs-container">
       <div class="simple-tabs-tabs">
-        <button data-tabs-target="button" data-tab="main" data-action="click->tabs#switch" 
-              class="simple-tabs-tab">
-          Odovzdaný súbor
-        </button>
         <button data-tabs-target="button" data-tab="comment" data-action="click->tabs#switch" 
                 class="simple-tabs-tab">
           Opravený súbor
+        </button>
+        <button data-tabs-target="button" data-tab="main" data-action="click->tabs#switch" 
+              class="simple-tabs-tab">
+          Odovzdaný súbor
         </button>
       </div>
       <div data-tabs-target="content" data-tab="comment" class="hidden simple-tabs-content">
