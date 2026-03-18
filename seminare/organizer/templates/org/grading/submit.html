@@ -22,7 +22,7 @@
         {% if row.submit.score is not None %}
         <span data-submit-score="{{ submit.id }}"class="text-green-600 whitespace-nowrap shrink-0 tabular-nums">{{ row.submit.score|floatformat:"g" }} b</span>
         {% else %}
-        <span data-submit-score="{{ submit.id }}"class="text-red-600 text-sm shrink-0">neohodnotené</span>
+        <span data-submit-score="{{ submit.id }}"class="text-red text-sm shrink-0">neohodnotené</span>
         {% endif %}
       </div>
       {% if row.submit.comment %}

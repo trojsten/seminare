@@ -67,6 +67,14 @@
   @apply text-gray-600;
 }
 
+.text-red {
+  @apply text-red-600;
+}
+
+.text-amber {
+  @apply text-amber-600;
+}
+
 .text-shadow {
   text-shadow: 0 0 4px #000;
 }

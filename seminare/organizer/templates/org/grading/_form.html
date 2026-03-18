@@ -14,7 +14,7 @@
   <div class="flex items-cemter justify-between gap-4">
     <div>
       <input type="number" name="score" value="{{ form.score.value|default_if_none:''|stringformat:'s' }}" class="input max-w-24 grow-0 {% if form.score.errors %}border-red-600 placeholder-red-600{% endif %}" step="any">
-      <span class="font-bold ml-2 text-base {% if form.score.errors %}text-red-600{% endif %}">b</span>
+      <span class="font-bold ml-2 text-base {% if form.score.errors %}text-red{% endif %}">b</span>
     </div>
     <button type="submit" class="btn btn-blue">Uložiť</button>
   </div>
