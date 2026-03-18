@@ -173,9 +173,11 @@ class GradingSubmitView(ContestOrganizerRequired, WithSubmit, WithSubmitList, Fo
         return initial
 
     def form_valid(self, form):
-        if "comment_file" in form.cleaned_data and self.submit.type == FileSubmit.type:
+        if (
+            comment_file := form.cleaned_data.get("comment_file")
+        ) is not None and self.submit.type == FileSubmit.type:
             assert isinstance(self.submit, FileSubmit)
-            self.submit.comment_file = form.cleaned_data.get("comment_file")
+            self.submit.comment_file = comment_file
 
         self.submit.comment = form.cleaned_data.get("comment")
         self.submit.score = form.cleaned_data.get("score")
