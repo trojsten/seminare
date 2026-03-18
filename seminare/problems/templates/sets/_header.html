@@ -4,7 +4,7 @@
     <dd class="text-gray-700">
       {{ problem_set.end_date }}
       {% if problem_set.is_running %}
-        <span class="text-gray-500 text-xs block">({{ problem_set.end_date|timeuntil }})</span>
+        <span class="{{ problem_set.deadline_color }} block">({{ problem_set.end_date|timeuntil }})</span>
       {% endif %}
     </dd>
   </div>
