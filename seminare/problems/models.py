@@ -121,7 +121,7 @@ class ProblemSet(models.Model):
         return date_to_academic_year(self.start_date)
 
     @property
-    def deadline_font(self) -> int:
+    def deadline_font(self) -> str:
         now = timezone.now()
         if now > self.end_date:
             return "text-muted"
