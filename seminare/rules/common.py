@@ -57,7 +57,7 @@ class LevelRuleEngine(RuleEngine):
         return {f"L{x}": f"Level {x}" for x in range(1, self.max_level + 1)}
 
     def get_default_result_table(self, user: User | None = None) -> str:
-        if user is None:
+        if user is None or not user.is_authenticated:
             return "L1"
 
         level = self.get_level_for_user(user)
