@@ -1,6 +1,8 @@
 from decimal import Decimal
 from typing import TYPE_CHECKING, Iterable
 
+from django.contrib.auth.models import AnonymousUser
+
 from seminare.rules import Chip, RuleEngine
 from seminare.rules.common import BestSubmitRuleEngine, PreviousProblemSetRuleEngine
 from seminare.rules.results import Cell, PreviousScoreCell, ScoreCell
@@ -47,7 +49,7 @@ class Prask2025(BestSubmitRuleEngine, PreviousProblemSetRuleEngine, RuleEngine):
     def get_result_tables(self) -> dict[str, str]:
         return {"all": "Prask"}
 
-    def get_default_result_table(self, user: User | None = None) -> str:
+    def get_default_result_table(self, user: User | AnonymousUser | None = None) -> str:
         return "all"
 
     def calculate_total(self, scores: Iterable[Cell | None]) -> Decimal:

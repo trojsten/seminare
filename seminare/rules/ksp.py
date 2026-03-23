@@ -2,6 +2,7 @@ from datetime import datetime
 from decimal import Decimal
 from typing import Iterable
 
+from django.contrib.auth.models import AnonymousUser
 from django.db.models import F, QuerySet
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
@@ -90,7 +91,7 @@ class KSP2025(
     def get_result_tables(self) -> dict[str, str]:
         return {"all": "Spoločná"} | super().get_result_tables()
 
-    def get_default_result_table(self, user: User | None = None) -> str:
+    def get_default_result_table(self, user: User | AnonymousUser | None = None) -> str:
         return "all"
 
     def calculate_total(self, scores: Iterable[Cell | None]) -> Decimal:

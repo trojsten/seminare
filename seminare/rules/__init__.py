@@ -6,6 +6,7 @@ from functools import cached_property
 from importlib import import_module
 from typing import TYPE_CHECKING, Iterable
 
+from django.contrib.auth.models import AnonymousUser
 from django.core.cache import cache
 from django.db.models import QuerySet
 from django.urls import reverse
@@ -143,7 +144,7 @@ class AbstractRuleEngine:
         """
         raise NotImplementedError()
 
-    def get_default_result_table(self, user: User | None = None) -> str:
+    def get_default_result_table(self, user: User | AnonymousUser | None = None) -> str:
         """
         Returns the slug of the default result table for user or general default.
         """
