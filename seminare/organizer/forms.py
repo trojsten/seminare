@@ -46,8 +46,8 @@ class ProblemSetForm(forms.ModelForm):
             "rule_engine_options": "Špecifické nastavenia pre Rule Engine.",
         }
         widgets = {
-            "start_date": DateTimeInput(),
-            "end_date": DateTimeInput(),
+            "start_date": DateTimeInput(attrs={"step": 1}),
+            "end_date": DateTimeInput(attrs={"step": 1}),
         }
 
     def __init__(self, *args, **kwargs):
