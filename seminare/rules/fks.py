@@ -1,6 +1,7 @@
 from decimal import Decimal
 from typing import Iterable
 
+from django.contrib.auth.models import AnonymousUser
 from django.db.models import QuerySet
 from django.utils import timezone
 
@@ -62,7 +63,7 @@ class FKS2026(
     def get_result_tables(self) -> dict[str, str]:
         return {"all": "Spoločná"} | super().get_result_tables()
 
-    def get_default_result_table(self, user: User | None = None) -> str:
+    def get_default_result_table(self, user: User | AnonymousUser | None = None) -> str:
         if user is None or not user.is_authenticated:
             return "all"
 
@@ -169,7 +170,7 @@ class FX2026(PreviousProblemSetRuleEngine, BestSubmitRuleEngine, RuleEngine):
     def get_result_tables(self) -> dict[str, str]:
         return {"all": "Spoločná"}
 
-    def get_default_result_table(self, user: User | None = None) -> str:
+    def get_default_result_table(self, user: User | AnonymousUser | None = None) -> str:
         return "all"
 
     def calculate_total(self, scores: Iterable[Cell | None]) -> Decimal:
@@ -197,5 +198,5 @@ class FKSLegacy(PreviousProblemSetRuleEngine, BestSubmitRuleEngine, RuleEngine):
     def get_result_tables(self) -> dict[str, str]:
         return {"B": "B", "A": "A"}
 
-    def get_default_result_table(self, user: User | None = None) -> str:
+    def get_default_result_table(self, user: User | AnonymousUser | None = None) -> str:
         return "B"

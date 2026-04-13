@@ -1,6 +1,7 @@
 from decimal import Decimal
 from typing import Iterable
 
+from django.contrib.auth.models import AnonymousUser
 from django.db.models import QuerySet
 
 from seminare.problems.models import Problem
@@ -147,5 +148,5 @@ class KMSLegacy(PreviousProblemSetRuleEngine, BestSubmitRuleEngine, RuleEngine):
     def get_result_tables(self) -> dict[str, str]:
         return {"alfa": "Alfa", "beta": "Beta"}
 
-    def get_default_result_table(self, user: User | None = None) -> str:
+    def get_default_result_table(self, user: User | AnonymousUser | None = None) -> str:
         return "alfa"

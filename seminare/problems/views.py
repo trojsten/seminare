@@ -89,10 +89,10 @@ class ProblemSetResultsView(DetailView):
     object: ProblemSet
 
     def get_queryset(self):
-        contest = get_current_contest(self.request)
+        self.contest = get_current_contest(self.request)
         return (
-            ProblemSet.objects.for_user(self.request.user, contest)
-            .filter(contest=contest)
+            ProblemSet.objects.for_user(self.request.user, self.contest)
+            .filter(contest=self.contest)
             .select_related("contest")
         )
 
@@ -101,10 +101,9 @@ class ProblemSetResultsView(DetailView):
 
         rule_engine: RuleEngine = self.object.get_rule_engine()
 
-        user = None
-        if self.request.user.is_authenticated:
-            assert isinstance(self.request.user, User)
-            user = self.request.user
+        user = self.request.user
+        if user.is_authenticated:
+            assert isinstance(user, User)
 
         result_tables = rule_engine.get_result_tables()
         selected_table: str = (
@@ -120,7 +119,7 @@ class ProblemSetResultsView(DetailView):
 
         show_ghost = False
 
-        if user:
+        if user.is_authenticated:
             is_organizer = is_contest_organizer(user, get_current_contest(self.request))
             is_ghost = next(
                 (r.ghost for r in table.rows if r.enrollment.user == user),
@@ -136,6 +135,9 @@ class ProblemSetResultsView(DetailView):
         ctx["result_tables"] = result_tables
         ctx["selected_table"] = selected_table
         ctx["selected_table_name"] = result_tables[selected_table]
+        ctx["sets"] = ProblemSet.objects.for_user(user, self.contest).order_by(
+            "-end_date", "-start_date"
+        )
 
         return ctx
 

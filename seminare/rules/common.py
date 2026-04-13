@@ -3,6 +3,7 @@ from datetime import datetime
 from functools import cache
 from typing import Iterable
 
+from django.contrib.auth.models import AnonymousUser
 from django.db.models import F, QuerySet
 from django.utils.functional import cached_property
 
@@ -56,8 +57,8 @@ class LevelRuleEngine(RuleEngine):
     def get_result_tables(self) -> dict[str, str]:
         return {f"L{x}": f"Level {x}" for x in range(1, self.max_level + 1)}
 
-    def get_default_result_table(self, user: User | None = None) -> str:
-        if user is None:
+    def get_default_result_table(self, user: User | AnonymousUser | None = None) -> str:
+        if user is None or not user.is_authenticated:
             return "L1"
 
         level = self.get_level_for_user(user)
