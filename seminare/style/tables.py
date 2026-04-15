@@ -13,10 +13,17 @@ class Table:
     ) -> list[tuple[str, str] | tuple[str, str, str]]:
         return []
 
+    def get_attr(self, value: Any, field: str) -> Any:
+        for part in field.split("__"):
+            value = getattr(value, part, None)
+            if value is None:
+                break
+        return value
+
     def render_field(self, field: str, object: Any, context: dict):
         if field in self.templates:
             template = self.templates[field]
-            value = getattr(object, field, None)
+            value = self.get_attr(object, field)
             context.update({"object": object, "field": field, "value": value})
             return render_to_string(template, context)
 
@@ -24,4 +31,4 @@ class Table:
             fn = getattr(self, f"get_{field}_content")
             return fn(object)
 
-        return getattr(object, field, "")
+        return self.get_attr(object, field)
