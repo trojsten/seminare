@@ -21,7 +21,7 @@ class WithLatesubmitQuerySet(MixinProtocol):
             qs.append(
                 submit_cls.objects.filter(
                     problem__problem_set__contest=contest,
-                    created_at__gte=F("problem__problem_set__end_date"),
+                    created_at__gt=F("problem__problem_set__end_date"),
                 )
                 .select_related(
                     "enrollment__user",
