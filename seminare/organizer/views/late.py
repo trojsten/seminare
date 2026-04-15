@@ -62,7 +62,7 @@ class LateSubmitListView(
         return [("Oneskorenci", "")]
 
 
-class LateSubmitAcceptView(GenericFormView):
+class LateSubmitAcceptView(ContestAdminRequired, GenericFormView):
     form_class = Form
     form_title = "Naozaj chceš akceptovať submit?"
     form_submit_label = "Akceptovať"
