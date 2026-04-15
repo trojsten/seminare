@@ -287,7 +287,7 @@ class LateSubmitTable(Table):
                 reverse("submit_detail", args=[object.submit_id]),
             ),
         ]
-        if not object.late_accepted:
+        if not object.late_accepted and not object.problem.problem_set.is_finalized:
             links.append(
                 (
                     "mdi:stamper",
