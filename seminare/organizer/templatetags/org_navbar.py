@@ -51,6 +51,11 @@ def org_navbar(context):
                         "Navigácia",
                         reverse("org:menu_group_list"),
                     ),
+                    (
+                        "mdi:clock-alert",
+                        "Oneskorené submity",
+                        reverse("org:late_submit_list"),
+                    ),
                 ],
             )
         )
