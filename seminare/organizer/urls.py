@@ -4,6 +4,7 @@ from seminare.organizer.views import (
     dashboard,
     files,
     grading,
+    late,
     menu,
     page,
     post,
@@ -102,6 +103,16 @@ urlpatterns = [
         "menu/vytvorit/",
         menu.MenuGroupCreateView.as_view(),
         name="menu_group_create",
+    ),
+    path(
+        "oneskorenci/",
+        late.LateSubmitListView.as_view(),
+        name="late_submit_list",
+    ),
+    path(
+        "oneskorenci/<submit_id:submit_id>/akceptovat/",
+        late.LateSubmitAcceptView.as_view(),
+        name="late_submit_accept",
     ),
     path("organizatori/", role.RoleListView.as_view(), name="role_list"),
     path(

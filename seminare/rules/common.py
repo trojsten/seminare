@@ -3,7 +3,7 @@ from datetime import datetime
 from functools import cache
 from typing import Iterable
 
-from django.db.models import F, QuerySet
+from django.db.models import F, Q, QuerySet
 from django.utils.functional import cached_property
 
 from seminare.problems.models import Problem, ProblemSet
@@ -310,10 +310,9 @@ class BestSubmitRuleEngine(RuleEngine):
         problems: Iterable[Problem],
     ) -> QuerySet[BaseSubmit]:
         return (
-            submit_cls.objects.filter(
-                problem__in=problems,
-                enrollment__in=enrollments,
-                created_at__lte=self.problem_set.end_date,
+            submit_cls.objects.filter(problem__in=problems, enrollment__in=enrollments)
+            .filter(
+                Q(created_at__lte=self.problem_set.end_date) | Q(late_accepted=True)
             )
             .order_by(
                 "enrollment_id",
