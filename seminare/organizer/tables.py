@@ -14,17 +14,26 @@ class ProblemSetTable(Table):
         "name",
         "start_date",
         "end_date",
+        "is_public",
+        "solutions_public",
+        "is_finalized",
     ]
 
     labels = {
         "name": "Názov",
         "start_date": "Začiatok",
         "end_date": "Koniec",
+        "is_public": "Zverejnené",
+        "solutions_public": "Zverejnené vzoráky",
+        "is_finalized": "Finalizované výsledky",
     }
 
     templates = {
         "start_date": "tables/fields/date.html",
         "end_date": "tables/fields/date.html",
+        "is_public": "tables/fields/boolean.html",
+        "solutions_public": "tables/fields/boolean.html",
+        "is_finalized": "tables/fields/boolean.html",
     }
 
     def get_links(
@@ -155,11 +164,19 @@ class FileTable(Table):
         path_query = "?" + urlencode({"path": str(object["rel"])})
         if object["is_dir"]:
             links.append(
-                ("mdi:folder-open", "Otvoriť", reverse("org:file_list") + path_query)
+                (
+                    "mdi:folder-open",
+                    "Otvoriť",
+                    reverse("org:file_list") + path_query,
+                )
             )
         else:
             links.append(
-                ("mdi:download", "Stiahnuť", default_storage.url(object["file"]))
+                (
+                    "mdi:download",
+                    "Stiahnuť",
+                    default_storage.url(object["file"]),
+                )
             )
         links.append(("mdi:delete", "Vymazať", reverse("org:file_delete") + path_query))
         return links

@@ -55,6 +55,7 @@ class ProblemSet(models.Model):
     end_date = models.DateTimeField()
 
     is_public = models.BooleanField(default=False)
+    solutions_public = models.BooleanField(default=True)
 
     rule_engine = models.CharField(max_length=512)
     rule_engine_options = models.JSONField(default=dict, blank=True)
