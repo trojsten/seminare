@@ -20,9 +20,32 @@
   <script defer data-domain="{{ request.get_host|cut:"www." }}" event-user-authenticated="{{ request.user.is_authenticated|lower }}" event-user-staff="{{ request.user.is_staff|lower }}" src="https://analytics.trojsten.sk/js/script.pageview-props.js"></script>
 
   <script>
+    function formatNum(n) {
+      const num = Number(n);
+      if (Number.isNaN(num)) return n;
+      return num.toLocaleString("sk-SK");
+    }
+    function getArgString(context, arg) {
+      if (!arg) return "";
+      return context.expandTokens(arg)
+        .map(t => t.text)
+        .join("");
+    }
     document.addEventListener("DOMContentLoaded", function() {
       var macros = {
-        "\\SI": "{#1\\;\\mathrm{#2}}",
+        "\\num": (context) => {
+          const arg = context.consumeArgs(1)[0];
+          const raw = getArgString(context, arg);
+          const formatted = formatNum(raw);
+          return `\\mathrm{${formatted}}`;
+        },
+        "\\SI": (context) => {
+          const args = context.consumeArgs(2);
+          const numArg = getArgString(context, args[0]);
+          const unitArg = getArgString(context, args[1]);
+          const formatted = formatNum(numArg);
+          return `\\mathrm{${formatted}}\\;\\mathrm{${unitArg}}`;
+        },
         "\\squared": "{^{2}}",
         "\\cubed": "{^{3}}",
         "\\per": "/",
