@@ -65,6 +65,13 @@ class ProblemTable(Table):
     ) -> list[tuple[str, str] | tuple[str, str, str]]:
         links = [
             (
+                "mdi:eye",
+                "Pozrieť",
+                reverse(
+                    "problem_detail", args=[object.problem_set.slug, object.number]
+                ),
+            ),
+            (
                 "mdi:comment-arrow-left",
                 "Opravovanie",
                 reverse(
