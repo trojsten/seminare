@@ -165,3 +165,7 @@ iconify-icon {
 .katex {
   font-size: 1.05rem !important;
 }
+
+.katex-display {
+  overflow: auto hidden;
+}
