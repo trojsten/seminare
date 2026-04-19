@@ -46,6 +46,12 @@
           const formatted = formatNum(numArg);
           return `\\mathrm{${formatted}}\\;\\mathrm{${unitArg}}`;
         },
+        "\\si": (context) => {
+          const arg = context.consumeArgs(1)[0];
+          const unitArg = getArgString(context, arg);
+      
+          return `\\mathrm{${unitArg}}`;
+        },
         "\\squared": "{^{2}}",
         "\\cubed": "{^{3}}",
         "\\per": "/",
