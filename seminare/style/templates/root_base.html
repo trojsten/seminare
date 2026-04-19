@@ -20,13 +20,12 @@
   <script defer data-domain="{{ request.get_host|cut:"www." }}" event-user-authenticated="{{ request.user.is_authenticated|lower }}" event-user-staff="{{ request.user.is_staff|lower }}" src="https://analytics.trojsten.sk/js/script.pageview-props.js"></script>
 
   <script>
-        function formatNum(n) {
+    function formatNum(n) {
       const sciMatch = String(n).trim().match(/^([+-]?\d*\.?\d*)\s*[eE]\s*([+-]?\d+)$/);
-      console.log(sciMatch);
       if (sciMatch) {
         let mantissa = sciMatch[1];
         let exponent = sciMatch[2];
-    
+
         if (mantissa.endsWith(".")) {
           mantissa = mantissa.slice(0, -1);
         }
@@ -39,10 +38,10 @@
         if (mantissa === "-1") {
           return `-10^{${formatNum(exponent)}}`;
         }
-        
+
         return `${formatNum(mantissa)} \\cdot 10^{${formatNum(exponent)}}`;
       }
-    
+
       const num = Number(n);
       if (!Number.isNaN(num)) {
         return num.toLocaleString("sk-SK");
