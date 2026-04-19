@@ -49,7 +49,6 @@
         "\\si": (context) => {
           const arg = context.consumeArgs(1)[0];
           const unitArg = getArgString(context, arg);
-      
           return `\\mathrm{${unitArg}}`;
         },
         "\\squared": "{^{2}}",
