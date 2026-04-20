@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load static %}
+{% load static post %}
 
 {% block title %}{{ contest.name }}{% endblock %}
 
@@ -9,5 +9,11 @@
       {{ contest.name }}
     </h1>
     <a href="{% url 'problem_set_list' %}" class="btn btn-primary">Aktuálne zadania</a>
+  </div>
+
+  <div class="bg-gray-50">
+    <div class="mx-auto max-w-4xl px-4 py-16">
+      {% posts_overview %}
+    </div>
   </div>
 {% endblock %}
