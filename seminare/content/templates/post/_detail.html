@@ -1,24 +1,30 @@
 {% load markdownify %}
 
-<article class="border shadow-sm p-6 rounded-md">
-  <div class="flex justify-between">
-    <div>
-      <div class="text-muted mb-1 text-sm">{{ post.created_at|date }}</div>
-      {% if link %}<a href="{% url "post_detail" post.slug %}">{% endif %}
-      <h2 class="text-2xl font-semibold mb-4">{{ post.title }}</h2>
-      {% if link %}</a>{% endif %}
-    </div>
-    {% if is_organizer %}
+<article class="border shadow-sm p-6 rounded-md flex flex-col justify-between h-full">
+  <div>
+    <div class="flex justify-between">
       <div>
-        <a href="{% url "org:post_update" post.id %}" class="btn btn-green flex-grow-0">
-          <iconify-icon icon="mdi:pencil" class="mr-1"></iconify-icon>
-          Upraviť
-        </a>
+        <div class="text-muted mb-1 text-sm">{{ post.created_at|date }}</div>
+        {% if link %}<a href="{% url "post_detail" post.slug %}">{% endif %}
+        <h2 class="text-2xl font-semibold mb-4">{{ post.title }}</h2>
+        {% if link %}</a>{% endif %}
       </div>
-    {% endif %}
-  </div>
-  <div class="prose prose-sm">
-    {{ post.content|markdownify:contest }}
+      {% if is_organizer %}
+        <div>
+          <a href="{% url "org:post_update" post.id %}" class="btn btn-green flex-grow-0">
+            <iconify-icon icon="mdi:pencil" class="mr-1"></iconify-icon>
+            Upraviť
+          </a>
+        </div>
+      {% endif %}
+    </div>
+    <div class="prose prose-sm">
+      {% if truncate_words %}
+        {{ post.content|markdownify:contest|truncatewords_html:truncate_words }}
+      {% else %}
+        {{ post.content|markdownify:contest }}
+      {% endif %}
+    </div>
   </div>
 
   <div class="relative mt-6 flex items-center gap-x-3">
