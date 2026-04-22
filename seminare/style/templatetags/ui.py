@@ -9,8 +9,8 @@ def label(message, color="gray", *, icon="", help=""):
 
 
 @register.inclusion_tag("_ui/message.html")
-def message(message, type="info"):
-    return {"message": message, "type": type}
+def message(message, type="info", *, icon=""):
+    return {"message": message, "type": type, "icon": icon}
 
 
 @register.inclusion_tag("_ui/breadcrumbs.html")
