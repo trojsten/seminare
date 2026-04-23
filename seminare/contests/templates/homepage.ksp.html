@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ contest.name }}{% endblock %}
+
+{% block body_container %}
+  <div class="bg-cover bg-center bg-no-repeat" style="background-image: url('{% static "homepage/ksp/hero.webp" %}')">
+    <div class="px-4 py-32 mx-auto max-w-4xl text-center text-white">
+      <h1 class="font-bold text-3xl sm:text-4xl">Si stredoškolák? Baví ťa programovanie? Chceš sa zlepšiť a naučiť sa nové veci?</h1>
+      <p class="text-2xl sm:text-3xl mt-4">Tak neváhaj a zapoj sa do KSP!</p>
+
+      <p class="mt-6">
+        <a href="{% url 'problem_set_list' %}" class="btn btn-primary">Začať riešiť</a>
+        <a href="{% url 'page_detail' 'pravidla' %}" class="btn btn-default">Ako to funguje?</a>
+      </p>
+    </div>
+  </div>
+
+  <div class="mx-auto max-w-4xl px-4 py-16">
+    <h2 class="font-bold text-2xl mb-4">Čo je KSP?</h2>
+
+    <p>
+      Korešpondenčný seminár z programovania je súťaž v riešení algoritmických úloh, určená pre žiakov stredných škôl. Podľa tvojho levelu skúseností riešiš 5 z 8 úloh. Riešenie obvykle pozostáva z funkčného programu, ktorý stránka automaticky otestuje a textového popisu, čo program robí. Po každom polroku pozývame najúspešnejších riešiteľov na sústredenie.
+    </p>
+
+    <p class="mt-4">
+      KSP zastrešujú vysokoškolskí študenti z občianského združenia Trojsten.
+    </p>
+  </div>
+
+  <div class="bg-gray-50">
+    <div class="mx-auto max-w-4xl px-4 py-16">
+      <h2 class="font-bold text-2xl mb-4">Prečo sa zapojiť?</h2>
+
+      <dl class="grid grid-cols-1 gap-x-10 gap-y-10 sm:grid-cols-2">
+        <div class="relative pl-9">
+          <dt class="inline font-semibold text-gray-900">
+            <iconify-icon icon="mdi:fountain-pen-tip" class="absolute top-1 left-1 size-5 text-primary"></iconify-icon>
+            Získaš kvalitnú spätnú väzbu.
+          </dt>
+          <dd class="inline">Ku riešeniam, ktoré pošleš, dostaneš komentár od opravovateľa, kde sa dozvieš aké si urobil chyby.</dd>
+        </div>
+
+        <div class="relative pl-9">
+          <dt class="inline font-semibold text-gray-900">
+            <iconify-icon icon="mdi:book-open-page-variant" class="absolute top-1 left-1 size-5 text-primary"></iconify-icon>
+            Pomôže ti to v škole.
+          </dt>
+          <dd class="inline">Zlepšíš sa v algoritmickom myslení, logike, riešení komplexných úloh a pripravíš sa na olympiádu.</dd>
+        </div>
+
+        <div class="relative pl-9">
+          <dt class="inline font-semibold text-gray-900">
+            <iconify-icon icon="mdi:trophy" class="absolute top-1 left-1 size-5 text-primary"></iconify-icon>
+            Čakajú ťa sústredenia.
+          </dt>
+          <dd class="inline">Najlepších pozývame na sústredenia plné prednášok, hier a nových kamarátov.</dd>
+        </div>
+
+        <div class="relative pl-9">
+          <dt class="inline font-semibold text-gray-900">
+            <iconify-icon icon="mdi:account-group" class="absolute top-1 left-1 size-5 text-primary"></iconify-icon>
+            Skvelá komunita.
+          </dt>
+          <dd class="inline">Stretneš ľudí, ktorých baví to isté, a zažiješ veľa zábavy.</dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+
+  <div class="mx-auto max-w-4xl px-4 py-16">
+    <h2 class="font-bold text-2xl mb-4">Čo sú sústredenia?</h2>
+
+    <p>
+      Sústredenia sú odmena pre najúspešnejších účastníkov zimnej a letnej časti. Na sústredení sa okrem odborných prednášok výborne zabavíš, spoznáš kopec mega super ľudí, oddýchneš si od školy, poriadne sa nevyspíš... Ale je lepšie raz zažiť ako sto krát počuť, preto neváhaj a okamžite začni riešiť! 
+    </p>
+  </div>
+
+  <div class="mx-auto max-w-6xl px-4 py-16">
+    <h2 class="font-bold text-2xl mb-4">Aj takto to vyzerá na sústredení...</h2>
+    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <img src="{% static "homepage/ksp/1.webp" %}" alt="Účastníci sústredenia KSP píšu olympiádu
+" class="rounded-md">
+      <img src="{% static "homepage/ksp/2.webp" %}" alt="Vedúci sústredenia KSP debugujú programy účastníkov v tme pri sviečkach" class="rounded-md">
+      <img src="{% static "homepage/ksp/3.webp" %}" alt="Vedúci sústredenia KSP v dejovej scénke" class="rounded-md">
+      <img src="{% static "homepage/ksp/4.webp" %}" alt="Ǔčastníci sústredenia KSP hrajú plánikovú hru na šesťuholníkovej sieti" class="rounded-md">
+      <img src="{% static "homepage/ksp/5.webp" %}" alt="Účastníci sústredenia KSP vonku opekajú" class="rounded-md">
+      <img src="{% static "homepage/ksp/6.webp" %}" alt="Ǔčastníci sústredenia KSP prenášajú vedúceho na hre vonku" class="rounded-md">
+    </div>
+  </div>
+{% endblock %}
