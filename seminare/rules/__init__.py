@@ -440,11 +440,13 @@ class RuleEngine(RuleEngineDataMixin, AbstractRuleEngine):
     def get_result_table(self, table: str, **kwargs) -> Table:
         if self.problem_set.is_finalized:
             frozen_results = self.problem_set.get_frozen_results(table)
-            return Table.deserialize(frozen_results)
+            return Table.deserialize(frozen_results, problem_set=self.problem_set)
 
         key = f"results_table/{self.problem_set.slug}/{table}"
         if key in cache and (data := cache.get(key)) is not None:
-            return Table.deserialize(decompress_data(data))
+            return Table.deserialize(
+                decompress_data(data), problem_set=self.problem_set
+            )
 
         enrollments = self.get_enrollments().select_related("user", "school")
 

@@ -40,12 +40,20 @@ class ProblemSetTable(Table):
         ]
 
         if context["is_contest_administrator"]:
+            if object.is_finalized:
+                links.append(
+                    (
+                        "mdi:file-download",
+                        "Export",
+                        reverse("org:problemset_csv_export", args=[object.slug]),
+                    )
+                )
             links.append(
                 (
                     "mdi:pencil",
                     "Upraviť",
                     reverse("org:problemset_update", args=[object.slug]),
-                ),
+                )
             )
 
         return links
