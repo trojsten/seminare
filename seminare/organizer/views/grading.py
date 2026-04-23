@@ -310,8 +310,16 @@ class BulkGradingView(ContestOrganizerRequired, WithSubmitList, GenericFormView)
                         submit.comment = comment
                         submit.scored_by = self.request.user
                         submit.save(update_fields=["comment", "scored_by"])
-                    elif file_name.split(".")[-2] == "komentar":
+
+                    elif file_name.split(".")[-1] == "pdf":
                         assert isinstance(submit.comment_file, FieldFile)
+
+                        if (
+                            submit.file
+                            and submit.file.read()
+                            == zip_file.open(file_info.filename).read()
+                        ):
+                            continue
 
                         if (
                             submit.comment_file
