@@ -25,10 +25,11 @@
 
         {% if data.can_submit %}
           {% if id != "text" %}
-            <div class="bg-gray-100 rounded-md text-gray-700 text-center p-4 cursor-pointer hover:bg-gray-200" data-action="click->submit--{{ id }}-submit#openFilePicker">
+            <label class="block bg-gray-100 rounded-md text-gray-700 text-center p-4 cursor-pointer hover:bg-gray-200 border-2" for="submit-{{ id }}-input" data-action="dragover->submit--{{ id }}-submit#onDragOver dragleave->submit--{{ id }}-submit#onDragLeave drop->submit--{{ id }}-submit#onDrop"
+              data-submit--{{ id }}-submit-target="dropZone">
               <iconify-icon icon="mdi:upload" width="none" class="size-8"></iconify-icon>
               <p data-submit--{{ id }}-submit-target="fileText">Vyber alebo presuň tvoj {{ data.name }} sem</p>
-            </div>
+            </label>
           {% endif %}
 
           <div class="hidden items-center text-amber-600 bg-amber-100 rounded-md py-2 px-3 my-4 text-sm" data-submit--{{ id }}-submit-target="errorContainer">
@@ -39,10 +40,10 @@
           <form method="POST" enctype="multipart/form-data" action="{{ data.action }}" id="form" class="{% if id != "text" %}hidden{% else %}flex flex-row gap-2{% endif %} mt-2" data-submit--{{ id }}-submit-target="form">
             {% csrf_token %}
             {% if id == "file" %}
-              <input type="file" name="files" multiple accept="image/jpeg, image/png, application/pdf" class="hidden" data-submit--file-submit-target="fileInput" data-action="change->submit--file-submit#onInputChange">
+              <input id="submit-{{ id }}-input" type="file" name="files" multiple accept="image/jpeg, image/png, application/pdf" class="hidden" data-submit--file-submit-target="fileInput" data-action="change->submit--file-submit#onInputChange">
               <button class="btn btn-blue mt-2">Odovzdať</button>
             {% elif id == "judge" %}
-              <input type="file" name="program" class="hidden" data-submit--judge-submit-target="fileInput" data-action="change->submit--judge-submit#onInputChange">
+              <input id="submit-{{ id }}-input" type="file" name="program" class="hidden" data-submit--judge-submit-target="fileInput" data-action="change->submit--judge-submit#onInputChange">
               <button class="btn btn-blue mt-2">Odovzdať</button>
             {% else %}
               <input type="text" name="text" class="input">
