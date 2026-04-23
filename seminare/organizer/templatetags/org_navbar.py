@@ -60,4 +60,17 @@ def org_navbar(context):
             )
         )
 
+    sections.append(
+        (
+            "Informácie",
+            [
+                (
+                    "mdi:book",
+                    "Dokumentácia",
+                    "https://wiki.trojsten.sk/veduci/seminare/start",
+                )
+            ],
+        )
+    )
+
     return {"menu_sections": sections}
