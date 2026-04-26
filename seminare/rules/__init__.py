@@ -306,7 +306,7 @@ class RuleEngine(RuleEngineDataMixin, AbstractRuleEngine):
         if now >= self.problem_set.start_date:
             visible.add(Text.Type.PROBLEM_STATEMENT)
 
-        if now > self.problem_set.end_date:
+        if now > self.problem_set.end_date and self.problem_set.solutions_public:
             visible.add(Text.Type.EXAMPLE_SOLUTION)
 
         return visible
