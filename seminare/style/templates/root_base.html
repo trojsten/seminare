@@ -21,7 +21,7 @@
 
   <script>
     function formatNum(n) {
-      const sciMatch = String(n).trim().match(/^([+-]?\d*\.?\d*)\s*[eE]\s*([+-]?\d+)$/);
+      const sciMatch = String(n).trim().match(/^([+-]?(?:\d+(?:\.\d+)?|\.\d+))[eE]([+-]?\d+)$/);
       if (sciMatch) {
         let mantissa = sciMatch[1];
         let exponent = sciMatch[2];
