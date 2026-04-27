@@ -21,9 +21,32 @@
 
   <script>
     function formatNum(n) {
+      const sciMatch = String(n).trim().match(/^([+-]?(?:\d+(?:\.\d+)?|\.\d+))[eE]([+-]?\d+)$/);
+      if (sciMatch) {
+        let mantissa = sciMatch[1];
+        let exponent = sciMatch[2];
+
+        if (mantissa.endsWith(".")) {
+          mantissa = mantissa.slice(0, -1);
+        }
+        if (mantissa.startsWith("+")) {
+          mantissa = mantissa.slice(1);
+        }
+        if (mantissa === "1") {
+          return `10^{${formatNum(exponent)}}`;
+        }
+        if (mantissa === "-1") {
+          return `-10^{${formatNum(exponent)}}`;
+        }
+
+        return `${formatNum(mantissa)} \\cdot 10^{${formatNum(exponent)}}`;
+      }
+
       const num = Number(n);
-      if (Number.isNaN(num)) return n;
-      return num.toLocaleString("sk-SK");
+      if (!Number.isNaN(num)) {
+        return num.toLocaleString("sk-SK");
+      }
+      return n;
     }
     function getArgString(context, arg) {
       if (!arg) return "";
