@@ -3,7 +3,7 @@ from django.core.validators import FileExtensionValidator
 
 from seminare.content.models import MenuGroup, MenuItem, Page, Post
 from seminare.problems.models import Problem, ProblemSet, Text
-from seminare.rules import get_rule_engine_class
+from seminare.rules import RuleEngine, get_rule_engine_class
 from seminare.style.forms import DateTimeInput
 from seminare.users.logic.permissions import is_contest_organizer
 from seminare.users.models import ContestRole
@@ -46,8 +46,8 @@ class ProblemSetForm(forms.ModelForm):
             "rule_engine_options": "Špecifické nastavenia pre Rule Engine.",
         }
         widgets = {
-            "start_date": DateTimeInput(),
-            "end_date": DateTimeInput(),
+            "start_date": DateTimeInput(attrs={"step": 1}),
+            "end_date": DateTimeInput(attrs={"step": 1}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -86,6 +86,22 @@ class ProblemSetForm(forms.ModelForm):
             )
 
         return data
+
+
+class ProblemSetCSVExportForm(forms.Form):
+    result_table = forms.ChoiceField(label="Výsledkovka")
+    include_ghost = forms.BooleanField(
+        required=False,
+        label="Zahrnúť ghost používateľov",
+        help_text="Zahrnúť aj používateľov, ktorí sa normálne nerátajú do výsledkovky.",
+    )
+
+    def __init__(self, rule_engine: RuleEngine, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields["result_table"].choices = [
+            (key, value) for key, value in rule_engine.get_result_tables().items()
+        ]
 
 
 class GradingForm(forms.Form):

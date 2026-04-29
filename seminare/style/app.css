@@ -67,6 +67,14 @@
   @apply text-gray-600;
 }
 
+.text-red {
+  @apply text-red-600;
+}
+
+.text-amber {
+  @apply text-amber-600;
+}
+
 .text-shadow {
   text-shadow: 0 0 4px #000;
 }
@@ -164,4 +172,8 @@ iconify-icon {
 
 .katex {
   font-size: 1.05rem !important;
+}
+
+.katex-display {
+  overflow: auto hidden;
 }

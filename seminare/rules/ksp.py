@@ -3,7 +3,7 @@ from decimal import Decimal
 from typing import Iterable
 
 from django.contrib.auth.models import AnonymousUser
-from django.db.models import F, QuerySet
+from django.db.models import F, Q, QuerySet
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 
@@ -77,7 +77,9 @@ class KSP2025(
             submit_cls.objects.filter(
                 problem__in=problems,
                 enrollment__in=enrollments,
-                created_at__lte=self.problem_set.end_date,
+            )
+            .filter(
+                Q(created_at__lte=self.problem_set.end_date) | Q(late_accepted=True)
             )
             .order_by(
                 "enrollment_id",

@@ -51,8 +51,26 @@ def org_navbar(context):
                         "Navigácia",
                         reverse("org:menu_group_list"),
                     ),
+                    (
+                        "mdi:clock-alert",
+                        "Oneskorené submity",
+                        reverse("org:late_submit_list"),
+                    ),
                 ],
             )
         )
+
+    sections.append(
+        (
+            "Informácie",
+            [
+                (
+                    "mdi:book",
+                    "Dokumentácia",
+                    "https://wiki.trojsten.sk/veduci/seminare/start",
+                )
+            ],
+        )
+    )
 
     return {"menu_sections": sections}

@@ -39,10 +39,16 @@ class WithContest(MixinProtocol):
 
 
 class WithProblemSet(WithContest, MixinProtocol):
+    require_finalized: bool = False
+
     @cached_property
     def problem_set(self) -> ProblemSet:
+        qs = ProblemSet.objects.all()
+        if self.require_finalized:
+            qs = qs.filter(is_finalized=True)
+
         return get_object_or_404(
-            ProblemSet, slug=self.kwargs["problem_set_slug"], contest=self.contest
+            qs, slug=self.kwargs["problem_set_slug"], contest=self.contest
         )
 
     def get_context_data(self, **kwargs):

@@ -19,6 +19,7 @@ from seminare.rules.results import (
     Table,
 )
 from seminare.submits.models import BaseSubmit
+from seminare.users.logic.permissions import is_contest_organizer
 from seminare.users.models import Enrollment, Grade, User
 
 
@@ -64,7 +65,11 @@ class FKS2026(
         return {"all": "Spoločná"} | super().get_result_tables()
 
     def get_default_result_table(self, user: User | AnonymousUser | None = None) -> str:
-        if user is None or not user.is_authenticated:
+        if (
+            user is None
+            or not user.is_authenticated
+            or is_contest_organizer(user, self.problem_set.contest)
+        ):
             return "all"
 
         return super().get_default_result_table(user)

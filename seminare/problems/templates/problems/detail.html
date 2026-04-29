@@ -35,7 +35,7 @@
           {% if texts.PS.is_visible or is_organizer %}
             <details class="py-2 px-4 mb-4 border bg-gray-100 rounded-md">
               <summary>Zadanie</summary>
-              <div class="prose my-6">
+              <div class="prose prose-img:mx-auto my-6">
                 {% if not texts.PS.is_visible %}
                   {% message "Túto sekciu vidíš, lebo si organizátor" "warning" %}
                 {% endif %}
@@ -48,7 +48,7 @@
             {% if not texts.ES.is_visible %}
               {% message "Túto sekciu vidíš, lebo si organizátor" "warning" %}
             {% endif %}
-            <div class="prose">
+            <div class="prose prose-img:mx-auto">
               {{ texts.ES.text|markdownify:problem }}
             </div>
           {% endif %}
@@ -63,7 +63,7 @@
             {% if not texts.PS.is_visible %}
               {% message "Túto sekciu vidíš, lebo si organizátor" "warning" %}
             {% endif %}
-            <div class="prose">
+            <div class="prose prose-img:mx-auto">
               {{ texts.PS.text|markdownify:problem }}
             </div>
           {% endif %}

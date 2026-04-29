@@ -27,6 +27,12 @@ class ColumnHeader(ResultsSerializable):
             tooltip=data.get("tooltip"),
         )
 
+    def export(self) -> str:
+        if self.tooltip is not None:
+            return f"{self.title} ({self.tooltip})"
+
+        return self.title
+
 
 @dataclass
 class Cell(ResultsSerializable):
@@ -75,6 +81,9 @@ class FrozenCell(Cell):
     @property
     def ghost(self) -> bool:
         return self._ghost
+
+    def export(self) -> str:
+        return self._cell
 
 
 @dataclass
@@ -206,7 +215,7 @@ class Table(ResultsSerializable):
         }
 
     @classmethod
-    def deserialize(cls, data: dict) -> Self:
+    def deserialize(cls, data: dict, problem_set=None) -> Self:
         rows = []
         schools = {}
 
@@ -235,6 +244,7 @@ class Table(ResultsSerializable):
                             first_name=row["enrollment"]["user"]["first_name"],
                             last_name=row["enrollment"]["user"]["last_name"],
                         ),
+                        problem_set=problem_set,
                     ),
                     ghost=row.get("ghost", False),
                     columns=[

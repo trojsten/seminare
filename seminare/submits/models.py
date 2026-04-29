@@ -42,6 +42,8 @@ class BaseSubmit(models.Model):
     scored_by_id: int
     comment = models.TextField(blank=True)
 
+    late_accepted = models.BooleanField(default=False)
+
     type: str
 
     class Meta:

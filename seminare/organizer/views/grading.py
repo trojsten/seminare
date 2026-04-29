@@ -147,11 +147,24 @@ class GradingSubmitView(ContestOrganizerRequired, WithSubmit, WithSubmitList, Fo
         for deadline, label in deadlines:
             out.append({"type": "deadline", "time": deadline, "label": label})
         for submit in submits:
+            late = submit.created_at > self.problem.problem_set.end_date
+            style = "hover:bg-gray-50"
+            if submit == self.submit:
+                if late:
+                    style = "bg-red-200 hover:bg-red-50"
+                else:
+                    style = "bg-gray-200 hover:bg-gray-50"
+                style += " scroll-to-me"
+            elif late:
+                style = "bg-red-100 hover:bg-red-50"
+
             out.append(
                 {
                     "type": "submit",
                     "time": submit.created_at,
                     "submit": submit,
+                    "late": late,
+                    "style": style,
                 }
             )
 
@@ -310,8 +323,16 @@ class BulkGradingView(ContestOrganizerRequired, WithSubmitList, GenericFormView)
                         submit.comment = comment
                         submit.scored_by = self.request.user
                         submit.save(update_fields=["comment", "scored_by"])
-                    elif file_name.split(".")[-2] == "komentar":
+
+                    elif file_name.split(".")[-1] == "pdf":
                         assert isinstance(submit.comment_file, FieldFile)
+
+                        if (
+                            submit.file
+                            and submit.file.read()
+                            == zip_file.open(file_info.filename).read()
+                        ):
+                            continue
 
                         if (
                             submit.comment_file

@@ -1,9 +1,13 @@
+import csv
+from functools import cached_property
+from io import StringIO
+
 from django.db.models import QuerySet
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.views.generic import CreateView, UpdateView
 
-from seminare.organizer.forms import ProblemSetForm
+from seminare.organizer.forms import ProblemSetCSVExportForm, ProblemSetForm
 from seminare.organizer.tables import ProblemSetTable, ProblemTable
 from seminare.organizer.views import WithContest, WithProblemSet
 from seminare.organizer.views.generic import (
@@ -12,6 +16,7 @@ from seminare.organizer.views.generic import (
     GenericTableView,
 )
 from seminare.problems.models import Problem, ProblemSet
+from seminare.rules import RuleEngine
 from seminare.users.logic.permissions import is_contest_administrator
 from seminare.users.mixins.permissions import (
     ContestAdminRequired,
@@ -119,3 +124,67 @@ class ProblemSetUpdateView(
                 self.request.user, self.contest
             ),
         }
+
+
+class ProblemSetCSVExportView(ContestAdminRequired, WithProblemSet, GenericFormView):
+    form_class = ProblemSetCSVExportForm
+    form_title = "Export výsledkovky"
+    form_submit_label = "Exportovať"
+    form_multipart = True
+
+    require_finalized = True
+
+    @cached_property
+    def rule_engine(self) -> RuleEngine:
+        return self.problem_set.get_rule_engine()
+
+    def get_breadcrumbs(self):
+        return [
+            ("Sady úloh", reverse("org:problemset_list")),
+            (self.problem_set, ""),
+            ("CSV Export", ""),
+        ]
+
+    def get_form_kwargs(self):
+        kw = super().get_form_kwargs()
+        kw["rule_engine"] = self.rule_engine
+        return kw
+
+    def form_valid(self, form):
+        response = HttpResponse()
+        response["Content-Type"] = "text/csv"
+        response["Content-Disposition"] = (
+            f'attachment; filename="{self.problem_set.contest.short_name}-{self.problem_set.slug}.csv"'
+        )
+        csv_buffer = StringIO()
+        w = csv.writer(csv_buffer)
+
+        table_data = self.rule_engine.get_result_table(
+            form.cleaned_data["result_table"]
+        )
+
+        w.writerow(
+            ["Meno", "Email", "Škola", "Ročník"]
+            + [c.export() for c in table_data.columns]
+            + ["Body spolu"]
+        )
+        for row in table_data.rows:
+            if row.ghost and not form.cleaned_data["include_ghost"]:
+                continue
+
+            w.writerow(
+                [
+                    row.enrollment.user.display_name,
+                    row.enrollment.user.email,
+                    row.enrollment.school,
+                    row.enrollment.grade,
+                ]
+                + [col.export() if col else "" for col in row.columns]
+                + [row.total]
+            )
+
+        response.write(csv_buffer.getvalue())
+        return response
+
+    def get_success_url(self) -> str:
+        return reverse("org:problemset_list")

@@ -1,3 +1,4 @@
+from datetime import timedelta
 from pathlib import PurePath
 from typing import TYPE_CHECKING, Self, Type, TypedDict
 
@@ -118,6 +119,17 @@ class ProblemSet(models.Model):
     @property
     def school_year(self) -> int:
         return date_to_academic_year(self.start_date)
+
+    @property
+    def deadline_font(self) -> str:
+        now = timezone.now()
+        if now > self.end_date:
+            return "text-muted"
+        if now > self.end_date - timedelta(days=2):
+            return "text-red font-semibold"
+        if now > self.end_date - timedelta(days=7):
+            return "text-amber"
+        return "text-muted"
 
     def set_frozen_results(self, table: str, data: dict):
         return ProblemSetFrozenResults.objects.update_or_create(

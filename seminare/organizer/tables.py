@@ -6,6 +6,7 @@ from django.utils.safestring import mark_safe
 from seminare.content.models import MenuGroup, MenuItem, Page
 from seminare.problems.models import Problem, ProblemSet
 from seminare.style.tables import Table
+from seminare.submits.models import BaseSubmit
 from seminare.users.models import ContestRole
 
 
@@ -39,12 +40,20 @@ class ProblemSetTable(Table):
         ]
 
         if context["is_contest_administrator"]:
+            if object.is_finalized:
+                links.append(
+                    (
+                        "mdi:file-download",
+                        "Export",
+                        reverse("org:problemset_csv_export", args=[object.slug]),
+                    )
+                )
             links.append(
                 (
                     "mdi:pencil",
                     "Upraviť",
                     reverse("org:problemset_update", args=[object.slug]),
-                ),
+                )
             )
 
         return links
@@ -63,6 +72,13 @@ class ProblemTable(Table):
         self, object: Problem, context: dict
     ) -> list[tuple[str, str] | tuple[str, str, str]]:
         links = [
+            (
+                "mdi:eye",
+                "Pozrieť",
+                reverse(
+                    "problem_detail", args=[object.problem_set.slug, object.number]
+                ),
+            ),
             (
                 "mdi:comment-arrow-left",
                 "Opravovanie",
@@ -155,11 +171,19 @@ class FileTable(Table):
         path_query = "?" + urlencode({"path": str(object["rel"])})
         if object["is_dir"]:
             links.append(
-                ("mdi:folder-open", "Otvoriť", reverse("org:file_list") + path_query)
+                (
+                    "mdi:folder-open",
+                    "Otvoriť",
+                    reverse("org:file_list") + path_query,
+                )
             )
         else:
             links.append(
-                ("mdi:download", "Stiahnuť", default_storage.url(object["file"]))
+                (
+                    "mdi:download",
+                    "Stiahnuť",
+                    default_storage.url(object["file"]),
+                )
             )
         links.append(("mdi:delete", "Vymazať", reverse("org:file_delete") + path_query))
         return links
@@ -233,3 +257,57 @@ class MenuItemTable(Table):
                 reverse("org:menu_item_delete", args=[object.group_id, object.id]),
             ),
         ]
+
+
+class LateSubmitTable(Table):
+    fields = [
+        "enrollment__user",
+        "problem__problem_set",
+        "problem",
+        "created_at",
+        "delay",
+        "late_accepted",
+    ]
+    labels = {
+        "enrollment__user": "Používateľ",
+        "problem__problem_set": "Kolo",
+        "problem": "Úloha",
+        "created_at": "Čas odovzdania",
+        "delay": "Oneskorenie",
+        "late_accepted": "Akceptovaný",
+    }
+    templates = {
+        "enrollment__user": "tables/fields/user.html",
+        "created_at": "tables/fields/datetime.html",
+        "late_accepted": "tables/fields/boolean.html",
+    }
+
+    def get_delay_content(self, object):
+        delay = object.created_at - object.problem.problem_set.end_date
+        delay_text = f"{delay.seconds // 3600:02d}:{(delay.seconds % 3600) // 60:02d}:{delay.seconds % 60:02d}"
+        if delay.days >= 1:
+            return mark_safe(
+                f'<span class="text-red-600">{delay.days} dní, {delay_text}</span>'
+            )
+
+        return mark_safe(f'<span class="text-amber-600">{delay_text}</span>')
+
+    def get_links(
+        self, object: BaseSubmit, context: dict
+    ) -> list[tuple[str, str] | tuple[str, str, str]]:
+        links = [
+            (
+                "mdi:external-link",
+                "Pozrieť",
+                reverse("submit_detail", args=[object.submit_id]),
+            ),
+        ]
+        if not object.late_accepted and not object.problem.problem_set.is_finalized:
+            links.append(
+                (
+                    "mdi:stamper",
+                    "Akceptovať",
+                    reverse("org:late_submit_accept", args=[object.submit_id]),
+                ),
+            )
+        return links

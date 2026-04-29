@@ -20,9 +20,60 @@
   <script defer data-domain="{{ request.get_host|cut:"www." }}" event-user-authenticated="{{ request.user.is_authenticated|lower }}" event-user-staff="{{ request.user.is_staff|lower }}" src="https://analytics.trojsten.sk/js/script.pageview-props.js"></script>
 
   <script>
+    function formatNum(n) {
+      const sciMatch = String(n).trim().match(/^([+-]?(?:\d+(?:\.\d+)?|\.\d+))[eE]([+-]?\d+)$/);
+      if (sciMatch) {
+        let mantissa = sciMatch[1];
+        let exponent = sciMatch[2];
+
+        if (mantissa.endsWith(".")) {
+          mantissa = mantissa.slice(0, -1);
+        }
+        if (mantissa.startsWith("+")) {
+          mantissa = mantissa.slice(1);
+        }
+        if (mantissa === "1") {
+          return `10^{${formatNum(exponent)}}`;
+        }
+        if (mantissa === "-1") {
+          return `-10^{${formatNum(exponent)}}`;
+        }
+
+        return `${formatNum(mantissa)} \\cdot 10^{${formatNum(exponent)}}`;
+      }
+
+      const num = Number(n);
+      if (!Number.isNaN(num)) {
+        return num.toLocaleString("sk-SK");
+      }
+      return n;
+    }
+    function getArgString(context, arg) {
+      if (!arg) return "";
+      return context.expandTokens(arg)
+        .map(t => t.text)
+        .join("");
+    }
     document.addEventListener("DOMContentLoaded", function() {
       var macros = {
-        "\\SI": "{#1\\;\\mathrm{#2}}",
+        "\\num": (context) => {
+          const arg = context.consumeArgs(1)[0];
+          const raw = getArgString(context, arg);
+          const formatted = formatNum(raw);
+          return `\\mathrm{${formatted}}`;
+        },
+        "\\SI": (context) => {
+          const args = context.consumeArgs(2);
+          const numArg = getArgString(context, args[0]);
+          const unitArg = getArgString(context, args[1]);
+          const formatted = formatNum(numArg);
+          return `\\mathrm{${formatted}}\\;\\mathrm{${unitArg}}`;
+        },
+        "\\si": (context) => {
+          const arg = context.consumeArgs(1)[0];
+          const unitArg = getArgString(context, arg);
+          return `\\mathrm{${unitArg}}`;
+        },
         "\\squared": "{^{2}}",
         "\\cubed": "{^{3}}",
         "\\per": "/",
@@ -34,6 +85,7 @@
         "\\micro": "μ",
         "\\nano": "n",
         "\\kilogram": "\\text{kg}\\,",
+        "\\gram": "\\text{g}\\,",
         "\\meter": "\\text{m}\\,",
         "\\metre": "\\text{m}\\,",
         "\\second": "\\text{s}\\,",
@@ -56,6 +108,10 @@
         "\\weber": "\\text{Wb}\\,",
         "\\tesla": "\\text{T}\\,",
         "\\degree": "\\text{deg}\\,",
+        "\\radian": "\\text{rad}\\,",
+        "\\steradian": "\\text{sr}\\,",
+        "\\lumen": "\\text{lm}\\,",
+        "\\lux": "\\text{lx}\\,",
       };
 
       renderMathInElement(document.body, {
