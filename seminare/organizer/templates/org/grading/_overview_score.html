@@ -2,7 +2,7 @@
 <div class="flex justify-between items-center">
 {% if submit %}
   {% if submit.score is None %}
-    <span class="text-red-600">neohodnotené</span>
+    <span class="text-red">neohodnotené</span>
   {% else %}
     {{ submit.score|floatformat:"g" }}
   {% endif %}

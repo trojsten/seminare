@@ -4,5 +4,9 @@
       {% elif type == "error" %}border-red-700/40 text-red-700 bg-red-100
       {% elif type == "warning" %}border-amber-700/40 text-amber-700 bg-amber-100
       {% elif type == "success" %}border-green-700/40 text-green-700 bg-green-100{% endif %}">
+  {% if icon %}
+    <iconify-icon icon="{{ icon }}" class="mr-0.5"></iconify-icon>
+  {% endif %}
+
   {{ message }}
 </div>
