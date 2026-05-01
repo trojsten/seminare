@@ -21,14 +21,14 @@
 {% endblock %}
 
 {% block body_container %}
-<div class="flex-1 flex flex-col md:flex-row w-full max-h-screen">
+<div class="flex-1 flex flex-col md:flex-row w-full min-h-screen">
   <div class="flex-1 flex flex-col">
     <div class="md:h-full h-80 flex-1 flex">
     {% include "submits/content/render.html" %}
     </div>
   </div>
 
-  <div class="shrink-0 md:w-80 border-b md:border-b-0 border-l px-4 py-3 overflow-y-auto">
+  <div class="shrink-0 md:w-80 border-b md:border-b-0 border-l px-4 py-3">
     <div class="mb-2 font-bold text-lg">
       Hodnotenie
     </div>
