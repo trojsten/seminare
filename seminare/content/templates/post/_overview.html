@@ -1,0 +1,13 @@
+{% load ui %}
+
+
+<div class="flex snap-x snap-mandatory gap-6 overflow-x-auto scroll-smooth mb-8">
+    {% for post in posts %}
+        <div class="min-w-64 md:w-96">
+            {% include "post/_detail.html" with post=post link=True truncate_words=32 %}
+        </div>
+    {% endfor %}
+</div>
+<div class="flex items-center">
+    <a class="btn btn-primary mx-auto" href="{% url "post_list" %}">Všetky novinky</a>
+</div>
