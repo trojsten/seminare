@@ -26,10 +26,10 @@ from seminare.utils import sendfile
 
 
 class ArchiveView(View):
-    def get_all_problemsets(self):
-        request = self.request
-        contest = get_current_contest(request)
-        return ProblemSet.objects.for_user(request.user, contest)
+    def get_problemset_queryset(self):
+        return ProblemSet.objects.for_user(self.request.user, self.contest).order_by(
+            "-end_date", "-start_date"
+        )
 
     @cached_property
     def contest(self):
@@ -40,13 +40,13 @@ class ProblemSetListView(ListView, ArchiveView):
     template_name = "sets/list.html"
 
     def get_queryset(self):
-        return self.get_all_problemsets().order_by("-end_date", "-start_date")
+        return self.get_problemset_queryset()
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
 
         current_sets = (
-            self.get_all_problemsets().only_current().prefetch_related("problems")
+            self.get_problemset_queryset().only_current().prefetch_related("problems")
         )
 
         for pset in current_sets:
@@ -67,7 +67,7 @@ class ProblemSetDetailView(DetailView, ArchiveView):
     object: ProblemSet
 
     def get_queryset(self):
-        return self.get_all_problemsets().prefetch_related("problems")
+        return self.get_problemset_queryset().prefetch_related("problems")
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
@@ -80,7 +80,7 @@ class ProblemSetDetailView(DetailView, ArchiveView):
         )
         ctx["visible_pdfs"] = rule_engine.get_visible_texts(None)
 
-        ctx["sets"] = self.get_all_problemsets().order_by("-end_date", "-start_date")
+        ctx["sets"] = self.get_problemset_queryset()
         return ctx
 
 
@@ -91,7 +91,7 @@ class ProblemSetResultsView(DetailView, ArchiveView):
 
     def get_queryset(self):
         return (
-            self.get_all_problemsets()
+            self.get_problemset_queryset()
             .filter(contest=self.contest)
             .select_related("contest")
         )
@@ -135,7 +135,7 @@ class ProblemSetResultsView(DetailView, ArchiveView):
         ctx["result_tables"] = result_tables
         ctx["selected_table"] = selected_table
         ctx["selected_table_name"] = result_tables[selected_table]
-        ctx["sets"] = self.get_all_problemsets().order_by("-end_date", "-start_date")
+        ctx["sets"] = self.get_problemset_queryset()
 
         return ctx
 
@@ -146,7 +146,7 @@ class ProblemDetailView(DetailView, ArchiveView):
 
     def get_object(self, queryset=None):
         problem_set = get_object_or_404(
-            self.get_all_problemsets()
+            self.get_problemset_queryset()
             .filter(slug=self.kwargs["problem_set_slug"])
             .prefetch_related("problems")
         )
@@ -272,7 +272,7 @@ class StatementPDFView(SingleObjectMixin, ArchiveView):
     file_type = Text.Type.PROBLEM_STATEMENT
 
     def get_queryset(self):
-        return self.get_all_problemsets()
+        return self.get_problemset_queryset()
 
     def get(self, request, *args, **kwargs):
         problem_set: ProblemSet = self.get_object()
