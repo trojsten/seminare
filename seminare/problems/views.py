@@ -25,22 +25,28 @@ from seminare.users.models import User
 from seminare.utils import sendfile
 
 
-class ProblemSetListView(ListView):
-    template_name = "sets/list.html"
-
-    def get_queryset(self):
-        self.contest = get_current_contest(self.request)
+class ArchiveView(View):
+    def get_problemset_queryset(self):
         return ProblemSet.objects.for_user(self.request.user, self.contest).order_by(
             "-end_date", "-start_date"
         )
+
+    @cached_property
+    def contest(self):
+        return get_current_contest(self.request)
+
+
+class ProblemSetListView(ListView, ArchiveView):
+    template_name = "sets/list.html"
+
+    def get_queryset(self):
+        return self.get_problemset_queryset()
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
 
         current_sets = (
-            ProblemSet.objects.for_user(self.request.user, self.contest)
-            .only_current()
-            .prefetch_related("problems")
+            self.get_problemset_queryset().only_current().prefetch_related("problems")
         )
 
         for pset in current_sets:
@@ -55,16 +61,13 @@ class ProblemSetListView(ListView):
         return ctx
 
 
-class ProblemSetDetailView(DetailView):
+class ProblemSetDetailView(DetailView, ArchiveView):
     queryset = ProblemSet.objects.get_queryset()
     template_name = "sets/detail.html"
     object: ProblemSet
 
     def get_queryset(self):
-        self.contest = get_current_contest(self.request)
-        return ProblemSet.objects.for_user(
-            self.request.user, self.contest
-        ).prefetch_related("problems")
+        return self.get_problemset_queryset().prefetch_related("problems")
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
@@ -77,22 +80,19 @@ class ProblemSetDetailView(DetailView):
         )
         ctx["visible_pdfs"] = rule_engine.get_visible_texts(None)
 
-        ctx["sets"] = ProblemSet.objects.for_user(
-            self.request.user, self.contest
-        ).order_by("-end_date", "-start_date")
+        ctx["sets"] = self.get_problemset_queryset()
         return ctx
 
 
-class ProblemSetResultsView(DetailView):
+class ProblemSetResultsView(DetailView, ArchiveView):
     queryset = ProblemSet.objects.get_queryset()
     template_name = "sets/results.html"
     object: ProblemSet
 
     def get_queryset(self):
-        contest = get_current_contest(self.request)
         return (
-            ProblemSet.objects.for_user(self.request.user, contest)
-            .filter(contest=contest)
+            self.get_problemset_queryset()
+            .filter(contest=self.contest)
             .select_related("contest")
         )
 
@@ -101,10 +101,9 @@ class ProblemSetResultsView(DetailView):
 
         rule_engine: RuleEngine = self.object.get_rule_engine()
 
-        user = None
-        if self.request.user.is_authenticated:
-            assert isinstance(self.request.user, User)
-            user = self.request.user
+        user = self.request.user
+        if user.is_authenticated:
+            assert isinstance(user, User)
 
         result_tables = rule_engine.get_result_tables()
         selected_table: str = (
@@ -120,7 +119,7 @@ class ProblemSetResultsView(DetailView):
 
         show_ghost = False
 
-        if user:
+        if user.is_authenticated:
             is_organizer = is_contest_organizer(user, get_current_contest(self.request))
             is_ghost = next(
                 (r.ghost for r in table.rows if r.enrollment.user == user),
@@ -136,18 +135,18 @@ class ProblemSetResultsView(DetailView):
         ctx["result_tables"] = result_tables
         ctx["selected_table"] = selected_table
         ctx["selected_table_name"] = result_tables[selected_table]
+        ctx["sets"] = self.get_problemset_queryset()
 
         return ctx
 
 
-class ProblemDetailView(DetailView):
+class ProblemDetailView(DetailView, ArchiveView):
     template_name = "problems/detail.html"
     object: Problem
 
     def get_object(self, queryset=None):
-        self.contest = get_current_contest(self.request)
         problem_set = get_object_or_404(
-            ProblemSet.objects.for_user(self.request.user, self.contest)
+            self.get_problemset_queryset()
             .filter(slug=self.kwargs["problem_set_slug"])
             .prefetch_related("problems")
         )
@@ -268,13 +267,12 @@ class ProblemSolutionView(ProblemDetailView):
         return ctx
 
 
-class StatementPDFView(SingleObjectMixin, View):
+class StatementPDFView(SingleObjectMixin, ArchiveView):
     file_getter = "statement_pdf"
     file_type = Text.Type.PROBLEM_STATEMENT
 
     def get_queryset(self):
-        contest = get_current_contest(self.request)
-        return ProblemSet.objects.for_user(self.request.user, contest)
+        return self.get_problemset_queryset()
 
     def get(self, request, *args, **kwargs):
         problem_set: ProblemSet = self.get_object()
