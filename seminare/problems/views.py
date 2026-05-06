@@ -204,7 +204,13 @@ class ProblemDetailView(DetailView):
 
         if (user := self.request.user).is_authenticated:
             assert isinstance(user, User)
-            enrollment = self.rule_engine.get_enrollment(user)
+
+            enrollment = self.rule_engine.get_enrollment(
+                user, "force-enrollment" in self.request.GET
+            )
+            ctx["missing_school"] = (not enrollment) and (
+                not user.current_grade or not user.current_school
+            )
 
             if enrollment is not None:
                 enrollment.user = user
