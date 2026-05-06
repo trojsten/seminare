@@ -118,7 +118,7 @@ class ProblemSet(models.Model):
 
     @property
     def school_year(self) -> int:
-        return date_to_academic_year(self.start_date)
+        return date_to_academic_year(self.end_date)
 
     @property
     def deadline_font(self) -> str:
