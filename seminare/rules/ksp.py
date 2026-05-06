@@ -98,11 +98,8 @@ class KSP2025(LevelRuleEngine, PreviousProblemSetRuleEngine, RuleEngine):
         for score in scores:
             if isinstance(score, PreviousScoreCell):
                 previous = score.points
-                continue
-
-            if not isinstance(score, ScoreCell):
-                continue
-            best.append(score.score.points * score.coefficient)
+            elif isinstance(score, ScoreCell):
+                best.append(score.score.points * score.coefficient)
 
         best.sort(reverse=True)
 
@@ -111,9 +108,24 @@ class KSP2025(LevelRuleEngine, PreviousProblemSetRuleEngine, RuleEngine):
     def get_coefficient_for_problem(
         self, problem_number: int, enrollment: Enrollment, table: str, context: dict
     ) -> Decimal:
-        if table and table[0] == "L" and problem_number < int(table[1]):
+        if table and table[0] == "L" and problem_number < int(table[1:]):
             return Decimal(0)
+
+        level = context["levels"][enrollment.user_id]
+        if problem_number < level:
+            return Decimal(0)
+
         return Decimal(1)
+
+    def get_relevant_problems(self, table: str) -> QuerySet["Problem"]:
+        problems = super().get_relevant_problems(table)
+
+        if table[0] == "L":
+            level = int(table[1:])
+
+            problems = problems.filter(number__gte=level)
+
+        return problems
 
     def result_table_is_ghost(
         self, table: str, context: dict, enrollment: Enrollment
