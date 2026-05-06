@@ -15,17 +15,26 @@ class ProblemSetTable(Table):
         "name",
         "start_date",
         "end_date",
+        "is_public",
+        "solutions_public",
+        "is_finalized",
     ]
 
     labels = {
         "name": "Názov",
         "start_date": "Začiatok",
         "end_date": "Koniec",
+        "is_public": "Zverejnené",
+        "solutions_public": "Zverejnené vzoráky",
+        "is_finalized": "Finalizované výsledky",
     }
 
     templates = {
         "start_date": "tables/fields/date.html",
         "end_date": "tables/fields/date.html",
+        "is_public": "tables/fields/boolean.html",
+        "solutions_public": "tables/fields/boolean.html",
+        "is_finalized": "tables/fields/boolean.html",
     }
 
     def get_links(
