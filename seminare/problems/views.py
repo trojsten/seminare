@@ -31,12 +31,15 @@ class ArchiveView(View):
         contest = get_current_contest(request)
         return ProblemSet.objects.for_user(request.user, contest)
 
+    @cached_property
+    def contest(self):
+        return get_current_contest(self.request)
+
 
 class ProblemSetListView(ListView, ArchiveView):
     template_name = "sets/list.html"
 
     def get_queryset(self):
-        self.contest = get_current_contest(self.request)
         return self.get_all_problemsets().order_by("-end_date", "-start_date")
 
     def get_context_data(self, **kwargs):
@@ -64,7 +67,6 @@ class ProblemSetDetailView(DetailView, ArchiveView):
     object: ProblemSet
 
     def get_queryset(self):
-        self.contest = get_current_contest(self.request)
         return self.get_all_problemsets().prefetch_related("problems")
 
     def get_context_data(self, **kwargs):
@@ -88,7 +90,6 @@ class ProblemSetResultsView(DetailView, ArchiveView):
     object: ProblemSet
 
     def get_queryset(self):
-        self.contest = get_current_contest(self.request)
         return (
             self.get_all_problemsets()
             .filter(contest=self.contest)
@@ -144,7 +145,6 @@ class ProblemDetailView(DetailView, ArchiveView):
     object: Problem
 
     def get_object(self, queryset=None):
-        self.contest = get_current_contest(self.request)
         problem_set = get_object_or_404(
             self.get_all_problemsets()
             .filter(slug=self.kwargs["problem_set_slug"])
