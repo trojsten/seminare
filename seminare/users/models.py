@@ -115,7 +115,7 @@ class Enrollment(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     user_id: int
     school = models.ForeignKey(School, on_delete=models.CASCADE, blank=True, null=True)
-    school_id: int
+    school_id: int | None
     grade = models.CharField(choices=Grade.choices, max_length=3)
 
     class Meta:

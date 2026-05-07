@@ -177,7 +177,10 @@ class Table(ResultsSerializable):
 
         for row in self.rows:
             enrollment = row.enrollment
-            if row.enrollment.school_id not in schools:
+            if (
+                row.enrollment.school_id not in schools
+                and row.enrollment.school_id is not None
+            ):
                 schools[row.enrollment.school_id] = {
                     "name": enrollment.school.name,
                     "short_name": enrollment.school.short_name,
@@ -230,19 +233,22 @@ class Table(ResultsSerializable):
             )
 
         for row in data["rows"]:
+            enrollment = row["enrollment"]
+            user = enrollment["user"]
+
             rows.append(
                 Row(
                     rank=row["rank"],
                     enrollment=Enrollment(
-                        id=row["enrollment"]["id"],
-                        grade=row["enrollment"]["grade"],
-                        school=schools[row["enrollment"]["school_id"]],
+                        id=enrollment["id"],
+                        grade=enrollment["grade"],
+                        school=schools.get(enrollment["school_id"]),
                         user=User(
-                            id=row["enrollment"]["user"]["id"],
-                            username=row["enrollment"]["user"]["username"],
-                            email=row["enrollment"]["user"]["email"],
-                            first_name=row["enrollment"]["user"]["first_name"],
-                            last_name=row["enrollment"]["user"]["last_name"],
+                            id=user["id"],
+                            username=user["username"],
+                            email=user["email"],
+                            first_name=user["first_name"],
+                            last_name=user["last_name"],
                         ),
                         problem_set=problem_set,
                     ),
