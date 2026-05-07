@@ -178,8 +178,8 @@ class Table(ResultsSerializable):
         for row in self.rows:
             enrollment = row.enrollment
             if (
-                row.enrollment.school_id not in schools
-                and row.enrollment.school_id is not None
+                row.enrollment.school_id is not None
+                and row.enrollment.school_id not in schools
             ):
                 schools[row.enrollment.school_id] = {
                     "name": enrollment.school.name,
