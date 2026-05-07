@@ -18,7 +18,7 @@
         </div>
       {% endif %}
     </div>
-    <div class="prose prose-sm">
+    <div class="prose prose-sm {% if truncate_words %}line-clamp-6{% endif %}">
       {% if truncate_words %}
         {{ post.content|markdownify:contest|truncatewords_html:truncate_words }}
       {% else %}
