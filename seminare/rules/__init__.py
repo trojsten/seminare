@@ -291,10 +291,10 @@ class RuleEngineDataMixin:
 
 
 class RuleEngine(RuleEngineDataMixin, AbstractRuleEngine):
-    def get_important_dates(self) -> list[tuple[datetime, str]]:
+    def get_important_dates(self) -> list[tuple[datetime, str, bool]]:
         return [
-            (self.problem_set.start_date, "Začiatok kola"),
-            (self.problem_set.end_date, "Koniec kola"),
+            (self.problem_set.start_date, "Začiatok kola", False),
+            (self.problem_set.end_date, "Koniec kola", True),
         ]
 
     def get_visible_texts(self, problem: "Problem|None") -> "set[Text.Type]":

@@ -45,10 +45,10 @@ class KSP2025(LevelRuleEngine, PreviousProblemSetRuleEngine, RuleEngine):
 
         return super().parse_options(options)
 
-    def get_important_dates(self) -> list[tuple[datetime, str]]:
+    def get_important_dates(self) -> list[tuple[datetime, str, bool]]:
         dates = super().get_important_dates()
 
-        dates.append((self.doprogramovanie_date, "Doprogramovávanie"))
+        dates.append((self.doprogramovanie_date, "Doprogramovávanie", True))
 
         return dates
 
