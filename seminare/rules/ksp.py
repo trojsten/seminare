@@ -1,13 +1,14 @@
+from collections import defaultdict
 from datetime import datetime
 from decimal import Decimal
-from typing import Iterable
+from typing import Iterable, Optional
 
 from django.db.models import F, Q, QuerySet
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 
 from seminare.problems.models import Problem
-from seminare.rules import Chip, RuleEngine
+from seminare.rules import Chip, RuleEngine, Score
 from seminare.rules.common import (
     LevelRuleEngine,
     PreviousProblemSetRuleEngine,
@@ -18,7 +19,7 @@ from seminare.rules.results import (
     ScoreCell,
     Table,
 )
-from seminare.submits.models import BaseSubmit, FileSubmit
+from seminare.submits.models import BaseSubmit, FileSubmit, JudgeSubmit
 from seminare.users.models import Enrollment, Grade, User
 
 
@@ -67,16 +68,19 @@ class KSP2025(LevelRuleEngine, PreviousProblemSetRuleEngine, RuleEngine):
         submit_cls: type[BaseSubmit],
         enrollments: Iterable[Enrollment],
         problems: Iterable[Problem],
+        filters: Optional[Q] = None,
     ) -> QuerySet[BaseSubmit]:
-        # TODO: doprogramovavanie
+        if filters is None:
+            filters = Q(created_at__lte=self.doprogramovanie_date) | Q(
+                late_accepted=True
+            )
+
         return (
             submit_cls.objects.filter(
                 problem__in=problems,
                 enrollment__in=enrollments,
             )
-            .filter(
-                Q(created_at__lte=self.problem_set.end_date) | Q(late_accepted=True)
-            )
+            .filter(filters)
             .order_by(
                 "enrollment_id",
                 "problem_id",
@@ -85,6 +89,56 @@ class KSP2025(LevelRuleEngine, PreviousProblemSetRuleEngine, RuleEngine):
             )
             .distinct("enrollment_id", "problem_id")
         )
+
+    def get_enrollments_problems_scores(
+        self, enrollments: Iterable[Enrollment], problems: Iterable["Problem"]
+    ) -> dict[tuple[int, int], Score]:
+        user_problem_submits: dict[tuple[int, int], list[BaseSubmit]]
+        user_problem_submits = defaultdict(list)
+
+        best_judge_scores: dict[tuple[int, int], Decimal]
+        best_judge_scores = defaultdict(lambda: Decimal(0))
+
+        for type_ in BaseSubmit.get_submit_types():
+            if not any(
+                type_ in problem.accepted_submit_classes for problem in problems
+            ):
+                continue
+
+            submits = self.get_enrollments_problems_effective_submits(
+                type_, enrollments, problems
+            ).select_related("enrollment")
+            for submit in submits:
+                key = (submit.enrollment.user_id, submit.problem_id)
+                user_problem_submits[key].append(submit)
+                if type_ == JudgeSubmit:
+                    best_judge_scores[key] = max(best_judge_scores[key], submit.score)
+
+        doprogramovanie_submits = self.get_enrollments_problems_effective_submits(
+            JudgeSubmit,
+            enrollments,
+            problems,
+            filters=Q(
+                created_at__gt=self.doprogramovanie_date,
+                late_accepted=False,
+                created_at__lte=self.problem_set.end_date,
+            ),
+        ).select_related("enrollment")
+        for submit in doprogramovanie_submits:
+            key = (submit.enrollment.user_id, submit.problem_id)
+
+            new_score = (submit.score - best_judge_scores[key]) * Decimal(0.5)
+            submit.score = new_score if new_score > 0 else Decimal(0)
+
+            user_problem_submits[key].append(submit)
+
+        output = {}
+        for key, submits in user_problem_submits.items():
+            problem: "Problem" = next(
+                problem for problem in problems if problem.id == key[1]
+            )
+            output[key] = Score(submits, problem)
+        return output
 
     def get_result_tables(self) -> dict[str, str]:
         return {"all": "Spoločná"} | super().get_result_tables()
