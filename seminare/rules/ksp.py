@@ -19,7 +19,7 @@ from seminare.rules.results import (
     ScoreCell,
     Table,
 )
-from seminare.submits.models import BaseSubmit, JudgeSubmit
+from seminare.submits.models import BaseSubmit, FileSubmit, JudgeSubmit
 from seminare.users.models import Enrollment, Grade, User
 
 
@@ -41,19 +41,27 @@ class KSP2025(LevelRuleEngine, PreviousProblemSetRuleEngine, RuleEngine):
 
         date = date.astimezone(timezone.get_current_timezone())
 
-        if date <= self.problem_set.end_date:
-            raise ValueError("'doprogramovanie_date' musí byť po konci kola.")
-
         self.doprogramovanie_date = date
 
         return super().parse_options(options)
 
     def get_important_dates(self) -> list[tuple[datetime, str, bool]]:
-        dates = super().get_important_dates()
+        return [
+            (self.problem_set.start_date, "Začiatok kola", False),
+            (self.doprogramovanie_date, "Koniec kola", True),
+            (self.problem_set.end_date, "Doprogramovávanie do", True),
+        ]
 
-        dates.append((self.doprogramovanie_date, "Doprogramovávanie", True))
+    def can_submit(
+        self,
+        submit_cls: type[BaseSubmit],
+        problem: "Problem",
+        enrollment: Enrollment | None,
+    ) -> bool:
+        if submit_cls == FileSubmit and timezone.now() > self.doprogramovanie_date:
+            return False
 
-        return dates
+        return super().can_submit(submit_cls, problem, enrollment)
 
     def get_enrollments_problems_effective_submits(
         self,
@@ -63,7 +71,7 @@ class KSP2025(LevelRuleEngine, PreviousProblemSetRuleEngine, RuleEngine):
         filters: Optional[Q] = None,
     ) -> QuerySet[BaseSubmit]:
         if filters is None:
-            filters = Q(created_at__lte=self.problem_set.end_date) | Q(
+            filters = Q(created_at__lte=self.doprogramovanie_date) | Q(
                 late_accepted=True
             )
 
@@ -111,9 +119,9 @@ class KSP2025(LevelRuleEngine, PreviousProblemSetRuleEngine, RuleEngine):
             enrollments,
             problems,
             filters=Q(
-                created_at__gt=self.problem_set.end_date,
+                created_at__gt=self.doprogramovanie_date,
                 late_accepted=False,
-                created_at__lte=self.doprogramovanie_date,
+                created_at__lte=self.problem_set.end_date,
             ),
         ).select_related("enrollment")
         for submit in doprogramovanie_submits:
