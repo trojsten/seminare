@@ -111,7 +111,7 @@ class KSP2025(LevelRuleEngine, PreviousProblemSetRuleEngine, RuleEngine):
             for submit in submits:
                 key = (submit.enrollment.user_id, submit.problem_id)
                 user_problem_submits[key].append(submit)
-                if type_ == JudgeSubmit:
+                if type_ == JudgeSubmit and submit.score is not None:
                     best_judge_scores[key] = max(best_judge_scores[key], submit.score)
 
         doprogramovanie_submits = self.get_enrollments_problems_effective_submits(
