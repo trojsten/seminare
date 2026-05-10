@@ -6,6 +6,7 @@ from functools import cached_property
 from importlib import import_module
 from typing import TYPE_CHECKING, Iterable
 
+from django.conf import settings
 from django.core.cache import cache
 from django.db.models import QuerySet
 from django.urls import reverse
@@ -442,11 +443,12 @@ class RuleEngine(RuleEngineDataMixin, AbstractRuleEngine):
             frozen_results = self.problem_set.get_frozen_results(table)
             return Table.deserialize(frozen_results, problem_set=self.problem_set)
 
-        key = f"results_table/{self.problem_set.slug}/{table}"
-        if key in cache and (data := cache.get(key)) is not None:
-            return Table.deserialize(
-                decompress_data(data), problem_set=self.problem_set
-            )
+        if settings.CACHE_RESULTS:
+            key = f"results_table/{self.problem_set.slug}/{table}"
+            if (data := cache.get(key)) is not None:
+                return Table.deserialize(
+                    decompress_data(data), problem_set=self.problem_set
+                )
 
         enrollments = self.get_enrollments().select_related("user", "school")
 
@@ -480,13 +482,17 @@ class RuleEngine(RuleEngineDataMixin, AbstractRuleEngine):
 
         table_obj = Table(columns, rows)
         table_obj.sort()
-        cache.set(key, compress_data(table_obj.serialize()), timeout=60 * 5)
+
+        if settings.CACHE_RESULTS:
+            cache.set(key, compress_data(table_obj.serialize()), timeout=60 * 5)
+
         return table_obj
 
     def close_problemset(self):
         for table in self.get_result_tables().keys():
             key = f"results_table/{self.problem_set.slug}/{table}"
-            cache.delete(key)
+            if settings.CACHE_RESULTS:
+                cache.delete(key)
 
             self.problem_set.set_frozen_results(
                 table, self.get_result_table(table).serialize()
