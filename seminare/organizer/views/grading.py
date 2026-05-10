@@ -144,7 +144,7 @@ class GradingSubmitView(ContestOrganizerRequired, WithSubmit, WithSubmitList, Fo
         deadlines = self.rule_engine.get_important_dates()
 
         out = []
-        for deadline, label in deadlines:
+        for deadline, label, _ in deadlines:
             out.append({"type": "deadline", "time": deadline, "label": label})
         for submit in submits:
             late = submit.created_at > self.problem.problem_set.end_date

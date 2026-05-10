@@ -55,7 +55,7 @@ class AbstractRuleEngine:
 
     # === Contestant frontend ===
 
-    def get_important_dates(self) -> list[tuple[datetime, str]]:
+    def get_important_dates(self) -> list[tuple[datetime, str, bool]]:
         """
         Returns a list of important dates for the problem set.
         This is shown to the contestants.
