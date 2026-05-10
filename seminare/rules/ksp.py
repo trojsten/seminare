@@ -49,7 +49,7 @@ class KSP2025(LevelRuleEngine, PreviousProblemSetRuleEngine, RuleEngine):
         return [
             (self.problem_set.start_date, "Začiatok kola", False),
             (self.doprogramovanie_date, "Koniec kola", True),
-            (self.problem_set.end_date, "Doprogramovávanie do", True),
+            (self.problem_set.end_date, "Koniec doprogramovávania", True),
         ]
 
     def can_submit(
