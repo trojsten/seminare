@@ -117,6 +117,8 @@ LOGOUT_REDIRECT_URL = "/"
 JUDGE_URL: str = env("JUDGE_URL", default="https://judge.ksp.sk")
 JUDGE_TOKEN: str = env("JUDGE_TOKEN")
 
+CACHE_RESULTS: bool = env.bool("CACHE_RESULTS", default=True)
+
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
         "seminare.organizer.api.auth.IsContestAdmin",
