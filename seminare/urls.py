@@ -5,6 +5,7 @@ from django.contrib import admin
 from django.urls import include, path, register_converter
 
 from seminare.contests.views import HomepageView
+from seminare.organizer.views.dashboard import AdminRedirectView
 
 
 class SubmitIDConverter:
@@ -21,7 +22,8 @@ register_converter(SubmitIDConverter, "submit_id")
 
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
+    path("admin/", AdminRedirectView.as_view(), name="admin_root"),
+    path("django/", admin.site.urls),
     path("oidc/", include("mozilla_django_oidc.urls")),
     path("api/", include("seminare.organizer.api")),
     path("", include("seminare.problems.urls")),
