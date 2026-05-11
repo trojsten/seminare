@@ -6,6 +6,7 @@ from functools import cached_property
 from importlib import import_module
 from typing import TYPE_CHECKING, Iterable
 
+from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
 from django.core.cache import cache
 from django.db.models import QuerySet
@@ -56,7 +57,7 @@ class AbstractRuleEngine:
 
     # === Contestant frontend ===
 
-    def get_important_dates(self) -> list[tuple[datetime, str]]:
+    def get_important_dates(self) -> list[tuple[datetime, str, bool]]:
         """
         Returns a list of important dates for the problem set.
         This is shown to the contestants.
@@ -292,10 +293,10 @@ class RuleEngineDataMixin:
 
 
 class RuleEngine(RuleEngineDataMixin, AbstractRuleEngine):
-    def get_important_dates(self) -> list[tuple[datetime, str]]:
+    def get_important_dates(self) -> list[tuple[datetime, str, bool]]:
         return [
-            (self.problem_set.start_date, "Začiatok kola"),
-            (self.problem_set.end_date, "Koniec kola"),
+            (self.problem_set.start_date, "Začiatok kola", False),
+            (self.problem_set.end_date, "Koniec kola", True),
         ]
 
     def get_visible_texts(self, problem: "Problem|None") -> "set[Text.Type]":
@@ -307,7 +308,7 @@ class RuleEngine(RuleEngineDataMixin, AbstractRuleEngine):
         if now >= self.problem_set.start_date:
             visible.add(Text.Type.PROBLEM_STATEMENT)
 
-        if now > self.problem_set.end_date:
+        if now > self.problem_set.end_date and self.problem_set.solutions_public:
             visible.add(Text.Type.EXAMPLE_SOLUTION)
 
         return visible
@@ -443,11 +444,12 @@ class RuleEngine(RuleEngineDataMixin, AbstractRuleEngine):
             frozen_results = self.problem_set.get_frozen_results(table)
             return Table.deserialize(frozen_results, problem_set=self.problem_set)
 
-        key = f"results_table/{self.problem_set.slug}/{table}"
-        if key in cache and (data := cache.get(key)) is not None:
-            return Table.deserialize(
-                decompress_data(data), problem_set=self.problem_set
-            )
+        if settings.CACHE_RESULTS:
+            key = f"results_table/{self.problem_set.slug}/{table}"
+            if (data := cache.get(key)) is not None:
+                return Table.deserialize(
+                    decompress_data(data), problem_set=self.problem_set
+                )
 
         enrollments = self.get_enrollments().select_related("user", "school")
 
@@ -481,13 +483,17 @@ class RuleEngine(RuleEngineDataMixin, AbstractRuleEngine):
 
         table_obj = Table(columns, rows)
         table_obj.sort()
-        cache.set(key, compress_data(table_obj.serialize()), timeout=60 * 5)
+
+        if settings.CACHE_RESULTS:
+            cache.set(key, compress_data(table_obj.serialize()), timeout=60 * 5)
+
         return table_obj
 
     def close_problemset(self):
         for table in self.get_result_tables().keys():
             key = f"results_table/{self.problem_set.slug}/{table}"
-            cache.delete(key)
+            if settings.CACHE_RESULTS:
+                cache.delete(key)
 
             self.problem_set.set_frozen_results(
                 table, self.get_result_table(table).serialize()

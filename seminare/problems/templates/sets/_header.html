@@ -1,11 +1,15 @@
+{% load datetime_utils %}
+
 <dl class="grid grid-cols-1 sm:grid-cols-3 -mx-2 md:-mx-4 mb-2">
-  <div class="p-2 md:p-4">
-    <dt class="font-semibold text-gray-900">Koniec kola:</dt>
-    <dd class="text-gray-700">
-      {{ problem_set.end_date }}
-      {% if problem_set.is_running %}
-        <span class="{{ problem_set.deadline_font }} text-sm block">({{ problem_set.end_date|timeuntil }})</span>
-      {% endif %}
-    </dd>
-  </div>
+  {% for date in problem_set.get_rule_engine.get_important_dates %}
+    <div class="p-2 md:p-4">
+      <dt class="font-semibold text-gray-900">{{ date.1 }}:</dt>
+      <dd class="text-gray-700">
+        {{ date.0 }}
+        {% if date.2 and date.0|is_future %}
+          <span class="{{ problem_set.deadline_font }} text-sm block">({{ date.0|timeuntil }})</span>
+        {% endif %}
+      </dd>
+    </div>
+  {% endfor %}
 </dl>

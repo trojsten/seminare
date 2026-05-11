@@ -1,10 +1,10 @@
-FROM node:21.7.1-alpine AS cssbuild
+FROM node:lts-alpine AS cssbuild
 
 WORKDIR /app
 
 COPY package.json pnpm-lock.yaml ./
 RUN npm install -g pnpm && \
- pnpm install
+ pnpm install --ignore-scripts --frozen-lockfile
 
 COPY ./ /app
 COPY tailwind.config.js ./

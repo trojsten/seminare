@@ -78,13 +78,15 @@
               {{ row.enrollment.get_grade_display }}
             </td>
             <td>
-              <span data-tippy-content="{{ row.enrollment.school }}">
-                {% if row.enrollment.school.short_name %}
-                  {{ row.enrollment.school.short_name }}
-                {% else %}
-                  {{ row.enrollment.school.name }}
-                {% endif %}
-              </span>
+              {% if row.enrollment.school %}
+                <span data-tippy-content="{{ row.enrollment.school }}">
+                  {% if row.enrollment.school.short_name %}
+                    {{ row.enrollment.school.short_name }}
+                  {% else %}
+                    {{ row.enrollment.school.name }}
+                  {% endif %}
+                </span>
+              {% endif %}
             </td>
             {% for cell in row.columns %}
               <td class="text-center">
