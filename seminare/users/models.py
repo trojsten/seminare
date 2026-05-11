@@ -79,6 +79,16 @@ class User(AbstractUser):
             self.current_grade = ""
             return
 
+        school_type = school_info["school_type"]
+        current_year = int(school_info["current_year"])
+
+        current_grade = get_grade_from_type_year(school_type, current_year)
+
+        if current_grade is None:
+            self.current_school = None
+            self.current_grade = ""
+            return
+
         school_data = school_info["school"]
         school, _ = School.objects.get_or_create(
             edu_id=school_data["eduid"],
@@ -87,11 +97,9 @@ class User(AbstractUser):
                 "address": school_data["address"],
             },
         )
-        self.current_school = school
 
-        school_type = school_info["school_type"]
-        current_year = int(school_info["current_year"])
-        self.current_grade = get_grade_from_type_year(school_type, current_year) or ""
+        self.current_school = school
+        self.current_grade = current_grade
 
 
 class School(models.Model):

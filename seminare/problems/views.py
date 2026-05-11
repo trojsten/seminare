@@ -216,9 +216,13 @@ class ProblemDetailView(DetailView):
                 enrollment.user = user
                 ctx["enrollment"] = enrollment
 
-                if self.object.problem_set.is_running and (
-                    enrollment.school_id != user.current_school_id
-                    or enrollment.grade != user.current_grade
+                if (
+                    self.object.problem_set.is_running
+                    and enrollment.school_id is not None
+                    and (
+                        enrollment.school_id != user.current_school_id
+                        or enrollment.grade != user.current_grade
+                    )
                 ):
                     ctx["enrollment_warning"] = True
 
