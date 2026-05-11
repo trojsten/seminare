@@ -18,12 +18,12 @@
 {% block body_container %}
 
 <div data-controller="submit--cta" class="h-full">
-  <div class="flex flex-col lg:flex-row" data-controller="toggle" data-toggle-toggle-class="hidden">
+  <div class="flex flex-col xl:flex-row" data-controller="toggle" data-toggle-toggle-class="hidden">
     {% include "problems/_sidebar.html" with problem_set=problem.problem_set %}
 
-    <div class="flex-1 p-4 lg:py-8 min-h-screen">
-      <div class="mx-auto max-w-prose">
-        <a href="#" class="mb-2 flex justify-end items-center text-blue-700 hover:text-blue-900 lg:hidden"
+    <div class="flex-1 p-4 xl:py-8 min-h-screen">
+      <div class="mx-auto max-w-prose 2xl:max-w-3xl">
+        <a href="#" class="mb-2 flex justify-end items-center text-blue-700 hover:text-blue-900 xl:hidden"
             data-action="click->toggle#click">
           Zoznam úloh
           <iconify-icon icon="mdi:chevron-down" class="ml-1"></iconify-icon>
@@ -63,7 +63,7 @@
             {% if not texts.PS.is_visible %}
               {% message "Túto sekciu vidíš, lebo si organizátor" "warning" %}
             {% endif %}
-            <div class="prose prose-img:mx-auto">
+            <div class="prose prose-img:mx-auto 2xl:max-w-3xl">
               {{ texts.PS.text|markdownify:problem }}
             </div>
           {% endif %}
@@ -71,14 +71,14 @@
       </div>
     </div>
 
-    <div class="lg:border-l p-4 shrink-0">
-      <div class="lg:w-80 max-w-prose mx-auto">
+    <div class="xl:border-l p-4 shrink-0">
+      <div class="xl:w-80 max-w-prose mx-auto">
         {% include "problems/_submit_sidebar.html" %}
       </div>
     </div>
   </div>
 
-  <div class="fixed inset-x bottom-0 z-30 w-full p-4 flex items-center lg:hidden" data-submit--cta-target="cta">
+  <div class="fixed inset-x bottom-0 z-30 w-full p-4 flex items-center xl:hidden" data-submit--cta-target="cta">
     <button type="button" data-action="submit--cta#scroll" class="flex items-center gap-2 px-4 py-2 rounded-full bg-gray-800 text-white mx-auto w-auto shadow-lg" id="scroll">
       Odovzdávanie
       <iconify-icon icon="mdi:arrow-down"></iconify-icon>
