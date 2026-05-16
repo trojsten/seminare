@@ -135,7 +135,9 @@ class IOOutputBlockProcessor(FencedBlockProcessor):
 
 
 class MathPreprocessor(Preprocessor):
-    MATH_RE = re.compile(r"(?<!\\)(\$\$.*?\$\$|\$.*?\$)", re.DOTALL)
+    MATH_RE = re.compile(
+        r"(?<!\\)(\$\$.*?\$\$|\$.*?\$|\\\[.*?\\\]|\\\(.*?\\\))", re.DOTALL
+    )
 
     def run(self, lines: list[str]) -> list[str]:
         text = "\n".join(lines)
@@ -144,7 +146,6 @@ class MathPreprocessor(Preprocessor):
             self.md.math_stash = []
 
         def repl(match):
-            # No underscores, so markdown ignores it
             placeholder = f"MATH_STASH_{len(self.md.math_stash)}_ENDSTASH"
             self.md.math_stash.append(match.group(1))
             return placeholder
