@@ -35,8 +35,15 @@ class ArchiveView(View):
     def contest(self):
         return get_current_contest(self.request)
 
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
 
-class ProblemSetListView(ListView, ArchiveView):
+        ctx["sets"] = self.get_problemset_queryset()
+
+        return ctx
+
+
+class ProblemSetListView(ArchiveView, ListView):
     template_name = "sets/list.html"
 
     def get_queryset(self):
@@ -61,7 +68,7 @@ class ProblemSetListView(ListView, ArchiveView):
         return ctx
 
 
-class ProblemSetDetailView(DetailView, ArchiveView):
+class ProblemSetDetailView(ArchiveView, DetailView):
     queryset = ProblemSet.objects.get_queryset()
     template_name = "sets/detail.html"
     object: ProblemSet
@@ -79,12 +86,10 @@ class ProblemSetDetailView(DetailView, ArchiveView):
             rule_engine.get_chips(self.request.user),
         )
         ctx["visible_pdfs"] = rule_engine.get_visible_texts(None)
-
-        ctx["sets"] = self.get_problemset_queryset()
         return ctx
 
 
-class ProblemSetResultsView(DetailView, ArchiveView):
+class ProblemSetResultsView(ArchiveView, DetailView):
     queryset = ProblemSet.objects.get_queryset()
     template_name = "sets/results.html"
     object: ProblemSet
@@ -135,12 +140,11 @@ class ProblemSetResultsView(DetailView, ArchiveView):
         ctx["result_tables"] = result_tables
         ctx["selected_table"] = selected_table
         ctx["selected_table_name"] = result_tables[selected_table]
-        ctx["sets"] = self.get_problemset_queryset()
 
         return ctx
 
 
-class ProblemDetailView(DetailView, ArchiveView):
+class ProblemDetailView(ArchiveView, DetailView):
     template_name = "problems/detail.html"
     object: Problem
 
@@ -273,7 +277,7 @@ class ProblemSolutionView(ProblemDetailView):
         return ctx
 
 
-class StatementPDFView(SingleObjectMixin, ArchiveView):
+class StatementPDFView(ArchiveView, SingleObjectMixin):
     file_getter = "statement_pdf"
     file_type = Text.Type.PROBLEM_STATEMENT
 
