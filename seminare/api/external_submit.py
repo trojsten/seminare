@@ -25,14 +25,14 @@ class ExternalSubmitAPITokenExchangeView(APIView):
             data = signing.loads(token, max_age=10)
 
             if data.get("type") != "exchange-token":
-                raise Exception()
+                raise signing.BadSignature()
 
-            user = User.objects.get(id=data["user_id"])
+            user = User.objects.get(id=data.get("user_id"))
 
-            if data["problem_id"] != problem.id:
-                raise Exception()
+            if data.get("problem_id") != problem.id:
+                raise signing.BadSignature()
 
-        except (signing.BadSignature, Exception):
+        except (signing.BadSignature, signing.SignatureExpired, user.DoesNotExist):
             return Response({"error": "Invalid token."}, status=401)
 
         return Response(

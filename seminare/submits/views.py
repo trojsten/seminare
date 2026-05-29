@@ -4,7 +4,7 @@ from decimal import Decimal
 
 from django import forms
 from django.core.exceptions import PermissionDenied
-from django.http import JsonResponse
+from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.decorators import method_decorator
@@ -43,7 +43,9 @@ class SubmitCreateView(FormView):
         )
         rule_engine: RuleEngine = self.problem.problem_set.get_rule_engine()
 
-        self.enrollment = rule_engine.get_enrollment(request.user, create=True)
+        enrollment = rule_engine.get_enrollment(request.user, create=True)
+        assert enrollment is not None
+        self.enrollment = enrollment
         self.enrollment.user = request.user
 
         if not rule_engine.can_submit(self.submit_type, self.problem, self.enrollment):
@@ -130,10 +132,7 @@ class ExternalSubmitCreateView(SubmitCreateView):
     submit_type = ExternalSubmit
 
     def form_valid(self, form, save=True):
-        return super().form_valid(form, save=False)
-
-    def get_success_url(self):
-        return (
+        return HttpResponseRedirect(
             self.problem.external_submit_url
             + "?token="
             + self.problem.get_external_submit_token(self.enrollment)
