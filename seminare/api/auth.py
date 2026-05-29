@@ -7,12 +7,43 @@ from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.permissions import BasePermission
 
 from seminare.contests.utils import get_current_contest
+from seminare.problems.models import Problem
 from seminare.users.logic.permissions import is_contest_administrator
 from seminare.users.models import User
 
 if TYPE_CHECKING:
     from rest_framework.request import Request
     from rest_framework.views import APIView
+
+
+class ExternalSubmitAuthentication(BaseAuthentication):
+    def authenticate(self, request):
+        token = request.headers.get("X-Token")
+
+        if not token:
+            raise AuthenticationFailed("Missing authentication token")
+
+        problem = Problem.objects.filter(
+            external_submit_secret=token,
+            problem_set__contest=get_current_contest(request),
+        ).first()
+
+        if problem is None:
+            raise AuthenticationFailed("Invalid authentication token")
+
+        user = User.objects.filter(id=request.headers.get("X-User-Id")).first()
+
+        return (user, problem)
+
+
+class ExternalSubmitUserAuthentication(ExternalSubmitAuthentication):
+    def authenticate(self, request):
+        user, problem = super().authenticate(request)
+
+        if user is None:
+            raise AuthenticationFailed("User not found")
+
+        return (user, problem)
 
 
 class IsContestAdmin(BasePermission):

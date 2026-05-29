@@ -9,7 +9,7 @@ from seminare.organizer.views.dashboard import AdminRedirectView
 
 
 class SubmitIDConverter:
-    regex = "[FJT]-[0-9]+"
+    regex = "[EFJT]-[0-9]+"
 
     def to_python(self, value):
         return value
@@ -25,7 +25,7 @@ urlpatterns = [
     path("admin/", AdminRedirectView.as_view(), name="admin_root"),
     path("django/", admin.site.urls),
     path("oidc/", include("mozilla_django_oidc.urls")),
-    path("api/", include("seminare.organizer.api")),
+    path("api/", include("seminare.api")),
     path("", include("seminare.problems.urls")),
     path("", include("seminare.submits.urls")),
     path("", include("seminare.legacy.urls")),

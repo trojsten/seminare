@@ -24,7 +24,7 @@
         </div>
 
         {% if data.can_submit %}
-          {% if id != "text" %}
+          {% if id != "text" and id != "external" %}
             <label class="block bg-gray-100 rounded-md text-gray-700 text-center p-4 cursor-pointer hover:bg-gray-200 border-2" for="submit-{{ id }}-input" data-action="dragover->submit--{{ id }}-submit#onDragOver dragleave->submit--{{ id }}-submit#onDragLeave drop->submit--{{ id }}-submit#onDrop"
               data-submit--{{ id }}-submit-target="dropZone">
               <iconify-icon icon="mdi:upload" width="none" class="size-8"></iconify-icon>
@@ -37,7 +37,7 @@
             <span data-submit--{{ id }}-submit-target="errorMessage"></span>
           </div>
 
-          <form method="POST" enctype="multipart/form-data" action="{{ data.action }}" id="form" class="{% if id != "text" %}hidden{% else %}flex flex-row gap-2{% endif %} mt-2" data-submit--{{ id }}-submit-target="form">
+          <form method="POST" enctype="multipart/form-data" action="{{ data.action }}" id="form" class="{% if id != "text" and id != "external" %}hidden{% else %}flex flex-row gap-2{% endif %} mt-2" data-submit--{{ id }}-submit-target="form">
             {% csrf_token %}
             {% if id == "file" %}
               <input id="submit-{{ id }}-input" type="file" name="files" multiple accept="image/jpeg, image/png, application/pdf" class="hidden" data-submit--file-submit-target="fileInput" data-action="change->submit--file-submit#onInputChange">
@@ -45,6 +45,10 @@
             {% elif id == "judge" %}
               <input id="submit-{{ id }}-input" type="file" name="program" class="hidden" data-submit--judge-submit-target="fileInput" data-action="change->submit--judge-submit#onInputChange">
               <button class="btn btn-blue mt-2">Odovzdať</button>
+            {% elif id == "external" %}
+              <div class="flex items-center justify-center w-full">
+                <button class="btn btn-primary mt-2 gap-2 my-auto"><iconify-icon icon="mdi:external-link" width="none" class="size-4"></iconify-icon>Otvoriť rozhranie</button>
+              </div>
             {% else %}
               <input type="text" name="text" class="input">
               <button class="btn btn-blue" title="Odovzdať"><iconify-icon icon="mdi:send" width="none" class="size-5"></iconify-icon></button>

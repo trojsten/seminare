@@ -1,6 +1,7 @@
 from django.urls import path
 
 from .views import (
+    ExternalSubmitCreateView,
     FileSubmitCreateView,
     JudgeReportView,
     JudgeSubmitCreateView,
@@ -28,6 +29,11 @@ urlpatterns = [
         "submit/create/text/<int:problem>",
         TextSubmitCreateView.as_view(),
         name="text_submit",
+    ),
+    path(
+        "submit/create/external/<int:problem>",
+        ExternalSubmitCreateView.as_view(),
+        name="external_submit",
     ),
     path(
         "submit/report/judge/",

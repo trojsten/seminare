@@ -1,7 +1,7 @@
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from seminare.organizer.api.auth import OIDCAuthentication
+from seminare.api.auth import OIDCAuthentication
 from seminare.users.models import User
 
 
