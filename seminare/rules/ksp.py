@@ -1,7 +1,7 @@
 from collections import defaultdict
 from datetime import datetime
 from decimal import Decimal
-from typing import Iterable, Optional
+from typing import TYPE_CHECKING, Iterable, Optional
 
 from django.contrib.auth.models import AnonymousUser
 from django.db.models import F, Q, QuerySet
@@ -22,6 +22,9 @@ from seminare.rules.results import (
 )
 from seminare.submits.models import BaseSubmit, FileSubmit, JudgeSubmit
 from seminare.users.models import Enrollment, Grade, User
+
+if TYPE_CHECKING:
+    from seminare.problems.models import Text
 
 
 class KSP2025(LevelRuleEngine, PreviousProblemSetRuleEngine, RuleEngine):
@@ -52,6 +55,17 @@ class KSP2025(LevelRuleEngine, PreviousProblemSetRuleEngine, RuleEngine):
             (self.doprogramovanie_date, "Koniec kola", True),
             (self.problem_set.end_date, "Koniec doprogramovávania", True),
         ]
+
+    def get_visible_texts(self, problem: "Problem|None") -> "set[Text.Type]":
+        from seminare.problems.models import Text
+
+        visible = super().get_visible_texts(problem)
+
+        now = timezone.now()
+        if now > self.doprogramovanie_date and self.problem_set.solutions_public:
+            visible.add(Text.Type.EXAMPLE_SOLUTION)
+
+        return visible
 
     def can_submit(
         self,
