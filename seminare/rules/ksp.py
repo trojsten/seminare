@@ -142,8 +142,9 @@ class KSP2025(LevelRuleEngine, PreviousProblemSetRuleEngine, RuleEngine):
         for submit in doprogramovanie_submits:
             key = (submit.enrollment.user_id, submit.problem_id)
 
-            new_score = (submit.score - best_judge_scores[key]) * Decimal(0.5)
-            submit.score = new_score if new_score > 0 else Decimal(0)
+            if submit.score is not None:
+                new_score = (submit.score - best_judge_scores[key]) * Decimal(0.5)
+                submit.score = new_score if new_score > 0 else Decimal(0)
 
             user_problem_submits[key].append(submit)
 
