@@ -136,7 +136,7 @@ class IOOutputBlockProcessor(FencedBlockProcessor):
 
 class MathPreprocessor(Preprocessor):
     MATH_RE = re.compile(
-        r"(?<!\\)(\$\$.*?\$\$|\$.*?\$|\\\[.*?\\\]|\\\(.*?\\\))", re.DOTALL
+        r"(\$\$.*?(?<!\\)\$\$|\$.*?(?<!\\)\$|\\\[.*?\\\]|\\\(.*?\\\))", re.DOTALL
     )
 
     def run(self, lines: list[str]) -> list[str]:
