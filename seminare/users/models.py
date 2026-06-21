@@ -151,6 +151,13 @@ class ContestRole(models.Model):
     contest_id: int
     role = models.IntegerField(choices=Role.choices)
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=("user", "contest"), name="contestrole_unique__user_contest"
+            ),
+        ]
+
     def __str__(self):
         return f"{self.user}, {self.contest}: {self.get_role_display()}"
 
