@@ -11,12 +11,18 @@ class GenericTableView(WithBreadcrumbs, ListView):
     table_title = ""
     table_class: type[Table] | None = None
     table_links: list[tuple] = []
+    table_message: tuple[str] | tuple[str, str] | tuple[str, str, str] | None = None
 
-    def get_table_title(self):
+    def get_table_title(self) -> str:
         return self.table_title
 
-    def get_table_links(self):
+    def get_table_links(self) -> list[tuple]:
         return self.table_links
+
+    def get_table_message(
+        self,
+    ) -> tuple[str] | tuple[str, str] | tuple[str, str, str] | None:
+        return self.table_message
 
     def get_table_context(self):
         return {}
@@ -31,6 +37,7 @@ class GenericTableView(WithBreadcrumbs, ListView):
         ctx["table"] = self.table_class()
         ctx["table_title"] = self.get_table_title()
         ctx["table_links"] = self.get_table_links()
+        ctx["table_message"] = self.get_table_message()
         ctx["table_context"] = self.get_table_context()
         return ctx
 
