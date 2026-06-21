@@ -31,6 +31,16 @@ class RoleListView(ContestAdminRequired, WithRoleQuerySet, GenericTableView):
     def get_breadcrumbs(self) -> list[tuple[str, str]]:
         return [("Organizátori", "")]
 
+    def get_table_message(self):
+        contest = get_current_contest(self.request)
+        if contest.iam_group:
+            return (
+                f"Organizátori sú automaticky pridávaní zo skupiny {contest.iam_group}.",
+                "info",
+                "mdi:account-sync",
+            )
+        return None
+
 
 class RoleUpdateView(
     ContestAdminRequired, WithRoleQuerySet, GenericFormView, UpdateView

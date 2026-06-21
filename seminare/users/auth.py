@@ -1,6 +1,7 @@
 from mozilla_django_oidc.auth import OIDCAuthenticationBackend
 
-from seminare.users.models import User
+from seminare.contests.models import Contest
+from seminare.users.models import ContestRole, User
 
 
 def logout_url(request):
@@ -36,3 +37,13 @@ class TrojstenOIDCAB(OIDCAuthenticationBackend):
         user.last_name = claims.get("family_name", "")
 
         user.update_school_info(claims.get("school_info"))
+
+        if groups := claims.get("groups", []):
+            contests = Contest.objects.filter(iam_group__in=groups)
+            ContestRole.objects.bulk_create(
+                [
+                    ContestRole(user=user, contest=c, role=ContestRole.Role.ORGANIZER)
+                    for c in contests
+                ],
+                ignore_conflicts=True,
+            )
