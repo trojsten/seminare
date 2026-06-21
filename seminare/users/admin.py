@@ -29,5 +29,5 @@ class SchoolAdmin(admin.ModelAdmin):
 @admin.register(ContestRole)
 class ContestRoleAdmin(admin.ModelAdmin):
     list_display = ["user", "contest", "role"]
-    list_filter = ["role"]
+    list_filter = ["role", "contest"]
     search_fields = ["user__username", "contest__name"]

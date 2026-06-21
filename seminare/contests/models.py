@@ -25,6 +25,9 @@ class Contest(models.Model):
     name = models.CharField(max_length=100)
     short_name = models.CharField(max_length=50)
     contact_email = models.EmailField()
+
+    iam_group = models.CharField(max_length=100, blank=True, default="")
+
     site = models.OneToOneField("sites.Site", on_delete=models.CASCADE)
     site_id: int
 

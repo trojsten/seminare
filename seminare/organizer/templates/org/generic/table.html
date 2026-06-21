@@ -1,5 +1,5 @@
 {% extends "org/base.html" %}
-{% load tables %}
+{% load tables ui %}
 
 {% block title %}
   {{ table_title }} {{ block.super }}
@@ -7,6 +7,10 @@
 
 {% block body %}
   {% include "org/generic/_title.html" with title=table_title links=table_links %}
+
+  {% if table_message %}
+    {% message table_message.0 type=table_message.1|default:"info" icon=table_message.2 %}
+  {% endif %}
 
   {% render_table table object_list extra_context=table_context %}
   {% if page_obj %}
