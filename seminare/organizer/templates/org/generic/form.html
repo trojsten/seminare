@@ -18,6 +18,14 @@
     {% csrf_token %}
     {% render_form form %}
 
+    {% for id, datalist in form_datalists %}
+      <datalist id="{{ id }}_list">
+        {% for value in datalist %}
+          <option value="{{ value }}">
+        {% endfor %}
+      </datalist>
+    {% endfor %}
+
     <button type="submit" class="btn btn-blue">{{ form_submit_label }}</button>
   </form>
 {% endblock body %}

@@ -51,6 +51,7 @@ class GenericFormView(WithBreadcrumbs, FormView):
     form_submit_label = "Uložiť"
     form_header_template = None
     form_links = []
+    form_datalists = []
 
     def get_form_title(self):
         return self.form_title
@@ -63,10 +64,14 @@ class GenericFormView(WithBreadcrumbs, FormView):
         ctx["form_submit_label"] = self.form_submit_label
         ctx["form_header_template"] = self.form_header_template
         ctx["form_links"] = self.get_form_links()
+        ctx["form_datalists"] = self.get_form_datalists()
         return ctx
 
     def get_form_links(self):
         return self.form_links
+
+    def get_form_datalists(self):
+        return self.form_datalists
 
 
 class GenericDeleteView(GenericFormView, DeleteView):
