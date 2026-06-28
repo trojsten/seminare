@@ -13,6 +13,7 @@ from django.db.models import QuerySet
 from django.urls import reverse
 from django.utils import timezone
 
+from seminare.camps.models import Camp
 from seminare.contests.models import RuleData
 from seminare.rules.results import (
     Cell,
@@ -225,6 +226,13 @@ class AbstractRuleEngine:
         """
         Called when problem set is marked as closed.
         Should do any house keeping tasks such as freezing the result tables, etc.
+        """
+        pass
+
+    def close_camp(self, camp: Camp) -> None:
+        """
+        Called when a camp is marked as closed.
+        Should do any house keeping tasks such as updating levels, etc.
         """
         pass
 

@@ -4,6 +4,7 @@ from typing import Iterable
 from django.contrib.auth.models import AnonymousUser
 from django.db.models import QuerySet
 
+from seminare.camps.models import Camp
 from seminare.problems.models import Problem
 from seminare.rules import Chip, RuleEngine
 from seminare.rules.common import (
@@ -122,8 +123,18 @@ class KMS2026(
         return self.problem_set.slug.endswith("3")
 
     def get_new_level(
-        self, user: "User", current_level: int, tables: dict[str, Table]
+        self,
+        user: "User",
+        current_level: int,
+        tables: dict[str, Table],
+        camp: Camp | None = None,
     ) -> int:
+        # sustredenie
+        if camp is not None:
+            # ak si bol pozvany s levelom L a zucasnil si sa, tak si L + 1
+            return min(self.max_level, current_level + 1)
+
+        # vysledky
         for slug, table in tables.items():
             if not slug.startswith("L"):
                 continue
@@ -140,7 +151,6 @@ class KMS2026(
                     )
                     break
 
-            # TODO: sustredenia (ak si sa zucastnil, tak +1)
         return current_level
 
 
