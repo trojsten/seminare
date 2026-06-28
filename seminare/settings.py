@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     "seminare.problems",
     "seminare.contests",
     "seminare.content",
+    "seminare.camps",
     "seminare.organizer",
     "seminare.legacy",
     #
