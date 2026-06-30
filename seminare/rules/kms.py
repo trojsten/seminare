@@ -129,10 +129,7 @@ class KMS2026(
         tables: dict[str, Table],
         camp: Camp | None = None,
     ) -> int:
-        # sustredenie
-        if camp is not None:
-            # ak si bol pozvany s levelom L a zucasnil si sa, tak si L + 1
-            return min(self.max_level, current_level + 1)
+        results_level = current_level
 
         # vysledky
         for slug, table in tables.items():
@@ -146,12 +143,19 @@ class KMS2026(
                 if row.total < self.KMS_POINTS_FOR_SUCCESSFUL_LEVEL[table_level]:
                     break
                 if row.enrollment.user == user:
-                    current_level = min(
-                        self.max_level, max(current_level, table_level + 1)
+                    results_level = min(
+                        self.max_level, max(results_level, table_level + 1)
                     )
                     break
 
-        return current_level
+        if camp is None:
+            return results_level
+
+        # sustredenie
+        # ak si bol pozvany s levelom L a zucasnil si sa, tak si L + 1
+        camp_level = min(self.max_level, current_level + 1)
+
+        return max(results_level, camp_level)
 
 
 class KMSLegacy(PreviousProblemSetRuleEngine, BestSubmitRuleEngine, RuleEngine):

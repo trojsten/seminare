@@ -129,22 +129,7 @@ class FKS2026(
         tables: dict[str, Table],
         camp: Camp | None = None,
     ) -> int:
-        # sustredenie
-        if camp is not None:
-            # ak mal aspon 42b, tak L + 1
-            table = tables.get("all")
-
-            if not table:
-                return current_level
-
-            for row in table.rows:
-                if row.total < 42:
-                    break
-
-                if row.enrollment.user == user:
-                    return min(self.max_level, current_level + 1)
-
-            return current_level
+        results_level = current_level
 
         # vysledky
         for slug, table in tables.items():
@@ -159,12 +144,28 @@ class FKS2026(
                     break
 
                 if row.enrollment.user == user:
-                    current_level = min(
-                        self.max_level, max(current_level, table_level + 1)
+                    results_level = min(
+                        self.max_level, max(results_level, table_level + 1)
                     )
                     break
 
-        return current_level
+        if camp is None:
+            return results_level
+
+        # sustredenie
+        camp_level = current_level
+
+        # ak mal aspon 42b v celkovej vysledkovke, tak L + 1
+        if table := tables.get("all"):
+            for row in table.rows:
+                if row.total < 42:
+                    break
+
+                if row.enrollment.user == user:
+                    camp_level = min(self.max_level, current_level + 1)
+                    break
+
+        return max(results_level, camp_level)
 
 
 class FX2026(PreviousProblemSetRuleEngine, BestSubmitRuleEngine, RuleEngine):

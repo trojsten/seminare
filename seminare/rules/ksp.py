@@ -39,7 +39,7 @@ class KSP2025(LevelRuleEngine, PreviousProblemSetRuleEngine, RuleEngine):
         if "doprogramovanie_date" not in options:
             raise ValueError("Chýba 'doprogramovanie_date'.")
 
-        date = parse_datetime(options.get("doprogramovanie_date", None))
+        date = parse_datetime(options.get("doprogramovanie_date", ""))
 
         if date is None:
             raise ValueError("'doprogramovanie_date' je v neplatnom formáte.")
@@ -235,10 +235,7 @@ class KSP2025(LevelRuleEngine, PreviousProblemSetRuleEngine, RuleEngine):
         tables: dict[str, Table],
         camp: Camp | None = None,
     ) -> int:
-        # sustredenie
-        if camp is not None:
-            # ak si bol pozvany s levelom L a zucasnil si sa, tak si L + 1
-            return min(self.max_level, current_level + 1)
+        results_level = current_level
 
         # vysledky
         for slug, table in tables.items():
@@ -255,6 +252,13 @@ class KSP2025(LevelRuleEngine, PreviousProblemSetRuleEngine, RuleEngine):
 
                 if row.enrollment.user == user:
                     if row.total >= 150:
-                        current_level = max(current_level, int(slug[1:]) + 1)
+                        results_level = max(results_level, int(slug[1:]) + 1)
 
-        return current_level
+        if camp is None:
+            return results_level
+
+        # sustredenie
+        # ak si bol pozvany s levelom L a zucasnil si sa, tak si L + 1
+        camp_level = min(self.max_level, current_level + 1)
+
+        return max(results_level, camp_level)
