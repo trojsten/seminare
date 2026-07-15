@@ -33,7 +33,7 @@ class ExternalSubmitAPITokenExchangeView(APIView):
                 raise signing.BadSignature()
 
         except (signing.BadSignature, signing.SignatureExpired, user.DoesNotExist):
-            return Response({"error": "Invalid token."}, status=401)
+            return Response({"ok": False, "error": "Invalid token."}, status=401)
 
         return Response(
             {
