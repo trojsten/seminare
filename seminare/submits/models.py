@@ -26,6 +26,7 @@ class BaseSubmit(models.Model):
         FILE = "file", "File submit"
         JUDGE = "judge", "Judge submit"
         TEXT = "text", "Text submit"
+        EXTERNAL = "external", "External submit"
 
     id: int
 
@@ -70,6 +71,7 @@ class BaseSubmit(models.Model):
             return None
 
         submit_types: dict[str, type[BaseSubmit]] = {
+            "E": ExternalSubmit,
             "F": FileSubmit,
             "J": JudgeSubmit,
             "T": TextSubmit,
@@ -91,7 +93,7 @@ class BaseSubmit(models.Model):
 
     @classmethod
     def get_submit_types(cls) -> "list[type[BaseSubmit]]":
-        return [FileSubmit, JudgeSubmit, TextSubmit]
+        return [FileSubmit, JudgeSubmit, TextSubmit, ExternalSubmit]
 
 
 class FileSubmit(BaseSubmit):
@@ -146,3 +148,12 @@ class TextSubmit(BaseSubmit):
     @property
     def tooltip(self):
         return f"Odpoveď: {self.value}"
+
+
+class ExternalSubmit(BaseSubmit):
+    external_data = models.JSONField(blank=True, null=True, default=None)
+    type = BaseSubmit.SubmitType.EXTERNAL
+
+    @property
+    def submit_id(self):
+        return f"E-{self.id}"

@@ -3,6 +3,7 @@ from pathlib import PurePath
 from typing import TYPE_CHECKING, Self, Type, TypedDict
 
 from django.conf import settings
+from django.core import signing
 from django.core.files.storage import storages
 from django.db import models
 from django.db.models import Manager, UniqueConstraint
@@ -11,7 +12,13 @@ from django.urls import reverse
 from django.utils import timezone
 
 from seminare.rules import RuleEngine, get_rule_engine_class
-from seminare.submits.models import BaseSubmit, FileSubmit, JudgeSubmit, TextSubmit
+from seminare.submits.models import (
+    BaseSubmit,
+    ExternalSubmit,
+    FileSubmit,
+    JudgeSubmit,
+    TextSubmit,
+)
 from seminare.users.logic.permissions import is_contest_organizer
 from seminare.users.logic.schools import date_to_academic_year
 
@@ -176,6 +183,7 @@ class Problem(models.Model):
     file_points = models.DecimalField(max_digits=5, decimal_places=2, default=0)
     judge_points = models.DecimalField(max_digits=5, decimal_places=2, default=0)
     text_points = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    external_points = models.DecimalField(max_digits=5, decimal_places=2, default=0)
 
     points_publicly_visible = models.BooleanField(default=False)
 
@@ -183,6 +191,11 @@ class Problem(models.Model):
     judge_task = models.CharField(max_length=256, blank=True)
 
     text_answer = models.CharField(blank=True, max_length=256)
+
+    external_submit_url = models.CharField(blank=True, max_length=256)
+    external_submit_secret = models.CharField(
+        null=True, blank=True, max_length=64, unique=True
+    )
 
     reviewer = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, blank=True, null=True
@@ -215,6 +228,7 @@ class Problem(models.Model):
             ("file_points", BaseSubmit.SubmitType.FILE),
             ("judge_points", BaseSubmit.SubmitType.JUDGE),
             ("text_points", BaseSubmit.SubmitType.TEXT),
+            ("external_points", BaseSubmit.SubmitType.EXTERNAL),
         ]
 
         for points, type_ in type_mapping:
@@ -231,6 +245,7 @@ class Problem(models.Model):
             ("file_points", FileSubmit),
             ("judge_points", JudgeSubmit),
             ("text_points", TextSubmit),
+            ("external_points", ExternalSubmit),
         ]
 
         for points, type_ in type_mapping:
@@ -260,6 +275,15 @@ class Problem(models.Model):
 
     def get_visible_texts(self) -> "set[Text.Type]":
         return self.problem_set.get_rule_engine().get_visible_texts(self)
+
+    def get_external_submit_token(self, enrollment: "Enrollment") -> str:
+        return signing.dumps(
+            {
+                "user_id": enrollment.user_id,
+                "problem_id": self.id,
+                "type": "exchange-token",
+            }
+        )
 
 
 class Text(models.Model):

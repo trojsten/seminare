@@ -1,3 +1,4 @@
+import secrets
 from csv import DictReader
 from datetime import datetime
 from io import TextIOWrapper
@@ -137,9 +138,11 @@ class ProblemForm(forms.ModelForm):
             "file_points",
             "judge_points",
             "text_points",
-            "text_answer",
+            "external_points",
             "judge_namespace",
             "judge_task",
+            "text_answer",
+            "external_submit_url",
             "points_publicly_visible",
             "reviewer",
         ]
@@ -149,11 +152,14 @@ class ProblemForm(forms.ModelForm):
             "file_points": "Body za popis",
             "judge_points": "Body za program",
             "text_points": "Body za odpoveď",
+            "external_points": "Body za interaktívny submit",
+            "external_submit_url": "URL adresa interaktívky",
             "points_publicly_visible": "Zverejniť body za popis",
             "reviewer": "Opravovateľ",
         }
         help_texts = {
-            "reviewer": "Organizátor, ktorému budú chodiť notifikácie o nových submitoch."
+            "reviewer": "Organizátor, ktorému budú chodiť notifikácie o nových submitoch.",
+            "external_submit_url": 'URL adresa na ktorú bude link z detailu úlohy (<a class="link" href="https://wiki.trojsten.sk/veduci/seminare/interaktivky">dokumentácia</a>).',
         }
         widgets = {"reviewer": UserAutocompleteInput}
 
@@ -176,6 +182,13 @@ class ProblemForm(forms.ModelForm):
                 required=False, widget=forms.Textarea, label=label, initial=initial
             )
 
+        if self.instance.id and self.instance.external_points != 0:
+            self.fields[
+                "external_submit_url"
+            ].help_text += (
+                f"<br>Secret: <code>{self.instance.external_submit_secret}</code>"
+            )
+
     def clean_reviewer(self):
         user = self.cleaned_data["reviewer"]
 
@@ -190,6 +203,12 @@ class ProblemForm(forms.ModelForm):
     def save(self, commit=True):
         problem: Problem = super(ProblemForm, self).save(commit=False)
         problem.problem_set = self.problem_set
+
+        if problem.external_points == 0:
+            problem.external_submit_secret = None
+        elif problem.external_submit_secret is None:
+            problem.external_submit_secret = secrets.token_urlsafe(48)
+
         problem.save()
 
         data = self.cleaned_data

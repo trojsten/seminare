@@ -122,7 +122,7 @@ CACHE_RESULTS: bool = env.bool("CACHE_RESULTS", default=True)
 
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
-        "seminare.organizer.api.auth.IsContestAdmin",
+        "seminare.api.auth.IsContestAdmin",
     ],
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.TokenAuthentication",

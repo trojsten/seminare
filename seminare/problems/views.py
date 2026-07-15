@@ -16,7 +16,7 @@ from seminare.problems.logic import (
 )
 from seminare.problems.models import Problem, ProblemSet, Text
 from seminare.rules import RuleEngine
-from seminare.submits.models import FileSubmit, JudgeSubmit, TextSubmit
+from seminare.submits.models import ExternalSubmit, FileSubmit, JudgeSubmit, TextSubmit
 from seminare.users.logic.permissions import (
     is_contest_administrator,
     is_contest_organizer,
@@ -195,6 +195,7 @@ class ProblemDetailView(ArchiveView, DetailView):
                 ("file", FileSubmit, "popis", "mdi:file-text"),
                 ("judge", JudgeSubmit, "program", "mdi:file-code"),
                 ("text", TextSubmit, "odpoveď", "mdi:format-text"),
+                ("external", ExternalSubmit, "interaktívku", "mdi:interaction-tap"),
             )
             if cls in self.object.accepted_submit_classes
         }
