@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from seminare.submits.models import FileSubmit, JudgeSubmit, TextSubmit
+from seminare.submits.models import ExternalSubmit, FileSubmit, JudgeSubmit, TextSubmit
 
 
 @admin.register(FileSubmit)
@@ -15,4 +15,9 @@ class JudgeSubmitAdmin(admin.ModelAdmin):
 
 @admin.register(TextSubmit)
 class TextSubmitAdmin(admin.ModelAdmin):
+    list_display = ["problem", "created_at", "score", "scored_by"]
+
+
+@admin.register(ExternalSubmit)
+class ExternalSubmitAdmin(admin.ModelAdmin):
     list_display = ["problem", "created_at", "score", "scored_by"]

@@ -2,8 +2,9 @@ import json
 import os.path
 from decimal import Decimal
 
+from django import forms
 from django.core.exceptions import PermissionDenied
-from django.http import JsonResponse
+from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.decorators import method_decorator
@@ -15,7 +16,13 @@ from seminare import settings
 from seminare.problems.models import Problem
 from seminare.rules import RuleEngine
 from seminare.submits.forms import FileFieldForm, JudgeSubmitForm, TextSubmitForm
-from seminare.submits.models import BaseSubmit, FileSubmit, JudgeSubmit, TextSubmit
+from seminare.submits.models import (
+    BaseSubmit,
+    ExternalSubmit,
+    FileSubmit,
+    JudgeSubmit,
+    TextSubmit,
+)
 from seminare.submits.tasks import mail_reviewer
 from seminare.submits.utils import combine_images_into_pdf, enqueue_judge_submit
 from seminare.users.mixins.permissions import ContestOrganizerRequired
@@ -36,7 +43,9 @@ class SubmitCreateView(FormView):
         )
         rule_engine: RuleEngine = self.problem.problem_set.get_rule_engine()
 
-        self.enrollment = rule_engine.get_enrollment(request.user, create=True)
+        enrollment = rule_engine.get_enrollment(request.user, create=True)
+        assert enrollment is not None
+        self.enrollment = enrollment
         self.enrollment.user = request.user
 
         if not rule_engine.can_submit(self.submit_type, self.problem, self.enrollment):
@@ -44,8 +53,9 @@ class SubmitCreateView(FormView):
 
         return super().dispatch(request, *args, **kwargs)
 
-    def form_valid(self, form):
-        self.submit.save()
+    def form_valid(self, form, save=True):
+        if save:
+            self.submit.save()
 
         if self.problem.reviewer is not None:
             mail_reviewer.delay(self.submit.submit_id)
@@ -60,7 +70,7 @@ class FileSubmitCreateView(SubmitCreateView):
     form_class = FileFieldForm
     submit_type = FileSubmit
 
-    def form_valid(self, form):
+    def form_valid(self, form, *args, **kwargs):
         files = form.cleaned_data["files"]
         final_file = files[0]
         _, ext = os.path.splitext(files[0].name)
@@ -80,7 +90,7 @@ class JudgeSubmitCreateView(SubmitCreateView):
     form_class = JudgeSubmitForm
     submit_type = JudgeSubmit
 
-    def form_valid(self, form):
+    def form_valid(self, form, *args, **kwargs):
         program = form.cleaned_data["program"]
 
         submit = enqueue_judge_submit(
@@ -105,7 +115,7 @@ class TextSubmitCreateView(SubmitCreateView):
     form_class = TextSubmitForm
     submit_type = TextSubmit
 
-    def form_valid(self, form):
+    def form_valid(self, form, *args, **kwargs):
         text = form.cleaned_data["text"]
 
         self.submit = TextSubmit(
@@ -115,6 +125,18 @@ class TextSubmitCreateView(SubmitCreateView):
         )
 
         return super().form_valid(form)
+
+
+class ExternalSubmitCreateView(SubmitCreateView):
+    form_class = forms.Form
+    submit_type = ExternalSubmit
+
+    def form_valid(self, form, save=True):
+        return HttpResponseRedirect(
+            self.problem.external_submit_url
+            + "?token="
+            + self.problem.get_external_submit_token(self.enrollment)
+        )
 
 
 class SubmitDetailView(ContestOrganizerRequired, DetailView):
