@@ -4,7 +4,9 @@ from functools import cache
 from typing import Iterable
 
 from django.contrib.auth.models import AnonymousUser
-from django.db.models import F, Q, QuerySet
+from django.db.models import F, Max, Q, QuerySet
+from django.db.models.fields import IntegerField
+from django.db.models.functions import Cast
 from django.utils.functional import cached_property
 
 from seminare.camps.models import Camp
@@ -28,9 +30,20 @@ class LevelRuleEngine(RuleEngine):
 
     def get_level_for_users(self, users: "list[User]") -> dict[int, int]:
         """Returns levels for multiple users. If no data is found, returns default level."""
-        return defaultdict(
-            lambda: self.default_level, self.get_data_for_users("level", users)
-        )  # pyright:ignore
+        # Using casting and max aggregate instead of order_by on data, since it would order lexicographically and not numerically
+        data_qs = self.get_data_qs_for_users("level", users).distinct()
+        data_qs = (
+            data_qs.filter(data__regex=r"^\d+$")
+            .annotate(max_level=Max(Cast(F("data"), output_field=IntegerField())))
+            .values("user_id", "max_level")
+        )
+
+        data: dict[int, int] = {}
+        for obj in data_qs:
+            if obj["max_level"] is not None:
+                data[obj["user_id"]] = obj["max_level"]
+
+        return defaultdict(lambda: self.default_level, data)
 
     def get_level_for_user(self, user: "User") -> int:
         return self.get_level_for_users([user])[user.id]
