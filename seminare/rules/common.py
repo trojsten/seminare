@@ -4,9 +4,12 @@ from functools import cache
 from typing import Iterable
 
 from django.contrib.auth.models import AnonymousUser
-from django.db.models import F, Q, QuerySet
+from django.db.models import F, Max, Q, QuerySet
+from django.db.models.fields import IntegerField
+from django.db.models.functions import Cast
 from django.utils.functional import cached_property
 
+from seminare.camps.models import Camp
 from seminare.problems.models import Problem, ProblemSet
 from seminare.rules import Chip, RuleEngine
 from seminare.rules.results import (
@@ -27,9 +30,20 @@ class LevelRuleEngine(RuleEngine):
 
     def get_level_for_users(self, users: "list[User]") -> dict[int, int]:
         """Returns levels for multiple users. If no data is found, returns default level."""
-        return defaultdict(
-            lambda: self.default_level, self.get_data_for_users("level", users)
-        )  # pyright:ignore
+        # Using casting and max aggregate instead of order_by on data, since it would order lexicographically and not numerically
+        data_qs = self.get_data_qs_for_users("level", users).distinct()
+        data_qs = (
+            data_qs.filter(data__regex=r"^\d+$")
+            .annotate(max_level=Max(Cast(F("data"), output_field=IntegerField())))
+            .values("user_id", "max_level")
+        )
+
+        data: dict[int, int] = {}
+        for obj in data_qs:
+            if obj["max_level"] is not None:
+                data[obj["user_id"]] = obj["max_level"]
+
+        return defaultdict(lambda: self.default_level, data)
 
     def get_level_for_user(self, user: "User") -> int:
         return self.get_level_for_users([user])[user.id]
@@ -49,9 +63,13 @@ class LevelRuleEngine(RuleEngine):
         raise NotImplementedError()
 
     def get_new_level(
-        self, user: "User", current_level: int, tables: dict[str, Table]
+        self,
+        user: "User",
+        current_level: int,
+        tables: dict[str, Table],
+        camp: Camp | None = None,
     ) -> int:
-        """Returns the new level for a user based on the result tables."""
+        """Returns the new level for a user based on the result tables. If update is from camp, camp is provided."""
         raise NotImplementedError()
 
     def get_result_tables(self) -> dict[str, str]:
@@ -122,6 +140,33 @@ class LevelRuleEngine(RuleEngine):
         self.set_levels_for_users(new_levels)
 
         return super().close_problemset()
+
+    def close_camp(self, camp: Camp) -> None:
+        users = list(
+            User.objects.filter(
+                id__in=camp.attendees.filter(
+                    user__isnull=False, is_organizer=False
+                ).values_list("user_id", flat=True)
+            )
+        )
+        levels = self.get_level_for_users(users)
+
+        tables = {
+            table: self.get_result_table(table)
+            for table in self.get_result_tables().keys()
+        }
+
+        new_levels: dict[User, int] = {}
+
+        for user in users:
+            if (
+                new_level := self.get_new_level(user, levels[user.id], tables, camp)
+            ) != levels[user.id]:
+                new_levels[user] = new_level
+
+        self.set_levels_for_users(new_levels)
+
+        return super().close_camp(camp)
 
 
 class PreviousProblemSetRuleEngine(RuleEngine):

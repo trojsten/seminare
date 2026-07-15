@@ -42,6 +42,11 @@ def org_navbar(context):
                 "Správa",
                 [
                     (
+                        "mdi:campfire",
+                        "Sústredenia",
+                        reverse("org:camp_list"),
+                    ),
+                    (
                         "mdi:account-tie",
                         "Organizátori",
                         reverse("org:role_list"),

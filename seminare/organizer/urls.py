@@ -1,6 +1,7 @@
 from django.urls import path
 
 from seminare.organizer.views import (
+    camp,
     dashboard,
     files,
     grading,
@@ -158,4 +159,17 @@ urlpatterns = [
         "subory/novy_priecinok/", files.NewFolderView.as_view(), name="file_new_folder"
     ),
     path("subory/nahrat/", files.FileUploadView.as_view(), name="file_upload"),
+    path("sustredenia/", camp.CampListView.as_view(), name="camp_list"),
+    path("sustredenia/<int:pk>/", camp.CampUpdateView.as_view(), name="camp_update"),
+    path(
+        "sustredenia/<int:pk>/zfinalizovat/",
+        camp.CampFinalizeView.as_view(),
+        name="camp_finalize",
+    ),
+    path(
+        "sustredenia/<int:camp_pk>/ucastnici/<int:attendee_pk>/vymazat",
+        camp.CampAttendeeDeleteView.as_view(),
+        name="camp_attendee_delete",
+    ),
+    path("sustredenia/vytvorit/", camp.CampCreateView.as_view(), name="camp_create"),
 ]

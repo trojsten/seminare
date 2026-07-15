@@ -13,6 +13,7 @@ from django.db.models import QuerySet
 from django.urls import reverse
 from django.utils import timezone
 
+from seminare.camps.models import Camp
 from seminare.contests.models import RuleData
 from seminare.rules.results import (
     Cell,
@@ -228,6 +229,13 @@ class AbstractRuleEngine:
         """
         pass
 
+    def close_camp(self, camp: Camp) -> None:
+        """
+        Called when a camp is marked as closed.
+        Should do any house keeping tasks such as updating levels, etc.
+        """
+        pass
+
 
 class RuleEngineDataMixin:
     problem_set: "ProblemSet"
@@ -245,6 +253,23 @@ class RuleEngineDataMixin:
         """
         return self.problem_set.start_date
 
+    def get_data_qs_for_users(
+        self,
+        key: str,
+        users: list["User"],
+        engines: list[str] | None = None,
+    ) -> QuerySet[RuleData]:
+        """
+        Returns a QuerySet of RuleData for given users under key.
+        """
+        return RuleData.objects.for_users(
+            contest=self.problem_set.contest,
+            key=key,
+            users=users,
+            effective_date=self.data_effective_date,
+            engines=engines or [self.engine_id, *self.compatible_engines],
+        )
+
     def get_data_for_users(
         self,
         key: str,
@@ -254,13 +279,7 @@ class RuleEngineDataMixin:
         """
         Returns stored RuleData for given users under key.
         """
-        data_objs = RuleData.objects.for_users(
-            contest=self.problem_set.contest,
-            key=key,
-            users=users,
-            effective_date=self.data_effective_date,
-            engines=engines or [self.engine_id, *self.compatible_engines],
-        )
+        data_objs = self.get_data_qs_for_users(key, users, engines)
 
         output = {}
         for obj in data_objs:

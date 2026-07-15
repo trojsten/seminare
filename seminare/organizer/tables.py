@@ -3,6 +3,7 @@ from django.urls import reverse
 from django.utils.http import urlencode
 from django.utils.safestring import mark_safe
 
+from seminare.camps.models import Camp, CampAttendee
 from seminare.content.models import MenuGroup, MenuItem, Page
 from seminare.problems.models import Problem, ProblemSet
 from seminare.style.tables import Table
@@ -320,3 +321,86 @@ class LateSubmitTable(Table):
                 ),
             )
         return links
+
+
+class CampTable(Table):
+    fields = [
+        "name",
+        "problem_set",
+        "location",
+        "start_date",
+        "end_date",
+        "attendees_count",
+        "is_finalized",
+    ]
+    labels = {
+        "name": "Názov",
+        "problem_set": "Kolo",
+        "location": "Miesto",
+        "start_date": "Začiatok",
+        "end_date": "Koniec",
+        "attendees_count": "Účastníkov",
+        "is_finalized": "Finalizované",
+    }
+    templates = {
+        "start_date": "tables/fields/date.html",
+        "end_date": "tables/fields/date.html",
+        "is_finalized": "tables/fields/boolean.html",
+    }
+
+    def get_links(
+        self, object: Camp, context: dict
+    ) -> list[tuple[str, str] | tuple[str, str, str]]:
+        links = []
+        if not object.is_finalized:
+            links.append(
+                (
+                    "mdi:approval",
+                    "Zfinalizovať",
+                    reverse("org:camp_finalize", args=[object.id]),
+                ),
+            )
+
+        links.append(
+            (
+                "mdi:pencil",
+                "Upraviť",
+                reverse("org:camp_update", args=[object.id]),
+            )
+        )
+
+        return links
+
+
+class CampAttendeeTable(Table):
+    fields = [
+        "user",
+        "name",
+        "is_organizer",
+    ]
+    labels = {
+        "user": "Používateľ",
+        "name": "Meno",
+        "is_organizer": "Organizátor",
+    }
+    templates = {
+        "user": "tables/fields/user.html",
+        "is_organizer": "tables/fields/boolean.html",
+    }
+
+    def get_links(
+        self, object: CampAttendee, context: dict
+    ) -> list[tuple[str, str] | tuple[str, str, str]]:
+        if object.camp.is_finalized:
+            return []
+
+        return [
+            (
+                "mdi:delete",
+                "Odstrániť",
+                reverse(
+                    "org:camp_attendee_delete",
+                    args=[object.camp_id, object.id],
+                ),
+            ),
+        ]

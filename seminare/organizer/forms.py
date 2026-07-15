@@ -1,14 +1,19 @@
 import secrets
+from csv import DictReader
+from datetime import datetime
+from io import TextIOWrapper
 
 from django import forms
 from django.core.validators import FileExtensionValidator
+from django.db import transaction
 
+from seminare.camps.models import Camp, CampAttendee
 from seminare.content.models import MenuGroup, MenuItem, Page, Post
 from seminare.problems.models import Problem, ProblemSet, Text
 from seminare.rules import RuleEngine, get_rule_engine_class
-from seminare.style.forms import DateTimeInput
+from seminare.style.forms import DateInput, DateTimeInput
 from seminare.users.logic.permissions import is_contest_organizer
-from seminare.users.models import ContestRole
+from seminare.users.models import ContestRole, User
 from seminare.users.widgets import UserAutocompleteInput
 
 
@@ -380,3 +385,113 @@ class MenuItemForm(forms.ModelForm):
         if commit:
             menu_item.save()
         return menu_item
+
+
+class CampForm(forms.ModelForm):
+    attendees_csv = forms.FileField(
+        required=False,
+        label="CSV súbor účastníkov",
+        help_text="CSV súbor s účastníkmi sústredenia. Formát: meno, priezvisko, email. Voliteľne ešte môže obsahovať stĺpec: veduci.",
+    )
+
+    class Meta:
+        model = Camp
+        fields = [
+            "name",
+            "location",
+            "start_date",
+            "end_date",
+            "problem_set",
+        ]
+        labels = {
+            "name": "Názov",
+            "location": "Miesto",
+            "start_date": "Začiatok",
+            "end_date": "Koniec",
+            "problem_set": "Sada úloh",
+        }
+        help_texts = {
+            "name": "Napríklad: 79. jarné sústredenie KSP 2026.",
+            "location": "Napríklad: RD Látky",
+            "start_date": "Dátum začiatku sústredenia.",
+            "end_date": "Dátum konca sústredenia.",
+            "problem_set": "Sada úloh, z ktorej sa pozývalo na sústredenie. Musí byť už finalizovaná.",
+        }
+        widgets = {
+            "start_date": DateInput(attrs={"step": 1}),
+            "end_date": DateInput(attrs={"step": 1}),
+        }
+
+    def __init__(self, *, contest, **kwargs):
+        super().__init__(**kwargs)
+        self.contest = contest
+
+        self.fields["location"].widget.attrs["list"] = "location_list"
+        self.fields["problem_set"].queryset = ProblemSet.objects.filter(
+            contest=self.contest, end_date__lte=datetime.now(), is_finalized=True
+        ).order_by("-end_date")
+
+        if self.instance.pk and self.instance.is_finalized:
+            self.fields["problem_set"].disabled = True
+            self.fields.pop("attendees_csv")
+
+    def clean_attendees_csv(self):
+        csv_file = self.cleaned_data.get("attendees_csv")
+        if not csv_file:
+            return
+
+        try:
+            reader = DictReader(TextIOWrapper(csv_file, encoding="utf-8"))
+            if not reader.fieldnames or not {
+                "meno",
+                "priezvisko",
+                "email",
+            }.issubset(set(reader.fieldnames)):
+                raise forms.ValidationError(
+                    "CSV súbor musí obsahovať stĺpce: meno, priezvisko, email."
+                )
+
+            out = []
+            for row in reader:
+                if not row["meno"] or not row["priezvisko"] or not row["email"]:
+                    raise forms.ValidationError(
+                        "CSV súbor obsahuje riadky s prázdnymi hodnotami."
+                    )
+                full_name = f"{row['meno'].strip()} {row['priezvisko'].strip()}".strip()
+                email = row["email"].strip()
+                is_organizer = row.get("veduci", "").strip().lower() in {
+                    "1",
+                    "true",
+                    "yes",
+                }
+
+                out.append((full_name, email, is_organizer))
+
+            return out
+        except Exception as e:
+            raise forms.ValidationError(f"Chyba pri čítaní CSV súboru: {e}")
+
+    @transaction.atomic
+    def save(self, commit: bool = True) -> Camp:
+        camp: Camp = super().save(commit=False)
+
+        if commit:
+            camp.save()
+
+            if csv_data := self.cleaned_data.get("attendees_csv"):
+                attendees = []
+
+                for full_name, email, is_organizer in csv_data:
+                    user = User.objects.filter(email=email).first()
+                    attendees.append(
+                        CampAttendee(
+                            camp=camp,
+                            name=full_name,
+                            user=user,
+                            is_organizer=is_organizer,
+                        )
+                    )
+
+                CampAttendee.objects.bulk_create(attendees, ignore_conflicts=True)
+
+        return camp

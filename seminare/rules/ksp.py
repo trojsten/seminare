@@ -8,6 +8,7 @@ from django.db.models import F, Q, QuerySet
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 
+from seminare.camps.models import Camp
 from seminare.problems.models import Problem
 from seminare.rules import Chip, RuleEngine, Score
 from seminare.rules.common import (
@@ -38,7 +39,7 @@ class KSP2025(LevelRuleEngine, PreviousProblemSetRuleEngine, RuleEngine):
         if "doprogramovanie_date" not in options:
             raise ValueError("Chýba 'doprogramovanie_date'.")
 
-        date = parse_datetime(options.get("doprogramovanie_date", None))
+        date = parse_datetime(options.get("doprogramovanie_date", ""))
 
         if date is None:
             raise ValueError("'doprogramovanie_date' je v neplatnom formáte.")
@@ -228,8 +229,15 @@ class KSP2025(LevelRuleEngine, PreviousProblemSetRuleEngine, RuleEngine):
         return self.problem_set.slug.endswith("2")
 
     def get_new_level(
-        self, user: "User", current_level: int, tables: dict[str, Table]
+        self,
+        user: "User",
+        current_level: int,
+        tables: dict[str, Table],
+        camp: Camp | None = None,
     ) -> int:
+        results_level = current_level
+
+        # vysledky
         for slug, table in tables.items():
             if not slug.startswith("L"):
                 continue
@@ -244,7 +252,13 @@ class KSP2025(LevelRuleEngine, PreviousProblemSetRuleEngine, RuleEngine):
 
                 if row.enrollment.user == user:
                     if row.total >= 150:
-                        current_level = max(current_level, int(slug[1:]) + 1)
+                        results_level = max(results_level, int(slug[1:]) + 1)
 
-            # TODO: sustredenia
-        return current_level
+        if camp is None:
+            return results_level
+
+        # sustredenie
+        # ak si bol pozvany s levelom L a zucasnil si sa, tak si L + 1
+        camp_level = min(self.max_level, current_level + 1)
+
+        return max(results_level, camp_level)
