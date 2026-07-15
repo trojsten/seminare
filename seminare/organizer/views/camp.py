@@ -143,6 +143,13 @@ class CampFinalizeView(ContestAdminRequired, WithCampQuerySet, GenericFormView):
         ]
 
     def form_valid(self, form):
+        if not self.camp.problem_set.is_finalized:
+            form.add_error(
+                None,
+                "Sústredenie nemôže byť zfinalizované, pretože sada úloh ešte nie je finalizovaná.",
+            )
+            return self.form_invalid(form)
+
         self.camp.is_finalized = True
         self.camp.save()
 
