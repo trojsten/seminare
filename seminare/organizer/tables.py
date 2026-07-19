@@ -70,13 +70,37 @@ class ProblemSetTable(Table):
 
 
 class ProblemTable(Table):
-    fields = ["number", "name", "points_publicly_visible"]
+    fields = ["number", "name", "grading_status", "points_publicly_visible"]
     labels = {
         "name": "Názov",
         "number": "č.",
+        "grading_status": "Opravené",
         "points_publicly_visible": "Zverejnené body",
     }
     templates = {"points_publicly_visible": "tables/fields/boolean.html"}
+
+    def get_grading_status_content(self, object: Problem):
+        from seminare.submits.models import FileSubmit
+
+        if FileSubmit not in object.accepted_submit_classes:
+            return "-"
+
+        rule_engine = object.problem_set.get_rule_engine()
+        enrollments = rule_engine.get_enrollments()
+
+        submits = rule_engine.get_enrollments_problems_effective_submits(
+            FileSubmit, enrollments, [object]
+        ).values_list("enrollment_id", "score")
+
+        total = set()
+        graded = set()
+
+        for eid, score in submits:
+            total.add(eid)
+            if score is not None:
+                graded.add(eid)
+
+        return f"{len(graded)} / {len(total)}" if total else "0 / 0"
 
     def get_links(
         self, object: Problem, context: dict
