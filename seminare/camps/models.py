@@ -13,10 +13,8 @@ class Camp(models.Model):
 
     problem_set = models.ForeignKey(
         "problems.ProblemSet",
-        on_delete=models.SET_NULL,
+        on_delete=models.RESTRICT,
         related_name="camps",
-        blank=True,
-        null=True,
     )
     problem_set_id: int
 
