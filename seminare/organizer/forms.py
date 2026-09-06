@@ -200,6 +200,21 @@ class ProblemForm(forms.ModelForm):
 
         return user
 
+    def clean(self):
+        data = super().clean()
+
+        if not data:
+            return data
+
+        if data["external_points"] != 0 and not data["external_submit_url"]:
+            raise forms.ValidationError(
+                {
+                    "external_submit_url": "URL adresa je povinná, ak sú body za interaktívku."
+                }
+            )
+
+        return data
+
     def save(self, commit=True):
         problem: Problem = super(ProblemForm, self).save(commit=False)
         problem.problem_set = self.problem_set

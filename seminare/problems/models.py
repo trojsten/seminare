@@ -192,7 +192,7 @@ class Problem(models.Model):
 
     text_answer = models.CharField(blank=True, max_length=256)
 
-    external_submit_url = models.CharField(blank=True, max_length=256)
+    external_submit_url = models.URLField(blank=True, max_length=256)
     external_submit_secret = models.CharField(
         null=True, blank=True, max_length=64, unique=True
     )
