@@ -112,7 +112,12 @@ class CampAttendeeDeleteView(ContestAdminRequired, WithCampQuerySet, GenericDele
         return [
             ("Sústredenia", reverse("org:camp_list")),
             (self.object.camp, reverse("org:camp_update", args=[self.object.camp.pk])),
-            (self.object.user.display_name, ""),
+            (
+                self.object.user.display_name
+                if self.object.user is not None
+                else self.object.name,
+                "",
+            ),
             ("Odstrániť účastníka", ""),
         ]
 
