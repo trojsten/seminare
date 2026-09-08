@@ -118,9 +118,7 @@ class LevelRuleEngine(RuleEngine):
         if not self.should_update_levels():
             return super().close_problemset()
 
-        enrollments = list(
-            self.problem_set.enrollment_set.all().prefetch_related("user")
-        )
+        enrollments = list(self.get_enrollments().prefetch_related("user"))
         users = [e.user for e in enrollments]
         levels = self.get_level_for_users(users)
 
