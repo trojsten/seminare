@@ -406,7 +406,7 @@ class CampForm(forms.ModelForm):
     attendees_csv = forms.FileField(
         required=False,
         label="CSV súbor účastníkov",
-        help_text="CSV súbor s účastníkmi sústredenia. Formát: meno, priezvisko, email. Voliteľne ešte môže obsahovať stĺpec: veduci.",
+        help_text="CSV súbor s účastníkmi sústredenia. Formát: Meno, Email. Voliteľne ešte môže obsahovať stĺpec: Veduci.",
     )
 
     class Meta:
@@ -458,23 +458,22 @@ class CampForm(forms.ModelForm):
         try:
             reader = DictReader(TextIOWrapper(csv_file, encoding="utf-8"))
             if not reader.fieldnames or not {
-                "meno",
-                "priezvisko",
-                "email",
+                "Meno",
+                "Email",
             }.issubset(set(reader.fieldnames)):
                 raise forms.ValidationError(
-                    "CSV súbor musí obsahovať stĺpce: meno, priezvisko, email."
+                    "CSV súbor musí obsahovať stĺpce: Meno, Email."
                 )
 
             out = []
             for row in reader:
-                if not row["meno"] or not row["priezvisko"] or not row["email"]:
+                if not row["Meno"] or not row["Email"]:
                     raise forms.ValidationError(
                         "CSV súbor obsahuje riadky s prázdnymi hodnotami."
                     )
-                full_name = f"{row['meno'].strip()} {row['priezvisko'].strip()}".strip()
-                email = row["email"].strip()
-                is_organizer = row.get("veduci", "").strip().lower() in {
+                full_name = row["Meno"].strip()
+                email = row["Email"].strip()
+                is_organizer = row.get("Veduci", "").strip().lower() in {
                     "1",
                     "true",
                     "yes",
