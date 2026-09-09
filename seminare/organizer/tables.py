@@ -380,7 +380,7 @@ class CampTable(Table):
             links.append(
                 (
                     "mdi:approval",
-                    "Zfinalizovať",
+                    "Sfinalizovať",
                     reverse("org:camp_finalize", args=[object.id]),
                 ),
             )
