@@ -34,7 +34,6 @@ class PageUpdateView(
 ):
     form_title = "Upraviť stránku"
     form_class = PageForm
-    success_url = reverse_lazy("org:page_list")
 
     def get_form_kwargs(self):
         kw = super().get_form_kwargs()
@@ -48,11 +47,13 @@ class PageUpdateView(
             ("Upraviť", ""),
         ]
 
+    def get_success_url(self):
+        return reverse("page_detail", kwargs={"slug": self.object.slug})
+
 
 class PageCreateView(ContestOrganizerRequired, GenericFormView, CreateView):
     form_title = "Nová stránka"
     form_class = PageForm
-    success_url = reverse_lazy("org:page_list")
 
     def get_form_kwargs(self):
         kw = super().get_form_kwargs()
@@ -70,6 +71,12 @@ class PageCreateView(ContestOrganizerRequired, GenericFormView, CreateView):
             ("Stránky", reverse("org:page_list")),
             ("Nová", ""),
         ]
+
+    def get_success_url(self):
+        if self.object:
+            return reverse("page_detail", kwargs={"slug": self.object.slug})
+
+        return reverse("org:page_list")
 
 
 class PageDeleteView(ContestOrganizerRequired, WithPageQuerySet, GenericDeleteView):
