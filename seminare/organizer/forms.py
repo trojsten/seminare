@@ -1,4 +1,5 @@
 import secrets
+import unicodedata
 from csv import DictReader
 from datetime import datetime
 from io import TextIOWrapper
@@ -406,7 +407,7 @@ class CampForm(forms.ModelForm):
     attendees_csv = forms.FileField(
         required=False,
         label="CSV súbor účastníkov",
-        help_text="CSV súbor s účastníkmi sústredenia. Formát: Meno, Email. Voliteľne ešte môže obsahovať stĺpec: Veduci.",
+        help_text="CSV súbor s účastníkmi sústredenia. Formát: meno, email. Voliteľne ešte môže obsahovať stĺpec: veduci.",
     )
 
     class Meta:
@@ -457,31 +458,56 @@ class CampForm(forms.ModelForm):
 
         try:
             reader = DictReader(TextIOWrapper(csv_file, encoding="utf-8"))
-            if not reader.fieldnames or not {
-                "Meno",
-                "Email",
-            }.issubset(set(reader.fieldnames)):
+
+            if not reader.fieldnames:
+                raise forms.ValidationError("CSV súboru chýba hlavička.")
+
+            columns = {}
+
+            for column in reader.fieldnames:
+                normalized_column = (
+                    unicodedata.normalize("NFKD", column.casefold())
+                    .encode("ASCII", "ignore")
+                    .decode("ASCII")
+                )
+                columns[normalized_column] = column
+
+            if not {
+                "meno",
+                "email",
+            }.issubset(columns.keys()):
                 raise forms.ValidationError(
-                    "CSV súbor musí obsahovať stĺpce: Meno, Email."
+                    "CSV súbor musí obsahovať stĺpce: meno, email."
                 )
 
             out = []
             for row in reader:
-                if not row["Meno"] or not row["Email"]:
-                    raise forms.ValidationError(
-                        "CSV súbor obsahuje riadky s prázdnymi hodnotami."
-                    )
-                full_name = row["Meno"].strip()
-                email = row["Email"].strip()
-                is_organizer = row.get("Veduci", "").strip().lower() in {
+                full_name = row[columns["meno"]].strip()
+                email = row[columns["email"]].strip()
+                is_organizer = row.get(
+                    columns.get("veduci", "veduci"), ""
+                ).strip().lower() in {
                     "1",
                     "true",
                     "yes",
                 }
 
-                out.append((full_name, email, is_organizer))
+                if not full_name or not email:
+                    raise forms.ValidationError(
+                        "CSV súbor obsahuje riadky s prázdnymi hodnotami."
+                    )
+
+                user = User.objects.filter(email=email).first()
+                if full_name and user and user.display_name != full_name:
+                    raise forms.ValidationError(
+                        f"Používateľ s emailom {email} má iné meno ({user.display_name}) než v CSV súbore ({full_name})."
+                    )
+
+                out.append((full_name, user, is_organizer))
 
             return out
+        except forms.ValidationError:
+            raise
         except Exception as e:
             raise forms.ValidationError(f"Chyba pri čítaní CSV súboru: {e}")
 
@@ -495,8 +521,7 @@ class CampForm(forms.ModelForm):
             if csv_data := self.cleaned_data.get("attendees_csv"):
                 attendees = []
 
-                for full_name, email, is_organizer in csv_data:
-                    user = User.objects.filter(email=email).first()
+                for full_name, user, is_organizer in csv_data:
                     attendees.append(
                         CampAttendee(
                             camp=camp,
