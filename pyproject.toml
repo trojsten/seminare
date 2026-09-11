@@ -3,7 +3,7 @@ name = "seminare"
 version = "0.1.0"
 description = ""
 authors = [{ name = "Adam Zahradník", email = "adam@zahradnik.xyz" }]
-requires-python = "~=3.12.7"
+requires-python = "~=3.14.0"
 readme = "README.md"
 dependencies = [
     "Django~=5.2",
@@ -18,7 +18,7 @@ dependencies = [
     "mozilla-django-oidc~=4.0.1",
     "django-stubs~=5.1.1",
     "reportlab~=4.2.5",
-    "pillow~=11.1.0",
+    "pillow~=12.3.0",
     "judge-client",
     "djangorestframework>=3.16.1",
     "djangorestframework-stubs>=3.15.2",
