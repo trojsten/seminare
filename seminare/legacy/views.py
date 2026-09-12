@@ -2,6 +2,7 @@ from django.http import Http404
 from django.http.response import HttpResponsePermanentRedirect
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
+from django.utils import timezone
 
 from seminare.contests.utils import get_current_contest
 from seminare.legacy.models import OldProblem, OldRound
@@ -55,6 +56,7 @@ def redirect_latest_results(request, *args, **kwargs):
 
     if latest := (
         ProblemSet.objects.for_user(request.user, contest)
+        .filter(start_date__lte=timezone.now())
         .order_by("-end_date", "-start_date")
         .first()
     ):
