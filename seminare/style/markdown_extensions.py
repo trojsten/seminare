@@ -4,6 +4,7 @@ from xml.etree.ElementTree import Element, SubElement
 
 from markdown import Extension, Markdown
 from markdown.blockprocessors import BlockProcessor
+from markdown.postprocessors import Postprocessor
 from markdown.preprocessors import Preprocessor
 from markdown.treeprocessors import Treeprocessor
 
@@ -133,6 +134,35 @@ class IOOutputBlockProcessor(FencedBlockProcessor):
         self.parser.parseBlocks(d, blocks)
 
 
+class MathPreprocessor(Preprocessor):
+    MATH_RE = re.compile(
+        r"(\$\$.*?(?<!\\)\$\$|\$.*?(?<!\\)\$|\\\[.*?\\\]|\\\(.*?\\\))", re.DOTALL
+    )
+
+    def run(self, lines: list[str]) -> list[str]:
+        text = "\n".join(lines)
+
+        if not hasattr(self.md, "math_stash"):
+            self.md.math_stash = []
+
+        def repl(match):
+            placeholder = f"MATH_STASH_{len(self.md.math_stash)}_ENDSTASH"
+            self.md.math_stash.append(match.group(1))
+            return placeholder
+
+        new_text = self.MATH_RE.sub(repl, text)
+        return new_text.split("\n")
+
+
+class MathPostprocessor(Postprocessor):
+    def run(self, text: str) -> str:
+        if hasattr(self.md, "math_stash"):
+            for i, math_text in enumerate(self.md.math_stash):
+                placeholder = f"MATH_STASH_{i}_ENDSTASH"
+                text = text.replace(placeholder, math_text)
+        return text
+
+
 class SeminareExtension(Extension):
     def __init__(self, image_root: str | None = None, **kwargs) -> None:
         super().__init__(**kwargs)
@@ -152,3 +182,5 @@ class SeminareExtension(Extension):
         md.parser.blockprocessors.register(
             IOOutputBlockProcessor(md.parser), "IO_output", 100000
         )
+        md.preprocessors.register(MathPreprocessor(md), "math_stash", 100005)
+        md.postprocessors.register(MathPostprocessor(md), "math_restore", 100005)
