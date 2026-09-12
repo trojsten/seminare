@@ -420,6 +420,14 @@ class CampAttendeeTable(Table):
 
         return [
             (
+                "mdi:pencil",
+                "Upraviť",
+                reverse(
+                    "org:camp_attendee_update",
+                    args=[object.camp_id, object.id],
+                ),
+            ),
+            (
                 "mdi:delete",
                 "Odstrániť",
                 reverse(

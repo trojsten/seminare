@@ -167,6 +167,16 @@ urlpatterns = [
         name="camp_finalize",
     ),
     path(
+        "sustredenia/<int:pk>/ucastnici/vytvorit/",
+        camp.CampAttendeeCreateView.as_view(),
+        name="camp_attendee_create",
+    ),
+    path(
+        "sustredenia/<int:camp_pk>/ucastnici/<int:attendee_pk>/",
+        camp.CampAttendeeUpdateView.as_view(),
+        name="camp_attendee_update",
+    ),
+    path(
         "sustredenia/<int:camp_pk>/ucastnici/<int:attendee_pk>/vymazat",
         camp.CampAttendeeDeleteView.as_view(),
         name="camp_attendee_delete",

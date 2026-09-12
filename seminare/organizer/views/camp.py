@@ -6,9 +6,9 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse, reverse_lazy
 from django.views.generic import CreateView, UpdateView
 
-from seminare.camps.models import Camp
+from seminare.camps.models import Camp, CampAttendee
 from seminare.contests.utils import get_current_contest
-from seminare.organizer.forms import CampForm
+from seminare.organizer.forms import CampAttendeeForm, CampForm
 from seminare.organizer.tables import CampAttendeeTable, CampTable
 from seminare.organizer.views import MixinProtocol
 from seminare.organizer.views.generic import (
@@ -31,6 +31,30 @@ class WithCampQuerySet(MixinProtocol):
     @cached_property
     def camp(self):
         return get_object_or_404(self.get_queryset().filter(pk=self.kwargs["pk"]))
+
+
+class WithCampAttendeeQuerySet(MixinProtocol):
+    def get_queryset(self):
+        contest = get_current_contest(self.request)
+
+        return CampAttendee.objects.filter(
+            camp__problem_set__contest=contest,
+        ).select_related("camp")
+
+    @cached_property
+    def attendee(self):
+        return get_object_or_404(
+            self.get_queryset().filter(
+                pk=self.kwargs["attendee_pk"], camp__pk=self.kwargs["camp_pk"]
+            )
+        )
+
+    @cached_property
+    def camp(self):
+        return self.attendee.camp
+
+    def get_object(self, queryset=None):
+        return self.attendee
 
 
 class CampListView(ContestAdminRequired, WithCampQuerySet, GenericTableView):
@@ -71,7 +95,7 @@ class CampCreateView(ContestAdminRequired, GenericFormView, CreateView):
 class CampUpdateView(
     ContestAdminRequired, WithCampQuerySet, GenericFormTableView, UpdateView
 ):
-    form_title = "Upraviť sústredenie"
+    form_table_title = "Upraviť sústredenie"
     form_class = CampForm
     form_multipart = True
 
@@ -94,6 +118,20 @@ class CampUpdateView(
     def get_queryset(self):
         return self.get_object().attendees.select_related("user").all()
 
+    def get_form_table_links(self):
+        camp = self.get_object()
+        if camp.is_finalized:
+            return []
+
+        return [
+            (
+                "green",
+                "mdi:plus",
+                "Pridať účastníka",
+                reverse("org:camp_attendee_create", args=[camp.id]),
+            )
+        ]
+
     def get_form_kwargs(self):
         kw = super().get_form_kwargs()
         kw["contest"] = get_current_contest(self.request)
@@ -107,31 +145,85 @@ class CampUpdateView(
         ]
 
 
-class CampAttendeeDeleteView(ContestAdminRequired, WithCampQuerySet, GenericDeleteView):
+class CampAttendeeCreateView(
+    ContestAdminRequired, WithCampQuerySet, GenericFormView, CreateView
+):
+    form_title = "Pridať účastníka sústredenia"
+    form_class = CampAttendeeForm
+
+    def get_queryset(self):
+        return super().get_queryset().filter(is_finalized=False)
+
+    def get_form_kwargs(self):
+        kw = super().get_form_kwargs()
+        kw["camp"] = self.camp
+        return kw
+
     def get_breadcrumbs(self) -> list[tuple[str, str]]:
         return [
             ("Sústredenia", reverse("org:camp_list")),
-            (self.object.camp, reverse("org:camp_update", args=[self.object.camp.pk])),
-            (
-                self.object.user.display_name
-                if self.object.user is not None
-                else self.object.name,
-                "",
-            ),
-            ("Odstrániť účastníka", ""),
+            (self.camp, reverse("org:camp_update", args=[self.camp.pk])),
+            ("Pridať účastníka", ""),
         ]
 
-    def get_object(self, queryset=None):
-        camp = (
-            self.get_queryset()
-            .filter(is_finalized=False)
-            .get(pk=self.kwargs["camp_pk"])
-        )
+    def get_success_url(self):
+        return reverse("org:camp_update", args=[self.camp.pk])
 
-        return camp.attendees.get(pk=self.kwargs["attendee_pk"])
+
+class CampAttendeeUpdateView(
+    ContestAdminRequired, WithCampAttendeeQuerySet, GenericFormView, UpdateView
+):
+    form_title = "Upraviť účastníka sústredenia"
+    form_class = CampAttendeeForm
+
+    def get_queryset(self):
+        return super().get_queryset().filter(camp__is_finalized=False)
+
+    def get_form_kwargs(self):
+        kw = super().get_form_kwargs()
+        kw["camp"] = self.camp
+        return kw
+
+    def get_breadcrumbs(self) -> list[tuple[str, str]]:
+        return [
+            ("Sústredenia", reverse("org:camp_list")),
+            (self.camp, reverse("org:camp_update", args=[self.camp.pk])),
+            ("Účastníci", ""),
+            (
+                self.attendee.user.display_name
+                if self.attendee.user is not None
+                else self.attendee.name,
+                "",
+            ),
+            ("Upraviť", ""),
+        ]
 
     def get_success_url(self):
-        return reverse("org:camp_update", args=[self.object.camp.pk])
+        return reverse("org:camp_update", args=[self.camp.pk])
+
+
+class CampAttendeeDeleteView(
+    ContestAdminRequired, WithCampAttendeeQuerySet, GenericDeleteView
+):
+    def get_queryset(self):
+        return super().get_queryset().filter(camp__is_finalized=False)
+
+    def get_breadcrumbs(self) -> list[tuple[str, str]]:
+        return [
+            ("Sústredenia", reverse("org:camp_list")),
+            (self.camp, reverse("org:camp_update", args=[self.camp.pk])),
+            ("Účastníci", ""),
+            (
+                self.attendee.user.display_name
+                if self.attendee.user is not None
+                else self.attendee.name,
+                "",
+            ),
+            ("Odstrániť", ""),
+        ]
+
+    def get_success_url(self):
+        return reverse("org:camp_update", args=[self.camp.pk])
 
 
 class CampFinalizeView(ContestAdminRequired, WithCampQuerySet, GenericFormView):

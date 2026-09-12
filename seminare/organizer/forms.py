@@ -534,3 +534,52 @@ class CampForm(forms.ModelForm):
                 CampAttendee.objects.bulk_create(attendees, ignore_conflicts=True)
 
         return camp
+
+
+class CampAttendeeForm(forms.ModelForm):
+    class Meta:
+        model = CampAttendee
+        fields = ["name", "user", "is_organizer"]
+        labels = {
+            "name": "Meno",
+            "user": "Používateľ",
+            "is_organizer": "Vedúci",
+        }
+        widgets = {"user": UserAutocompleteInput}
+
+    def __init__(self, *, camp, **kwargs):
+        super().__init__(**kwargs)
+        self.camp = camp
+
+    def clean(self):
+        data = super().clean()
+
+        if not data:
+            return data
+
+        if not data["user"] and not data["name"]:
+            raise forms.ValidationError(
+                {"name": "Meno je povinné, ak nie je vybraný používateľ."}
+            )
+
+        if data["user"]:
+            attendee = self.camp.attendees.filter(user=data["user"])
+            if self.instance.pk:
+                attendee = attendee.exclude(pk=self.instance.pk)
+
+            if attendee.exists():
+                raise forms.ValidationError(
+                    {"user": "Tento používateľ už je pridaný ako účastník sústredenia."}
+                )
+
+            if not data["name"]:
+                data["name"] = data["user"].display_name
+
+        return data
+
+    def save(self, commit: bool = True) -> CampAttendee:
+        attendee: CampAttendee = super().save(commit=False)
+        attendee.camp = self.camp
+        if commit:
+            attendee.save()
+        return attendee
