@@ -162,9 +162,24 @@ urlpatterns = [
     path("sustredenia/", camp.CampListView.as_view(), name="camp_list"),
     path("sustredenia/<int:pk>/", camp.CampUpdateView.as_view(), name="camp_update"),
     path(
-        "sustredenia/<int:pk>/zfinalizovat/",
+        "sustredenia/<int:pk>/sfinalizovat/",
         camp.CampFinalizeView.as_view(),
         name="camp_finalize",
+    ),
+    path(
+        "sustredenia/<int:pk>/stranka/",
+        camp.CampPageCreateView.as_view(),
+        name="camp_page_create",
+    ),
+    path(
+        "sustredenia/<int:pk>/ucastnici/vytvorit/",
+        camp.CampAttendeeCreateView.as_view(),
+        name="camp_attendee_create",
+    ),
+    path(
+        "sustredenia/<int:camp_pk>/ucastnici/<int:attendee_pk>/",
+        camp.CampAttendeeUpdateView.as_view(),
+        name="camp_attendee_update",
     ),
     path(
         "sustredenia/<int:camp_pk>/ucastnici/<int:attendee_pk>/vymazat",
