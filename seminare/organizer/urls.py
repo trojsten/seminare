@@ -162,7 +162,7 @@ urlpatterns = [
     path("sustredenia/", camp.CampListView.as_view(), name="camp_list"),
     path("sustredenia/<int:pk>/", camp.CampUpdateView.as_view(), name="camp_update"),
     path(
-        "sustredenia/<int:pk>/zfinalizovat/",
+        "sustredenia/<int:pk>/sfinalizovat/",
         camp.CampFinalizeView.as_view(),
         name="camp_finalize",
     ),
