@@ -1,5 +1,5 @@
 from datetime import date
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, ClassVar
 
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser, UserManager
@@ -39,16 +39,19 @@ class Grade(models.TextChoices):
 
 class User(AbstractUser):
     id: int
+
     trojsten_id = models.BigIntegerField(blank=True, null=True)
+
     current_school = models.ForeignKey(
         "School", on_delete=models.SET_NULL, blank=True, null=True
     )
     current_school_id: int
     current_grade = models.CharField(choices=Grade.choices, max_length=3, blank=True)
+    current_school_updated_at = models.DateTimeField(blank=True, null=True)
 
     enrollment_set: "RelatedManager[Enrollment]"
 
-    objects: "UserManager[User]"
+    objects: ClassVar["UserManager[User]"]
 
     @property
     def profile_url(self):
@@ -64,12 +67,21 @@ class User(AbstractUser):
             return self.get_full_name()
         return self.username
 
+    @property
+    def should_confirm_school_info(self):
+        from seminare.users.logic.schools import date_to_academic_year
+
+        return self.current_school_updated_at and date_to_academic_year(
+            self.current_school_updated_at
+        ) < date_to_academic_year(date.today())
+
     def update_school_info(self, school_info: dict | None):
         from seminare.users.logic.schools import get_grade_from_type_year
 
         if not school_info:
             self.current_school = None
             self.current_grade = ""
+            self.current_school_updated_at = None
             return
 
         end_date = school_info["end_date"]
@@ -77,16 +89,17 @@ class User(AbstractUser):
         if is_expired:
             self.current_school = None
             self.current_grade = ""
+            self.current_school_updated_at = None
             return
 
         school_type = school_info["school_type"]
         current_year = int(school_info["current_year"])
 
         current_grade = get_grade_from_type_year(school_type, current_year)
-
         if current_grade is None:
             self.current_school = None
             self.current_grade = ""
+            self.current_school_updated_at = None
             return
 
         school_data = school_info["school"]
@@ -100,6 +113,7 @@ class User(AbstractUser):
 
         self.current_school = school
         self.current_grade = current_grade
+        self.current_school_updated_at = school_info["updated_at"]
 
 
 class School(models.Model):

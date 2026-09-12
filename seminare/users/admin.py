@@ -6,7 +6,16 @@ from .models import ContestRole, Enrollment, School, User
 
 class UserAdmin(BaseUserAdmin):
     fieldsets = BaseUserAdmin.fieldsets + (
-        ("School", {"fields": ["current_school", "current_grade"]}),
+        (
+            "School",
+            {
+                "fields": [
+                    "current_school",
+                    "current_grade",
+                    "current_school_updated_at",
+                ]
+            },
+        ),
     )  # pyright:ignore
     autocomplete_fields = BaseUserAdmin.autocomplete_fields + ("current_school",)  # pyright:ignore
 
