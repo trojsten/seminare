@@ -17,6 +17,7 @@ from seminare.organizer.views.generic import (
     GenericFormView,
     GenericTableView,
 )
+from seminare.organizer.views.page import PageCreateView
 from seminare.users.mixins.permissions import ContestAdminRequired
 
 
@@ -29,7 +30,7 @@ class WithCampQuerySet(MixinProtocol):
         )
 
     @cached_property
-    def camp(self):
+    def camp(self) -> Camp:
         return get_object_or_404(self.get_queryset().filter(pk=self.kwargs["pk"]))
 
 
@@ -42,7 +43,7 @@ class WithCampAttendeeQuerySet(MixinProtocol):
         ).select_related("camp")
 
     @cached_property
-    def attendee(self):
+    def attendee(self) -> CampAttendee:
         return get_object_or_404(
             self.get_queryset().filter(
                 pk=self.kwargs["attendee_pk"], camp__pk=self.kwargs["camp_pk"]
@@ -50,7 +51,7 @@ class WithCampAttendeeQuerySet(MixinProtocol):
         )
 
     @cached_property
-    def camp(self):
+    def camp(self) -> Camp:
         return self.attendee.camp
 
     def get_object(self, queryset=None):
@@ -120,17 +121,27 @@ class CampUpdateView(
 
     def get_form_table_links(self):
         camp = self.get_object()
-        if camp.is_finalized:
-            return []
 
-        return [
+        links = [
             (
-                "green",
-                "mdi:plus",
-                "Pridať účastníka",
-                reverse("org:camp_attendee_create", args=[camp.id]),
+                "default",
+                "mdi:magic",
+                "Vytvoriť stŕanku",
+                reverse("org:camp_page_create", args=[camp.id]),
             )
         ]
+
+        if not camp.is_finalized:
+            links.append(
+                (
+                    "green",
+                    "mdi:plus",
+                    "Pridať účastníka",
+                    reverse("org:camp_attendee_create", args=[camp.id]),
+                )
+            )
+
+        return links
 
     def get_form_kwargs(self):
         kw = super().get_form_kwargs()
@@ -162,7 +173,7 @@ class CampAttendeeCreateView(
     def get_breadcrumbs(self) -> list[tuple[str, str]]:
         return [
             ("Sústredenia", reverse("org:camp_list")),
-            (self.camp, reverse("org:camp_update", args=[self.camp.pk])),
+            (self.camp.name, reverse("org:camp_update", args=[self.camp.pk])),
             ("Pridať účastníka", ""),
         ]
 
@@ -187,7 +198,7 @@ class CampAttendeeUpdateView(
     def get_breadcrumbs(self) -> list[tuple[str, str]]:
         return [
             ("Sústredenia", reverse("org:camp_list")),
-            (self.camp, reverse("org:camp_update", args=[self.camp.pk])),
+            (self.camp.name, reverse("org:camp_update", args=[self.camp.pk])),
             ("Účastníci", ""),
             (
                 self.attendee.user.display_name
@@ -211,7 +222,7 @@ class CampAttendeeDeleteView(
     def get_breadcrumbs(self) -> list[tuple[str, str]]:
         return [
             ("Sústredenia", reverse("org:camp_list")),
-            (self.camp, reverse("org:camp_update", args=[self.camp.pk])),
+            (self.camp.name, reverse("org:camp_update", args=[self.camp.pk])),
             ("Účastníci", ""),
             (
                 self.attendee.user.display_name
@@ -256,3 +267,58 @@ class CampFinalizeView(ContestAdminRequired, WithCampQuerySet, GenericFormView):
 
     def get_success_url(self):
         return reverse("org:camp_list")
+
+
+class CampPageCreateView(ContestAdminRequired, WithCampQuerySet, PageCreateView):
+    def get_initial(self):
+        initial = super().get_initial()
+        initial["title"] = self.camp.name
+        initial["slug"] = (
+            f"akcie/sustredenia/{self.camp.start_date.strftime('%Y')}/ROCNE_OBDOBIE"
+        )
+
+        content = []
+        content.append(
+            f"## {self.camp.name}, {self.camp.start_date.strftime('%d. %m. %Y')} - {self.camp.end_date.strftime('%d. %m. %Y')}"
+        )
+        content.append("---")
+        content.append("")
+        content.append("## Účastníci")
+        content.append("")
+        content.append("| Meno | Ročník | Škola |")
+        content.append("|------|--------|-------|")
+        for attendee in self.camp.attendees.select_related(
+            "user", "user__current_school"
+        ).filter(is_organizer=False):
+            if attendee.user is None:
+                content.append(f"| {attendee.name} | ? | ? |")
+                continue
+
+            user = attendee.user
+            school = user.current_school
+
+            content.append(
+                f'| {user.display_name} | {user.get_current_grade_display()} | <abbr data-tippy-content="{school}">{school.short_name if school.short_name else school.name}</abbr> |'
+            )
+        content.append("")
+        content.append("## Vedúci")
+        content.append("")
+        content.append("| Meno | Škola |")
+        content.append("|------|-------|")
+        for attendee in self.camp.attendees.select_related(
+            "user", "user__current_school"
+        ).filter(is_organizer=True):
+            if attendee.user is None:
+                content.append(f"| {attendee.name} | ? |")
+                continue
+
+            user = attendee.user
+            school = user.current_school
+
+            content.append(
+                f'| {user.display_name} | <abbr data-tippy-content="{school}">{school.short_name if school.short_name else school.name}</abbr> |'
+            )
+
+        initial["content"] = "\n".join(content)
+
+        return initial
