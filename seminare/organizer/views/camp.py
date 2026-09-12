@@ -297,8 +297,12 @@ class CampPageCreateView(ContestAdminRequired, WithCampQuerySet, PageCreateView)
             user = attendee.user
             school = user.current_school
 
+            school_display = "?"
+            if school:
+                school_display = f'<abbr data-tippy-content="{school}">{school.short_name if school.short_name else school.name}</abbr>'
+
             content.append(
-                f'| {user.display_name} | {user.get_current_grade_display()} | <abbr data-tippy-content="{school}">{school.short_name if school.short_name else school.name}</abbr> |'
+                f"| {user.display_name} | {user.get_current_grade_display()} | {school_display} |"
             )
         content.append("")
         content.append("## Vedúci")
@@ -315,9 +319,11 @@ class CampPageCreateView(ContestAdminRequired, WithCampQuerySet, PageCreateView)
             user = attendee.user
             school = user.current_school
 
-            content.append(
-                f'| {user.display_name} | <abbr data-tippy-content="{school}">{school.short_name if school.short_name else school.name}</abbr> |'
-            )
+            school_display = "?"
+            if school:
+                school_display = f'<abbr data-tippy-content="{school}">{school.short_name if school.short_name else school.name}</abbr>'
+
+            content.append(f"| {user.display_name} | {school_display} |")
 
         initial["content"] = "\n".join(content)
 
