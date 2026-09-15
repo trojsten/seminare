@@ -8,69 +8,79 @@
 
 {% block org_body %}
 <div class="flex flex-col md:flex-row w-full h-full max-h-screen">
-  <div class="border-r w-80 shrink-0 px-4 py-3 overflow-auto space-y-1 hidden lg:block" hx-boost="true">
-    <a href="{% url 'org:grading_overview' problem_set.slug problem.number %}#user-{{ submit.enrollment.user_id }}" class="link flex items-center mb-2">
-      <iconify-icon icon="mdi:arrow-left" class="mr-1"></iconify-icon>
-      Späť na hodnotenie úlohy
-    </a>
+  <div class="relative hidden lg:block" data-controller="sidebar-toggle">
+    <div id="grading-users-sidebar" class="border-r w-80 shrink-0 px-4 py-3 overflow-auto space-y-1 h-full" data-sidebar-toggle-target="sidebar">
+      <a href="{% url 'org:grading_overview' problem_set.slug problem.number %}#user-{{ submit.enrollment.user_id }}" class="link flex items-center mb-2">
+        <iconify-icon icon="mdi:arrow-left" class="mr-1"></iconify-icon>
+        Späť na hodnotenie úlohy
+      </a>
 
-    {% for row in other_users %}
-    {% if row.submit %}
-    <a href="{% url 'org:grading_submit' problem_set.slug problem.number row.submit.submit_id %}" class="block text-gray-800 px-3 py-2 hover:bg-gray-50 {% if row.user.id == submit.enrollment.user_id %}bg-gray-100 scroll-to-me{% endif %} rounded">
-      <div class="flex items-center justify-between font-semibold">
-        <span>{{ row.user.display_name }}</span>
-        {% if row.submit.score is not None %}
-        <span data-submit-score="{{ submit.id }}"class="text-green-600 whitespace-nowrap shrink-0 tabular-nums">{{ row.submit.score|floatformat:"g" }} b</span>
-        {% else %}
-        <span data-submit-score="{{ submit.id }}"class="text-red text-sm shrink-0">neohodnotené</span>
+      {% for row in other_users %}
+        {% if row.submit %}
+          <a href="{% url 'org:grading_submit' problem_set.slug problem.number row.submit.submit_id %}" class="block text-gray-800 px-3 py-2 hover:bg-gray-50 {% if row.user.id == submit.enrollment.user_id %}bg-gray-100 scroll-to-me{% endif %} rounded">
+            <div class="flex items-center justify-between font-semibold">
+              <span>{{ row.user.display_name }}</span>
+              {% if row.submit.score is not None %}
+              <span data-submit-score="{{ submit.id }}"class="text-green-600 whitespace-nowrap shrink-0 tabular-nums">{{ row.submit.score|floatformat:"g" }} b</span>
+              {% else %}
+              <span data-submit-score="{{ submit.id }}"class="text-red text-sm shrink-0">neohodnotené</span>
+              {% endif %}
+            </div>
+            {% if row.submit.comment %}
+            <div class="text-sm text-gray-500">
+              {{ row.submit.comment }}
+            </div>
+            {% endif %}
+          </a>
         {% endif %}
-      </div>
-      {% if row.submit.comment %}
-      <div class="text-sm text-gray-500">
-        {{ row.submit.comment }}
-      </div>
-      {% endif %}
-    </a>
-    {% endif %}
-    {% endfor %}
+      {% endfor %}
+    </div>
+    <button class="flex items-center absolute -right-6 top-1/2 transform -translate-y-1/2 w-6 h-8 rounded-r-md border border-l-0 bg-gray-50 text-gray-400 hover:text-gray-600 hover:bg-gray-100" data-action="sidebar-toggle#toggle">
+      <iconify-icon icon="mdi:chevron-left" width="none" class="size-6" data-sidebar-toggle-target="button"></iconify-icon>
+    </button>
   </div>
 
   <div class="md:flex-1 overflow-auto flex min-h-[40rem] md:h-auto">
     {% include "submits/content/render.html" %}
   </div>
 
-  <div class="border-l md:w-80 shrink-0 flex flex-col">
-    <div class="font-bold text-lg pb-2 pt-3 px-4 shrink-0">Ostatné odovzdania</div>
+  <div class="relative" data-controller="sidebar-toggle">
+    <div id="grading-submits-sidebar" class="border-l md:w-80 shrink-0 flex flex-col h-full" data-sidebar-toggle-target="sidebar">
+      <div class="font-bold text-lg pb-2 pt-3 px-4 shrink-0">Ostatné odovzdania</div>
 
-    <div class="px-4 pb-3 pt-0 flex-1 overflow-auto space-y-1" hx-boost="true">
-      {% for osubmit in other_submits %}
-        {% if osubmit.type == "submit" %}
-          {% with other_submit=osubmit.submit %}
-            <a href="{% url 'org:grading_submit' problem_set.slug problem.number other_submit.submit_id %}" class="block text-gray-800 px-3 py-2 rounded {{ osubmit.style }}">
-              <div class="flex items-center justify-between font-semibold gap-1">
-                <span class="text-ellipsis overflow-hidden text-sm">{{ other_submit.created_at }}</span>
-                <span data-submit-score="{{ other_submit.id }}"class="text-green-600 whitespace-nowrap shrink-0 tabular-nums">{% if other_submit.score is not None %}{{ other_submit.score|floatformat:"g" }} b{% endif %}</span>
+      <div class="px-4 pb-3 pt-0 flex-1 overflow-auto space-y-1">
+        {% for osubmit in other_submits %}
+          {% if osubmit.type == "submit" %}
+            {% with other_submit=osubmit.submit %}
+              <a href="{% url 'org:grading_submit' problem_set.slug problem.number other_submit.submit_id %}" class="block text-gray-800 px-3 py-2 rounded {{ osubmit.style }}">
+                <div class="flex items-center justify-between font-semibold gap-1">
+                  <span class="text-ellipsis overflow-hidden text-sm">{{ other_submit.created_at }}</span>
+                  <span data-submit-score="{{ other_submit.id }}"class="text-green-600 whitespace-nowrap shrink-0 tabular-nums">{% if other_submit.score is not None %}{{ other_submit.score|floatformat:"g" }} b{% endif %}</span>
+                </div>
+              </a>
+            {% endwith %}
+          {% elif osubmit.type == "deadline" %}
+            <div class="relative mb-2">
+              <div aria-hidden="true" class="absolute inset-0 flex items-center">
+                <div class="w-full border-t border-gray-300"></div>
               </div>
-            </a>
-          {% endwith %}
-        {% elif osubmit.type == "deadline" %}
-          <div class="relative mb-2">
-            <div aria-hidden="true" class="absolute inset-0 flex items-center">
-              <div class="w-full border-t border-gray-300"></div>
+              <div class="relative flex justify-center">
+                <span class="bg-white px-3 text-base font-semibold text-muted" data-tippy-content="{{ osubmit.time }}">{{ osubmit.label }}</span>
+              </div>
             </div>
-            <div class="relative flex justify-center">
-              <span class="bg-white px-3 text-base font-semibold text-muted" data-tippy-content="{{ osubmit.time }}">{{ osubmit.label }}</span>
-            </div>
-          </div>
-        {% endif %}
-      {% endfor %}
-    </div>
+          {% endif %}
+        {% endfor %}
+      </div>
 
-    <div class="px-4 py-3 border-t flex-1 flex flex-col">
-      <div class="font-bold text-lg mb-2">Hodnotenie</div>
+      <div class="px-4 py-3 border-t flex-1 flex flex-col">
+        <div class="font-bold text-lg mb-2">Hodnotenie</div>
 
-      {% include "org/grading/_form.html" with type=submit.type %}
+        {% include "org/grading/_form.html" with type=submit.type %}
+      </div>
     </div>
+    <button class="flex items-center absolute -left-6 top-1/2 transform -translate-y-1/2 w-6 h-8 rounded-l-md border border-r-0 bg-gray-50 text-gray-400 hover:text-gray-600 hover:bg-gray-100" data-action="sidebar-toggle#toggle">
+      <iconify-icon icon="mdi:chevron-right" width="none" class="size-6" data-sidebar-toggle-target="button"></iconify-icon>
+    </button>
   </div>
 </div>
 {% endblock org_body %}
