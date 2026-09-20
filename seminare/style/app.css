@@ -1,42 +1,75 @@
-@import 'tippy.js/dist/tippy.css';
+@import 'tippy.js/dist/tippy.css' layer(base);
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+@plugin '@tailwindcss/forms';
+@plugin '@tailwindcss/typography';
+
+@config '../../tailwind.config.js';
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
+@theme {
+  --color-primary: #1077C1;
+  --color-primary-dark: color-mix(in oklab, var(--color-primary), #000 8%);
+  --color-primary-light: color-mix(in oklab, var(--color-primary), #fff 8%);
+  --color-primary-text: var(--color-white);
+
+  --font-sans: "Source Sans 3", sans-serif;
+}
 
 .theme-ksp,
 .theme-prask {
-  --primary-dark: oklch(52.09% 0.1084 117.77);
-  --primary: oklch(62.09% 0.1084 117.77);
-  --primary-light: oklch(72.09% 0.1084 117.77);
-  --primary-text: white;
+  --color-primary-dark: oklch(52.09% 0.1084 117.77);
+  --color-primary: oklch(62.09% 0.1084 117.77);
+  --color-primary-light: oklch(72.09% 0.1084 117.77);
+  --color-primary-text: white;
 }
 
 .theme-kms {
-  --primary-dark: oklch(45.13% 0.2369 300.61);
-  --primary: oklch(55.13% 0.2369 300.61);
-  --primary-light: oklch(65.13% 0.2369 300.61);
-  --primary-text: white;
+  --color--primary-dark: oklch(45.13% 0.2369 300.61);
+  --color-primary: oklch(55.13% 0.2369 300.61);
+  --color-primary-light: oklch(65.13% 0.2369 300.61);
+  --color-primary-text: white;
 }
 
 .theme-fks,
 .theme-fx {
-  --primary-dark: oklch(65.17% 0.1373 72.58);
-  --primary: oklch(75.17% 0.1373 72.58);
-  --primary-light: oklch(85.17% 0.1373 72.58);
-  --primary-text: white;
+  --color-primary-dark: oklch(65.17% 0.1373 72.58);
+  --color-primary: oklch(75.17% 0.1373 72.58);
+  --color-primary-light: oklch(85.17% 0.1373 72.58);
+  --color-primary-text: white;
 }
 
 .theme-susi {
-  --primary-dark: oklch(47.01% 0.1828 26.74);
-  --primary: oklch(57.01% 0.1828 26.74);
-  --primary-light: oklch(67.01% 0.1828 26.74);
-  --primary-text: white;
+  --color-primary-dark: oklch(47.01% 0.1828 26.74);
+  --color-primary: oklch(57.01% 0.1828 26.74);
+  --color-primary-light: oklch(67.01% 0.1828 26.74);
+  --color-primary-text: white;
 }
 
-
 .btn {
-  @apply inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold shadow-sm;
+  @apply inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold shadow-xs;
 }
 
 .btn-default {
@@ -80,11 +113,11 @@
 }
 
 .input {
-  @apply w-full rounded px-3 py-2 text-sm border border-gray-300 inline-flex;
+  @apply w-full rounded-sm px-3 py-2 text-sm border border-gray-300 inline-flex;
 }
 
 .checkbox {
-  @apply rounded;
+  @apply rounded-sm;
 }
 
 .input:disabled {
@@ -163,7 +196,7 @@ iconify-icon {
 }
 
 .io p:has(code) {
-  @apply bg-gray-100 p-2 rounded;
+  @apply bg-gray-100 p-2 rounded-sm;
 }
 
 .io pre {

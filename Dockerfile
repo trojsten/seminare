@@ -2,7 +2,7 @@ FROM node:lts-alpine AS cssbuild
 
 WORKDIR /app
 
-COPY package.json pnpm-lock.yaml ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 RUN npm install -g pnpm && \
  pnpm install --ignore-scripts --frozen-lockfile
 

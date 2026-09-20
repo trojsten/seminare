@@ -44,7 +44,7 @@
             Škola
           </th>
           {% for column_header in table.columns %}
-            <th scope="col" class="!text-center">
+            <th scope="col" class="text-center!">
               {% if column_header.link %}
                 <a href="{{ column_header.link }}" class="link">
               {% endif %}
@@ -56,14 +56,14 @@
               {% endif %}
             </th>
           {% endfor %}
-          <th class="!text-center">
+          <th class="text-center!">
             ∑
           </th>
         </tr>
       </thead>
       <tbody>
         {% for row in table.rows %}
-          <tr class="{% if row.ghost %}!text-gray-400{% endif %} {% if row.enrollment.user == request.user %}bg-gray-50 font-bold{% endif %} tabular-nums">
+          <tr class="{% if row.ghost %}text-gray-400!{% endif %} {% if row.enrollment.user == request.user %}bg-gray-50 font-bold{% endif %} tabular-nums">
             <td>
               {% if row.rank %}
                 {{ row.rank }}.
