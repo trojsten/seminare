@@ -1,4 +1,5 @@
 import secrets
+import unicodedata
 from csv import DictReader
 from datetime import datetime
 from io import TextIOWrapper
@@ -406,7 +407,7 @@ class CampForm(forms.ModelForm):
     attendees_csv = forms.FileField(
         required=False,
         label="CSV súbor účastníkov",
-        help_text="CSV súbor s účastníkmi sústredenia. Formát: meno, priezvisko, email. Voliteľne ešte môže obsahovať stĺpec: veduci.",
+        help_text="CSV súbor s účastníkmi sústredenia. Formát: meno, email. Voliteľne ešte môže obsahovať stĺpec: veduci.",
     )
 
     class Meta:
@@ -457,32 +458,56 @@ class CampForm(forms.ModelForm):
 
         try:
             reader = DictReader(TextIOWrapper(csv_file, encoding="utf-8"))
-            if not reader.fieldnames or not {
+
+            if not reader.fieldnames:
+                raise forms.ValidationError("CSV súboru chýba hlavička.")
+
+            columns = {}
+
+            for column in reader.fieldnames:
+                normalized_column = (
+                    unicodedata.normalize("NFKD", column.casefold())
+                    .encode("ASCII", "ignore")
+                    .decode("ASCII")
+                )
+                columns[normalized_column] = column
+
+            if not {
                 "meno",
-                "priezvisko",
                 "email",
-            }.issubset(set(reader.fieldnames)):
+            }.issubset(columns.keys()):
                 raise forms.ValidationError(
-                    "CSV súbor musí obsahovať stĺpce: meno, priezvisko, email."
+                    "CSV súbor musí obsahovať stĺpce: meno, email."
                 )
 
             out = []
             for row in reader:
-                if not row["meno"] or not row["priezvisko"] or not row["email"]:
-                    raise forms.ValidationError(
-                        "CSV súbor obsahuje riadky s prázdnymi hodnotami."
-                    )
-                full_name = f"{row['meno'].strip()} {row['priezvisko'].strip()}".strip()
-                email = row["email"].strip()
-                is_organizer = row.get("veduci", "").strip().lower() in {
+                full_name = row[columns["meno"]].strip()
+                email = row[columns["email"]].strip()
+                is_organizer = row.get(
+                    columns.get("veduci", "veduci"), ""
+                ).strip().lower() in {
                     "1",
                     "true",
                     "yes",
                 }
 
-                out.append((full_name, email, is_organizer))
+                if not full_name or not email:
+                    raise forms.ValidationError(
+                        "CSV súbor obsahuje riadky s prázdnymi hodnotami."
+                    )
+
+                user = User.objects.filter(email=email).first()
+                if full_name and user and user.display_name != full_name:
+                    raise forms.ValidationError(
+                        f"Používateľ s emailom {email} má iné meno ({user.display_name}) než v CSV súbore ({full_name})."
+                    )
+
+                out.append((full_name, user, is_organizer))
 
             return out
+        except forms.ValidationError:
+            raise
         except Exception as e:
             raise forms.ValidationError(f"Chyba pri čítaní CSV súboru: {e}")
 
@@ -496,8 +521,7 @@ class CampForm(forms.ModelForm):
             if csv_data := self.cleaned_data.get("attendees_csv"):
                 attendees = []
 
-                for full_name, email, is_organizer in csv_data:
-                    user = User.objects.filter(email=email).first()
+                for full_name, user, is_organizer in csv_data:
                     attendees.append(
                         CampAttendee(
                             camp=camp,
@@ -510,3 +534,52 @@ class CampForm(forms.ModelForm):
                 CampAttendee.objects.bulk_create(attendees, ignore_conflicts=True)
 
         return camp
+
+
+class CampAttendeeForm(forms.ModelForm):
+    class Meta:
+        model = CampAttendee
+        fields = ["name", "user", "is_organizer"]
+        labels = {
+            "name": "Meno",
+            "user": "Používateľ",
+            "is_organizer": "Vedúci",
+        }
+        widgets = {"user": UserAutocompleteInput}
+
+    def __init__(self, *, camp, **kwargs):
+        super().__init__(**kwargs)
+        self.camp = camp
+
+    def clean(self):
+        data = super().clean()
+
+        if not data:
+            return data
+
+        if not data["user"] and not data["name"]:
+            raise forms.ValidationError(
+                {"name": "Meno je povinné, ak nie je vybraný používateľ."}
+            )
+
+        if data["user"]:
+            attendee = self.camp.attendees.filter(user=data["user"])
+            if self.instance.pk:
+                attendee = attendee.exclude(pk=self.instance.pk)
+
+            if attendee.exists():
+                raise forms.ValidationError(
+                    {"user": "Tento používateľ už je pridaný ako účastník sústredenia."}
+                )
+
+            if not data["name"]:
+                data["name"] = data["user"].display_name
+
+        return data
+
+    def save(self, commit: bool = True) -> CampAttendee:
+        attendee: CampAttendee = super().save(commit=False)
+        attendee.camp = self.camp
+        if commit:
+            attendee.save()
+        return attendee

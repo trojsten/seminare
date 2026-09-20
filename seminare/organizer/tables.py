@@ -380,7 +380,7 @@ class CampTable(Table):
             links.append(
                 (
                     "mdi:approval",
-                    "Zfinalizovať",
+                    "Sfinalizovať",
                     reverse("org:camp_finalize", args=[object.id]),
                 ),
             )
@@ -419,6 +419,14 @@ class CampAttendeeTable(Table):
             return []
 
         return [
+            (
+                "mdi:pencil",
+                "Upraviť",
+                reverse(
+                    "org:camp_attendee_update",
+                    args=[object.camp_id, object.id],
+                ),
+            ),
             (
                 "mdi:delete",
                 "Odstrániť",
