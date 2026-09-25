@@ -34,8 +34,9 @@ class LevelRuleEngine(RuleEngine):
         data_qs = self.get_data_qs_for_users("level", users).distinct()
         data_qs = (
             data_qs.filter(data__regex=r"^\d+$")
+            .order_by("user_id")
+            .values("user_id")
             .annotate(max_level=Max(Cast(F("data"), output_field=IntegerField())))
-            .values("user_id", "max_level")
         )
 
         data: dict[int, int] = {}
