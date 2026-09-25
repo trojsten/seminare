@@ -6,6 +6,37 @@
 
 {% block org_navbar_class %}{{ block.super }} hidden 2xl:block{% endblock %}
 
+{% block head %}
+	{{ block.super }}
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const form = document.querySelector('form#grading-form');
+      if (!form) return
+
+      const originalFormData = new FormData(form);
+
+      window.addEventListener('beforeunload', function (e) {
+        const form = document.querySelector('form#grading-form');
+        if (!form) return;
+
+        const currentFormData = new FormData(form);
+
+        for (const [key, value] of currentFormData.entries()) {
+          if (value instanceof File) {
+            if (value.size > 0 || value.name !== '') {
+              e.returnValue = '.';
+              break;
+            }
+          } else if (originalFormData.get(key) !== value) {
+            e.returnValue = '.';
+            break;
+          }
+        }
+      });
+    });
+  </script>
+{% endblock %}
+
 {% block org_body %}
 <div class="flex flex-col md:flex-row w-full h-full max-h-screen">
   <div class="relative hidden lg:block" data-controller="sidebar-toggle">
