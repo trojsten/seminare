@@ -184,7 +184,7 @@ class ContestRole(models.Model):
 class NotificationType(models.IntegerChoices):
     ADMIN = 0, "Údržba stránky"
     PROBLEM_SET = 1, "Nové kolo"
-    SUBMIT_GRADED = 2, "Obodovaný submit"
+    SUBMIT_GRADED = 2, "Obodovaný popis"
     POST = 3, "Nový príspevok"
 
 

@@ -12,11 +12,8 @@ from django.views.generic import ListView, View
 from django.views.generic.edit import FormView
 
 from seminare.contests.utils import get_current_contest
-from seminare.users.forms import (
-    CONFIGURABLE_TYPES,
-    NotificationPreferencesForm,
-    channel_field_name,
-)
+from seminare.users.forms import NotificationPreferencesForm, channel_field_name
+from seminare.users.logic.notifications import CONFIGURABLE_TYPES
 from seminare.users.mixins.permissions import ContestOrganizerRequired
 from seminare.users.models import (
     Notification,

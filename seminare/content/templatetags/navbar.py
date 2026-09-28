@@ -50,10 +50,10 @@ def navbar_menu(context):
     )
 
     notifications = context["notifications"] = Notification.objects.filter(user=user)[
-        :5
+        :25
     ]
-    has_unread_notifications = context["has_unread_notifications"] = (
-        Notification.objects.filter(user=user, viewed_at__isnull=True).exists()
+    has_unread_notifications = context["has_unread_notifications"] = any(
+        n.viewed_at is None for n in notifications
     )
     notification_section = context["notification_section"] = list()
 

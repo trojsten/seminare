@@ -2,6 +2,7 @@ from django.urls import reverse
 from django.views.generic import CreateView, UpdateView
 
 from seminare.content.models import Post
+from seminare.content.notifications import notify_post_published
 from seminare.organizer.forms import PostForm
 from seminare.organizer.tables import PostTable
 from seminare.organizer.views import MixinProtocol, WithContest
@@ -67,6 +68,13 @@ class PostCreateView(
         kw["user"] = self.request.user
         kw["contest"] = self.contest
         return kw
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+
+        notify_post_published(self.object)
+
+        return response
 
     def get_breadcrumbs(self) -> list[tuple[str, str]]:
         return [

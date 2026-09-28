@@ -1,20 +1,13 @@
 from django import forms
 
 from seminare.contests.models import Contest
+from seminare.users.logic.notifications import CONFIGURABLE_TYPES, DEFAULT_CHANNELS
 from seminare.users.models import (
     NotificationChannel,
     NotificationPreferences,
     NotificationType,
     User,
 )
-
-CONFIGURABLE_TYPES = [
-    NotificationType.PROBLEM_SET,
-    NotificationType.SUBMIT_GRADED,
-    NotificationType.POST,
-]
-
-DEFAULT_CHANNELS = [NotificationChannel.SITE]
 
 
 def channel_field_name(type: NotificationType, channel: NotificationChannel) -> str:

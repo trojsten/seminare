@@ -9,7 +9,7 @@
        role="menu" aria-orientation="vertical" aria-labelledby="menu-button-notifications" tabindex="-1"
        data-dropdown-target="dropdown"
   >
-    <div class="-m-2 text-gray-800">
+    <div class="-m-2 text-gray-800 overflow-y-scroll max-h-64">
       {% for notification in notifications %}
         <a href="{% url 'notification_seen' notification.id %}"
           class="group block p-2 rounded cursor-pointer hover:bg-gray-50">

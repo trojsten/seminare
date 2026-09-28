@@ -31,7 +31,7 @@ class Migration(migrations.Migration):
                         choices=[
                             (0, "Údržba stránky"),
                             (1, "Nové kolo"),
-                            (2, "Obodovaný submit"),
+                            (2, "Obodovaný popis"),
                             (3, "Nový príspevok"),
                         ]
                     ),
@@ -76,7 +76,7 @@ class Migration(migrations.Migration):
                         choices=[
                             (0, "Údržba stránky"),
                             (1, "Nové kolo"),
-                            (2, "Obodovaný submit"),
+                            (2, "Obodovaný popis"),
                             (3, "Nový príspevok"),
                         ]
                     ),
