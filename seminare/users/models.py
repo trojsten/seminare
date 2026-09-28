@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING, ClassVar
 
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser, UserManager
+from django.contrib.postgres.fields import ArrayField
 from django.db import models
 
 if TYPE_CHECKING:
@@ -178,3 +179,70 @@ class ContestRole(models.Model):
     if TYPE_CHECKING:
 
         def get_role_display(self) -> str: ...
+
+
+class NotificationType(models.IntegerChoices):
+    ADMIN = 0, "Údržba stránky"
+    PROBLEM_SET = 1, "Nové kolo"
+    SUBMIT_GRADED = 2, "Obodovaný submit"
+    POST = 3, "Nový príspevok"
+
+
+class NotificationChannel(models.IntegerChoices):
+    SITE = 0, "Stránka"
+    EMAIL = 1, "Email"
+
+
+class Notification(models.Model):
+    id: int
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="notifications"
+    )
+    user_id: int
+
+    contest = models.ForeignKey("contests.Contest", on_delete=models.CASCADE)
+    contest_id: int
+
+    type = models.SmallIntegerField(choices=NotificationType.choices)
+
+    title = models.CharField(max_length=64)
+    content = models.TextField()
+
+    link = models.URLField(blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    viewed_at = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        ordering = ("-created_at",)
+
+    def __str__(self) -> str:
+        return f"{self.type}: {self.title} ({self.user})"
+
+    if TYPE_CHECKING:
+
+        def get_type_display(self) -> str: ...
+
+
+class NotificationPreferences(models.Model):
+    id: int
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user_id: int
+
+    contest = models.ForeignKey("contests.Contest", on_delete=models.CASCADE)
+    contest_id: int
+
+    type = models.SmallIntegerField(choices=NotificationType.choices)
+    channels = ArrayField(models.SmallIntegerField(choices=NotificationChannel.choices))
+
+    class Meta:
+        unique_together = ("user", "contest", "type")
+
+    def __str__(self) -> str:
+        return f"{self.user}: {self.contest} {self.type}"
+
+    if TYPE_CHECKING:
+
+        def get_type_display(self) -> str: ...

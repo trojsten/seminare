@@ -4,8 +4,9 @@ from pathlib import Path
 
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
-from django.http import FileResponse, HttpResponse
+from django.http import FileResponse, HttpRequest, HttpResponse, HttpResponseRedirect
 from django.template.loader import render_to_string
+from django.utils.http import url_has_allowed_host_and_scheme
 
 from seminare.contests.models import Contest
 
@@ -55,3 +56,13 @@ def send_mail(
     email.attach_alternative(html_content, "text/html")
 
     email.send()
+
+
+def redirect_back(request: HttpRequest, fallback: str) -> HttpResponseRedirect:
+    referer = request.headers.get("Referer")
+    if referer and url_has_allowed_host_and_scheme(
+        referer, allowed_hosts={request.get_host()}, require_https=request.is_secure()
+    ):
+        return HttpResponseRedirect(referer)
+
+    return HttpResponseRedirect(fallback)

@@ -1,0 +1,4 @@
+{% load ui %}
+{% for item in flash_messages %}
+  {% message item.text type=item.type icon=item.icon %}
+{% endfor %}

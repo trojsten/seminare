@@ -1,7 +1,18 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
-from .models import ContestRole, Enrollment, School, User
+from .models import (
+    ContestRole,
+    Enrollment,
+    Notification,
+    NotificationPreferences,
+    School,
+    User,
+)
+
+
+class NotificationPreferencesInline(admin.TabularInline):
+    model = NotificationPreferences
 
 
 class UserAdmin(BaseUserAdmin):
@@ -16,8 +27,9 @@ class UserAdmin(BaseUserAdmin):
                 ]
             },
         ),
-    )  # pyright:ignore
-    autocomplete_fields = BaseUserAdmin.autocomplete_fields + ("current_school",)  # pyright:ignore
+    )  # pyright:ignore  # ty: ignore[unsupported-operator]
+    autocomplete_fields = BaseUserAdmin.autocomplete_fields + ("current_school",)  # pyright:ignore  # ty: ignore[unsupported-operator]
+    inlines = [*BaseUserAdmin.inlines, NotificationPreferencesInline]
 
 
 admin.site.register(User, UserAdmin)
@@ -40,3 +52,10 @@ class ContestRoleAdmin(admin.ModelAdmin):
     list_display = ["user", "contest", "role"]
     list_filter = ["role", "contest"]
     search_fields = ["user__username", "contest__name"]
+
+
+@admin.register(Notification)
+class NotificationsAdmin(admin.ModelAdmin):
+    model = Notification
+    list_display = ["user", "type", "contest", "created_at", "viewed_at"]
+    list_filter = ["type", "contest"]
