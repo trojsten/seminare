@@ -13,7 +13,16 @@
       const form = document.querySelector('form#grading-form');
       if (!form) return
 
-      const originalFormData = new FormData(form);
+      let originalFormData = new FormData(form);
+
+      document.body.addEventListener('htmx:afterSettle', (event) => {
+        if (event.detail.boosted) {
+          const form = document.querySelector('form#grading-form');
+          if (form) {
+            originalFormData = new FormData(form);
+          }
+        }
+      });
 
       window.addEventListener('beforeunload', function (e) {
         const form = document.querySelector('form#grading-form');
