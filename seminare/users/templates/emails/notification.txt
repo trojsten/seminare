@@ -1,0 +1,16 @@
+{% extends "emails/base_email.txt" %}
+{% block content %}
+Ahoj,
+
+Na stránke ti pribudla nová správa:
+
+{{ title }}
+
+{{ content }}
+{% if link %}
+{{ link }}
+{% endif %}
+
+Toto upozornenie ti posielame, pretože máš v nastaveniach zapnuté posielanie upozornení na email.
+Nastavenia upozornení si vieš zmeniť tu: {{ settings_url }}
+{% endblock %}

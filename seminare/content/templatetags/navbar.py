@@ -4,6 +4,7 @@ from django.urls import reverse
 from seminare.content.models import MenuItem
 from seminare.contests.utils import get_current_contest
 from seminare.users.logic.permissions import is_contest_organizer
+from seminare.users.models import Notification
 
 register = template.Library()
 
@@ -11,42 +12,75 @@ register = template.Library()
 @register.inclusion_tag("navbar/menu.html", takes_context=True)
 def navbar_menu(context):
     contest = get_current_contest(context["request"])
-    items = list(
+    context["items"] = list(
         MenuItem.objects.filter(group__contest=contest).select_related("group").all()
     )
 
-    context["items"] = items
-
     user = context["user"]
-    if user.is_authenticated:
-        user_section = list()
-        context["user_section"] = user_section
+    if not user.is_authenticated:
+        return context
 
-        logout = MenuItem(
-            title="Odhlásiť sa",
-            icon="mdi:logout",
-            url=reverse("oidc_logout"),
-        )
-        setattr(logout, "post", True)
+    user_section = context["user_section"] = list()
 
-        if is_contest_organizer(user, contest):
-            user_section.append(
-                MenuItem(
-                    title="Organizátorské rozhranie",
-                    icon="mdi:account-tie",
-                    url=reverse("org:contest_dashboard"),
-                )
+    if is_contest_organizer(user, contest):
+        user_section.append(
+            MenuItem(
+                title="Organizátorské rozhranie",
+                icon="mdi:account-tie",
+                url=reverse("org:contest_dashboard"),
             )
-
-        user_section.extend(
-            [
-                MenuItem(
-                    title="Môj profil",
-                    icon="mdi:user",
-                    url="https://id.trojsten.sk/",
-                ),
-                logout,
-            ]
         )
+
+    logout = MenuItem(
+        title="Odhlásiť sa",
+        icon="mdi:logout",
+        url=reverse("oidc_logout"),
+    )
+    setattr(logout, "post", True)
+
+    user_section.extend(
+        [
+            MenuItem(
+                title="Môj profil",
+                icon="mdi:user",
+                url="https://id.trojsten.sk/",
+            ),
+            logout,
+        ]
+    )
+
+    notifications = context["notifications"] = Notification.objects.filter(user=user)[
+        :25
+    ]
+    has_unread_notifications = context["has_unread_notifications"] = any(
+        n.viewed_at is None for n in notifications
+    )
+    notification_section = context["notification_section"] = list()
+
+    if notifications:
+        if has_unread_notifications:
+            mark_all_read = MenuItem(
+                title="Označiť ako prečítané",
+                icon="mdi:eye",
+                url=reverse("notification_mark_all_read"),
+            )
+            setattr(mark_all_read, "post", True)
+            notification_section.append(mark_all_read)
+
+        delete_all = MenuItem(
+            title="Vymazať všetky",
+            icon="mdi:trash",
+            url=reverse("notification_delete_all"),
+        )
+        setattr(delete_all, "post", True)
+        notification_section.append(delete_all)
+
+    notification_section.append(
+        MenuItem(
+            title="Nastavenia upozornení",
+            icon="mdi:notification-settings",
+            url=reverse("notification_settings"),
+        )
+    )
 
     return context

@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load ui %}
+
+{% block title %}
+  Nastavenia upozornení {{ block.super }}
+{% endblock %}
+
+{% block after_menu %}
+  {% breadcrumbs "Upozornenia" "" "Nastavenia" %}
+{% endblock %}
+
+{% block body %}
+  <h1 class="text-3xl font-semibold">Nastavenia upozornení</h1>
+
+  <p class="mt-2 text-muted">
+    Vyber, kam chceš dostávať upozornenia.
+  </p>
+
+  {% flash_messages %}
+
+  <form method="post" class="mt-8 max-w-2xl space-y-6">
+    {% csrf_token %}
+    {% include "forms/non_field_errors.html" %}
+
+    <table class="simple-table">
+      <thead>
+        <tr>
+          <th class="w-1/2">Typ upozornenia</th>
+          {% for channel in rows.0.channels %}
+            <th class="w-1/4">{{ channel.label }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in rows %}
+          <tr>
+            <td>{{ row.label }}</td>
+            {% for channel in row.channels %}
+              <td>{{ channel.field }}</td>
+            {% endfor %}
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <button type="submit" class="btn btn-blue">Uložiť</button>
+  </form>
+{% endblock %}

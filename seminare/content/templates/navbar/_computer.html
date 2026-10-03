@@ -20,6 +20,8 @@
   {% endfor %}
 
   {% if user.is_authenticated %}
+    {% include 'navbar/_notifications_menu.html' %}
+
     <div class="relative inline-block" data-controller="dropdown">
       <button type="button"
               class="inline-flex w-full items-center gap-x-1 rounded-md px-3 py-2 hover:bg-primary-dark"

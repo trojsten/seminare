@@ -16,6 +16,7 @@ from seminare.organizer.views.generic import (
     GenericTableView,
 )
 from seminare.problems.models import Problem, ProblemSet
+from seminare.problems.notifications import notify_problem_set_published
 from seminare.rules import RuleEngine
 from seminare.users.logic.permissions import is_contest_administrator
 from seminare.users.mixins.permissions import (
@@ -74,6 +75,10 @@ class ProblemSetCreateView(
         self.object: ProblemSet = form.save(commit=False)
         self.object.contest = self.contest
         self.object.save()
+
+        if self.object.is_public:
+            notify_problem_set_published(self.object)
+
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self) -> str:
@@ -97,6 +102,16 @@ class ProblemSetUpdateView(
 
     def get_object(self, queryset=None):
         return self.problem_set
+
+    def form_valid(self, form):
+        published = "is_public" in form.changed_data and form.cleaned_data["is_public"]
+
+        response = super().form_valid(form)
+
+        if published:
+            notify_problem_set_published(self.object)
+
+        return response
 
     def get_queryset(self) -> QuerySet[Problem]:
         return Problem.objects.filter(problem_set=self.get_object()).order_by("number")

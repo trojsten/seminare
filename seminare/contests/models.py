@@ -55,6 +55,9 @@ class Contest(models.Model):
     def data_root(self) -> PurePath:
         return PurePath("contest") / self.short_name.lower()
 
+    def absolute_url(self, path: str) -> str:
+        return f"https://{self.site.domain}{path}"
+
 
 class RuleDataQuerySet(models.QuerySet):
     def for_contest(

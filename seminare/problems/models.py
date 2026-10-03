@@ -214,11 +214,38 @@ class Problem(models.Model):
     def __str__(self):
         return f"{self.number}. {self.name}"
 
+    def save(self, *args, **kwargs):
+        published = (
+            not self._state.adding
+            and self._points_publicly_visible is False
+            and self.points_publicly_visible
+        )
+
+        super().save(*args, **kwargs)
+
+        self._points_publicly_visible = self.points_publicly_visible
+
+        if published:
+            from seminare.problems.notifications import notify_problem_graded
+
+            notify_problem_graded(self)
+
+    _points_publicly_visible: bool | None = None
+
     def get_absolute_url(self):
         return reverse(
             "problem_detail",
             kwargs={"problem_set_id": self.problem_set_id, "number": self.number},
         )
+
+    @classmethod
+    def from_db(cls, *args, **kwargs) -> Self:
+        instance = super().from_db(*args, **kwargs)
+
+        if "points_publicly_visible" in instance.__dict__:
+            instance._points_publicly_visible = instance.points_publicly_visible
+
+        return instance
 
     @property
     def accepted_submit_types(self) -> list[BaseSubmit.SubmitType]:

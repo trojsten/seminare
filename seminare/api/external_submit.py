@@ -32,7 +32,11 @@ class ExternalSubmitAPITokenExchangeView(APIView):
             if data.get("problem_id") != problem.id:
                 raise signing.BadSignature()
 
-        except (signing.BadSignature, signing.SignatureExpired, User.DoesNotExist):
+        except (
+            signing.BadSignature,
+            signing.SignatureExpired,
+            User.DoesNotExist,
+        ):
             return Response({"ok": False, "error": "Invalid token."}, status=401)
 
         return Response(
