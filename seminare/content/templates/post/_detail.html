@@ -1,6 +1,6 @@
 {% load markdownify %}
 
-<article class="border shadow-sm p-6 rounded-md flex flex-col justify-between h-full">
+<article class="border shadow-xs p-6 rounded-md flex flex-col justify-between h-full">
   <div>
     <div class="flex justify-between">
       <div>
@@ -11,7 +11,7 @@
       </div>
       {% if is_organizer %}
         <div>
-          <a href="{% url "org:post_update" post.id %}" class="btn btn-green flex-grow-0">
+          <a href="{% url "org:post_update" post.id %}" class="btn btn-green grow-0">
             <iconify-icon icon="mdi:pencil" class="mr-1"></iconify-icon>
             Upraviť
           </a>
