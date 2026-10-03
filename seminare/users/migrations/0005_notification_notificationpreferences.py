@@ -57,6 +57,9 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
+            options={
+                "ordering": ("-created_at",),
+            },
         ),
         migrations.CreateModel(
             name="NotificationPreferences",
@@ -106,6 +109,7 @@ class Migration(migrations.Migration):
                 ),
             ],
             options={
+                "ordering": ("id",),
                 "unique_together": {("user", "contest", "type")},
             },
         ),

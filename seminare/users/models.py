@@ -238,6 +238,7 @@ class NotificationPreferences(models.Model):
     channels = ArrayField(models.SmallIntegerField(choices=NotificationChannel.choices))
 
     class Meta:
+        ordering = ("id",)
         unique_together = ("user", "contest", "type")
 
     def __str__(self) -> str:
