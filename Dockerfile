@@ -7,7 +7,6 @@ RUN npm install -g pnpm && \
  pnpm install --ignore-scripts --frozen-lockfile
 
 COPY ./ /app
-COPY tailwind.config.js ./
 RUN pnpm run build
 CMD ["pnpm", "run", "watch"]
 
