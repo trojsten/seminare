@@ -73,7 +73,7 @@ class ProblemSetForm(forms.ModelForm):
     def clean(self):
         data = super().clean()
 
-        if not data:
+        if not data or self.errors:
             return data
 
         try:
@@ -204,7 +204,7 @@ class ProblemForm(forms.ModelForm):
     def clean(self):
         data = super().clean()
 
-        if not data:
+        if not data or self.errors:
             return data
 
         if data["external_points"] != 0 and not data["external_submit_url"]:
@@ -554,7 +554,7 @@ class CampAttendeeForm(forms.ModelForm):
     def clean(self):
         data = super().clean()
 
-        if not data:
+        if not data or self.errors:
             return data
 
         if not data["user"] and not data["name"]:
