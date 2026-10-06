@@ -5,6 +5,7 @@
 /.env
 /.ruff_cache/
 /.venv/
+/seminare/.vapid.json
 /node_modules/
 /uploads/
 /private/

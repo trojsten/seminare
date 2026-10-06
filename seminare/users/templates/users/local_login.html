@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load forms %}
+
+{% block title %}
+  Prihlásenie {{ block.super }}
+{% endblock %}
+
+{% block body %}
+  <h1 class="text-3xl font-semibold">Prihlásenie</h1>
+  <p class="mt-2 text-muted">
+    Lokálne heslo pre riešiteľa alebo organizátora. Toto nie je účet personálu v Django admin.
+  </p>
+
+  <form method="post" class="mt-8 max-w-md space-y-4">
+    {% csrf_token %}
+    {% include "forms/non_field_errors.html" %}
+    {% for field in form %}
+      {% render_field field %}
+    {% endfor %}
+    <input type="hidden" name="next" value="{{ next }}">
+    <button type="submit" class="btn btn-blue">Prihlásiť sa</button>
+  </form>
+{% endblock %}
