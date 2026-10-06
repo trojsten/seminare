@@ -72,7 +72,7 @@
         "\\qty": (context) => {
           const args = context.consumeArgs(2);
           const numArg = getArgString(context, args[0]);
-          const unitArg = getArgString(context, args[1]);seminare
+          const unitArg = getArgString(context, args[1]);
           const formatted = formatNum(numArg);
           return `\\mathrm{${formatted}}\\;\\mathrm{${unitArg}}`;
         },
