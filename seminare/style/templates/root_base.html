@@ -65,11 +65,23 @@
         "\\SI": (context) => {
           const args = context.consumeArgs(2);
           const numArg = getArgString(context, args[0]);
-          const unitArg = getArgString(context, args[1]);
+          const unitArg = getArgString(context, args[1]);seminare
+          const formatted = formatNum(numArg);
+          return `\\mathrm{${formatted}}\\;\\mathrm{${unitArg}}`;
+        },
+        "\\qty": (context) => {
+          const args = context.consumeArgs(2);
+          const numArg = getArgString(context, args[0]);
+          const unitArg = getArgString(context, args[1]);seminare
           const formatted = formatNum(numArg);
           return `\\mathrm{${formatted}}\\;\\mathrm{${unitArg}}`;
         },
         "\\si": (context) => {
+          const arg = context.consumeArgs(1)[0];
+          const unitArg = getArgString(context, arg);
+          return `\\mathrm{${unitArg}}`;
+        },
+        "\\unit": (context) => {
           const arg = context.consumeArgs(1)[0];
           const unitArg = getArgString(context, arg);
           return `\\mathrm{${unitArg}}`;
