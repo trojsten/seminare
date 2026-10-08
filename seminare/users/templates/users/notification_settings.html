@@ -16,6 +16,8 @@
     Vyber, kam chceš dostávať upozornenia.
   </p>
 
+  {% include "users/_push_permission.html" %}
+
   {% flash_messages %}
 
   <form method="post" class="mt-8 max-w-2xl space-y-6">
@@ -25,9 +27,9 @@
     <table class="simple-table">
       <thead>
         <tr>
-          <th class="w-1/2">Typ upozornenia</th>
+          <th>Typ upozornenia</th>
           {% for channel in rows.0.channels %}
-            <th class="w-1/4">{{ channel.label }}</th>
+            <th>{{ channel.label }}</th>
           {% endfor %}
         </tr>
       </thead>

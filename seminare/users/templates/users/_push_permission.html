@@ -1,0 +1,30 @@
+<div class="mt-6 max-w-2xl space-y-3 rounded-md border p-4"
+     data-controller="push-notifications"
+     data-push-notifications-vapid-url-value="{% url 'push_vapid' %}"
+     data-push-notifications-subscribe-url-value="{% url 'push_subscribe' %}"
+     data-push-notifications-unsubscribe-url-value="{% url 'push_unsubscribe' %}">
+  {% csrf_token %}
+  <p class="text-muted">
+    Push upozornenia chodia aj keď je stránka na pozadí alebo zatvorená.
+    Najprv ich povoľ v prehliadači, potom zaškrtni stĺpec Push.
+  </p>
+  <div class="flex flex-wrap gap-2">
+    <button type="button"
+            hidden
+            class="btn btn-blue gap-x-2 disabled:opacity-60"
+            data-push-notifications-target="button"
+            data-action="click->push-notifications#toggle">
+      <iconify-icon data-push-notifications-target="icon" icon="mdi:bell-plus" width="none" class="size-5"></iconify-icon>
+      <span data-push-notifications-target="label">Povoliť push upozornenia</span>
+    </button>
+    {% if show_debug_notification %}
+      <form method="post" action="{% url 'notification_debug' %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-default gap-x-2">
+          <iconify-icon icon="mdi:bug" width="none" class="size-5"></iconify-icon>
+          Test o minútu
+        </button>
+      </form>
+    {% endif %}
+  </div>
+</div>
