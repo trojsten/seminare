@@ -86,6 +86,10 @@
 
   <div class="relative" data-controller="sidebar-toggle">
     <div id="grading-submits-sidebar" class="border-l md:w-80 shrink-0 flex flex-col h-full" data-sidebar-toggle-target="sidebar">
+      <div class="pb-2 pt-3 px-4 shrink-0">
+        {% include "tables/fields/user.html" with value=submit.enrollment.user %}
+      </div>
+
       <div class="font-bold text-lg pb-2 pt-3 px-4 shrink-0">Ostatné odovzdania</div>
 
       <div class="px-4 pb-3 pt-0 flex-1 overflow-auto space-y-1">
