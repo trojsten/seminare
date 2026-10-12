@@ -1,4 +1,4 @@
-<div class="bg-white p-4 text-sm font-semibold border-b shadow space-y-6 absolute w-full max-h-[calc(100vh-4.25em)] overflow-y-scroll z-10 md:hidden hidden" data-menu-toggle-target="toggle">
+<div class="bg-white p-4 text-sm font-semibold border-b shadow-sm space-y-6 absolute w-full max-h-[calc(100vh-4.25em)] overflow-y-scroll z-10 md:hidden hidden" data-menu-toggle-target="toggle">
   {% regroup items by group as groups %}
 
   {% if user.is_authenticated %}
@@ -11,7 +11,7 @@
   {% else %}
   <div class="-m-2">
     <a href="{% url "oidc_authentication_init" %}?next={{ request.path_info|urlencode }}"
-      class="flex items-center gap-x-2 p-2 text-gray-800 rounded hover:text-primary hover:bg-gray-50">
+      class="flex items-center gap-x-2 p-2 text-gray-800 rounded-sm hover:text-primary hover:bg-gray-50">
       <iconify-icon icon="mdi:login" width="none" class="size-5"></iconify-icon>
       Prihlásiť sa
     </a>

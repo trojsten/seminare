@@ -80,7 +80,7 @@ export default class extends Controller {
                     (
                         file.type == 'application/pdf'
                             ? `<div class="flex items-center justify-center"><iconify-icon class="size-10" icon="mdi:file-pdf-outline" height="40"></iconify-icon></div>`
-                            : `<img src="${reader.result}" class="rounded">`
+                            : `<img src="${reader.result}" class="rounded-sm">`
                     ) +
                     `<div class="mt-1 text-center">
                             ${file.name}
