@@ -134,6 +134,10 @@ REST_FRAMEWORK = {
 EMAIL_CONFIG = env.email("EMAIL_URL", default="consolemail://")
 vars().update(EMAIL_CONFIG)
 
+VAPID_PUBLIC_KEY = env("VAPID_PUBLIC_KEY", default="")
+VAPID_PRIVATE_KEY = env("VAPID_PRIVATE_KEY", default="")
+VAPID_ADMIN_EMAIL = env("VAPID_ADMIN_EMAIL", default="info@trojsten.sk")
+
 RQ_QUEUES = {
     "default": {
         "HOST": env("REDIS_HOST", default="redis"),

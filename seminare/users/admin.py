@@ -6,6 +6,7 @@ from .models import (
     Enrollment,
     Notification,
     NotificationPreferences,
+    PushSubscription,
     School,
     User,
 )
@@ -52,6 +53,12 @@ class ContestRoleAdmin(admin.ModelAdmin):
     list_display = ["user", "contest", "role"]
     list_filter = ["role", "contest"]
     search_fields = ["user__username", "contest__name"]
+
+
+@admin.register(PushSubscription)
+class PushSubscriptionAdmin(admin.ModelAdmin):
+    list_display = ["user", "created_at"]
+    search_fields = ["user__username", "endpoint"]
 
 
 @admin.register(Notification)

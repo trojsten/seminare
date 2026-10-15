@@ -1,6 +1,7 @@
 __pycache__/
 /.idea/
 /.env
+/seminare/.vapid.json
 /node_modules
 /private
 /uploads
