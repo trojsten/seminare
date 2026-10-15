@@ -48,6 +48,7 @@ post_commit_hook = ""
 commit = true
 tag = true
 push = true
+allowed_branches = "master"
 
 [tool.bumpver.file_patterns]
 "pyproject.toml" = [
