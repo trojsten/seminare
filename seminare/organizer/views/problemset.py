@@ -23,6 +23,7 @@ from seminare.users.mixins.permissions import (
     ContestAdminRequired,
     ContestOrganizerRequired,
 )
+from seminare.users.models import User
 
 
 class ProblemSetListView(ContestOrganizerRequired, WithContest, GenericTableView):
@@ -178,19 +179,35 @@ class ProblemSetCSVExportView(ContestAdminRequired, WithProblemSet, GenericFormV
             form.cleaned_data["result_table"]
         )
 
+        user_ids = [
+            row.enrollment.user_id
+            for row in table_data.rows
+            if not row.ghost or form.cleaned_data["include_ghost"]
+        ]
+        user_trojsten_ids = User.objects.filter(id__in=user_ids).values_list(
+            "id", "trojsten_id"
+        )
+        user_trojsten_ids = dict(user_trojsten_ids)
+
         w.writerow(
-            ["Meno", "Email", "Škola", "Ročník"]
+            ["Poradie", "Meno", "Email", "Trojsten ID", "Škola", "Ročník"]
             + [c.export() for c in table_data.columns]
             + ["Body spolu"]
         )
+        curr_rank = None
         for row in table_data.rows:
             if row.ghost and not form.cleaned_data["include_ghost"]:
                 continue
 
+            if row.rank is not None:
+                curr_rank = row.rank
+
             w.writerow(
                 [
+                    curr_rank,
                     row.enrollment.user.display_name,
                     row.enrollment.user.email,
+                    user_trojsten_ids.get(row.enrollment.user_id, None),
                     row.enrollment.school,
                     row.enrollment.grade,
                 ]
