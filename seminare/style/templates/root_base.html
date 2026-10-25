@@ -54,7 +54,7 @@
         .map(t => t.text)
         .join("");
     }
-    document.addEventListener("DOMContentLoaded", function() {
+    function renderKatex() {
       var macros = {
         // FKS
         "\\num": (context) => {
@@ -140,7 +140,10 @@
         ],
         macros: macros,
       });
-    });
+    };
+
+    document.addEventListener("DOMContentLoaded", renderKatex);
+    document.addEventListener("DOMContentLoaded", () => document.body.addEventListener('htmx:afterSettle', renderKatex));
   </script>
 
   <script src="{% static 'app.min.js' %}" defer></script>
