@@ -54,8 +54,9 @@
         .map(t => t.text)
         .join("");
     }
-    document.addEventListener("DOMContentLoaded", function() {
+    function renderKatex() {
       var macros = {
+        // FKS
         "\\num": (context) => {
           const arg = context.consumeArgs(1)[0];
           const raw = getArgString(context, arg);
@@ -125,6 +126,9 @@
         "\\steradian": "\\text{sr}\\,",
         "\\lumen": "\\text{lm}\\,",
         "\\lux": "\\text{lx}\\,",
+        // KSP
+        "\\O": "\\mathcal{O}",
+        "\\bigO": "\\mathcal{O}",
       };
 
       renderMathInElement(document.body, {
@@ -136,7 +140,10 @@
         ],
         macros: macros,
       });
-    });
+    };
+
+    document.addEventListener("DOMContentLoaded", renderKatex);
+    document.addEventListener("DOMContentLoaded", () => document.body.addEventListener('htmx:afterSettle', renderKatex));
   </script>
 
   <script src="{% static 'app.min.js' %}" defer></script>
