@@ -56,6 +56,7 @@
     }
     document.addEventListener("DOMContentLoaded", function() {
       var macros = {
+        // FKS
         "\\num": (context) => {
           const arg = context.consumeArgs(1)[0];
           const raw = getArgString(context, arg);
@@ -125,6 +126,9 @@
         "\\steradian": "\\text{sr}\\,",
         "\\lumen": "\\text{lm}\\,",
         "\\lux": "\\text{lx}\\,",
+        // KSP
+        "\\O": "\\mathcal{O}",
+        "\\bigO": "\\mathcal{O}",
       };
 
       renderMathInElement(document.body, {
