@@ -36,6 +36,9 @@ class ColumnHeader(ResultsSerializable):
 
 @dataclass
 class Cell(ResultsSerializable):
+    def export(self) -> str:
+        return self.display_cell
+
     @property
     def display_cell(self) -> str:
         raise NotImplementedError()
