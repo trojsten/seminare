@@ -52,13 +52,20 @@ class GenericFormView(WithBreadcrumbs, FormView):
     form_header_template = None
     form_links = []
     form_datalists = []
+    form_message: tuple[str] | tuple[str, str] | tuple[str, str, str] | None = None
 
     def get_form_title(self):
         return self.form_title
 
+    def get_form_message(
+        self,
+    ) -> tuple[str] | tuple[str, str] | tuple[str, str, str] | None:
+        return self.form_message
+
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx["form_title"] = self.get_form_title()
+        ctx["form_message"] = self.get_form_message()
         ctx["form_description"] = self.form_description
         ctx["form_multipart"] = self.form_multipart
         ctx["form_submit_label"] = self.form_submit_label
