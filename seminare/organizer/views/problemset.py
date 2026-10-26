@@ -148,11 +148,19 @@ class ProblemSetCSVExportView(ContestAdminRequired, WithProblemSet, GenericFormV
     form_submit_label = "Exportovať"
     form_multipart = True
 
-    require_finalized = True
-
     @cached_property
     def rule_engine(self) -> RuleEngine:
         return self.problem_set.get_rule_engine()
+
+    def get_form_message(self):
+        if not self.problem_set.is_finalized:
+            return (
+                "Výsledky tejto sady úloh ešte nie sú finalizované. Export môže obsahovať neúplné údaje.",
+                "warning",
+                "mdi:warning",
+            )
+
+        return super().get_form_message()
 
     def get_breadcrumbs(self):
         return [

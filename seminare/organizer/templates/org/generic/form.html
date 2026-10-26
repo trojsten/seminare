@@ -1,5 +1,5 @@
 {% extends "org/base.html" %}
-{% load forms %}
+{% load forms ui %}
 
 {% block title %}
   {{ form_title }} {{ block.super }}
@@ -7,6 +7,10 @@
 
 {% block body %}
   {% include "org/generic/_title.html" with title=form_title links=form_links %}
+
+  {% if form_message %}
+    {% message form_message.0 type=form_message.1|default:"info" icon=form_message.2 %}
+  {% endif %}
 
   {% if form_description %}
     <p>
