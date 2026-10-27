@@ -7,6 +7,20 @@ from seminare.utils import send_mail
 
 
 @job
+def deliver_notifications(
+    user_ids: list[int],
+    contest_id: int,
+    notification_type: int,
+    title: str,
+    content: str,
+    link: str = "",
+) -> None:
+    from seminare.users.logic.notifications import send_notifications
+
+    send_notifications(user_ids, contest_id, notification_type, title, content, link)
+
+
+@job
 def mail_notification(
     email: str,
     contest_id: int,

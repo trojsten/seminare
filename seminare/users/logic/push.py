@@ -1,15 +1,13 @@
 import base64
 import json
 import logging
-from pathlib import Path
 
 from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 
 from seminare.users.models import PushSubscription
 
 logger = logging.getLogger(__name__)
-
-_DEV_KEY_PATH = Path(settings.BASE_DIR) / "seminare" / ".vapid.json"
 
 
 def generate_vapid_keys() -> tuple[str, str]:
@@ -24,6 +22,7 @@ def generate_vapid_keys() -> tuple[str, str]:
         format=serialization.PublicFormat.UncompressedPoint,
     )
     public_key = base64.urlsafe_b64encode(raw_public).rstrip(b"=").decode()
+    logger.info("Generated VAPID keys: %s, %s", public_key, private_key)
     return public_key, private_key
 
 
@@ -36,12 +35,7 @@ def get_vapid_keys() -> tuple[str, str]:
     if not settings.DEBUG:
         return "", ""
 
-    if _DEV_KEY_PATH.exists():
-        data = json.loads(_DEV_KEY_PATH.read_text())
-        return data["public_key"], data["private_key"]
-
     public, private = generate_vapid_keys()
-    _DEV_KEY_PATH.write_text(json.dumps({"public_key": public, "private_key": private}))
     return public, private
 
 
@@ -59,8 +53,7 @@ def send_web_push(subscription: PushSubscription, payload: dict) -> None:
 
     _public, private = get_vapid_keys()
     if not private:
-        logger.warning("Web push is not configured")
-        return
+        raise ImproperlyConfigured("Web push is not configured")
 
     try:
         webpush(

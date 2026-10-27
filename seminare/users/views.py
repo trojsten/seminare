@@ -150,7 +150,7 @@ class DebugNotificationView(LoginRequiredMixin, View):
 
 class ServiceWorkerView(View):
     def get(self, request: HttpRequest) -> FileResponse:
-        path = finders.find("push/sw.js")
+        path = finders.find("sw.js")
         if not path:
             raise Http404
 
@@ -167,7 +167,7 @@ def _parse_push_subscription(request: HttpRequest) -> tuple[str, str, str] | Non
         keys = data["keys"]
         p256dh = keys["p256dh"]
         auth = keys["auth"]
-    except json.JSONDecodeError, KeyError, TypeError:
+    except (json.JSONDecodeError, KeyError, TypeError):
         return None
 
     if (
@@ -211,7 +211,7 @@ class PushUnsubscribeView(LoginRequiredMixin, View):
         try:
             data = json.loads(request.body)
             endpoint = data["endpoint"]
-        except json.JSONDecodeError, KeyError, TypeError:
+        except (json.JSONDecodeError, KeyError, TypeError):
             return JsonResponse({"error": "invalid"}, status=400)
 
         if not isinstance(endpoint, str):

@@ -7,26 +7,45 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('users', '0006_alter_notification_options'),
+        ("users", "0005_notification_notificationpreferences"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='notificationpreferences',
-            name='channels',
-            field=django.contrib.postgres.fields.ArrayField(base_field=models.SmallIntegerField(choices=[(0, 'Stránka'), (1, 'Email'), (2, 'Push')]), size=None),
+            model_name="notificationpreferences",
+            name="channels",
+            field=django.contrib.postgres.fields.ArrayField(
+                base_field=models.SmallIntegerField(
+                    choices=[(0, "Stránka"), (1, "Email"), (2, "Push")]
+                ),
+                size=None,
+            ),
         ),
         migrations.CreateModel(
-            name='PushSubscription',
+            name="PushSubscription",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('endpoint', models.TextField(unique=True)),
-                ('p256dh', models.CharField(max_length=255)),
-                ('auth', models.CharField(max_length=255)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='push_subscriptions', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("endpoint", models.TextField(unique=True)),
+                ("p256dh", models.CharField(max_length=255)),
+                ("auth", models.CharField(max_length=255)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="push_subscriptions",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
     ]

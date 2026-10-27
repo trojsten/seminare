@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.urls import path
 
 from seminare.users.views import (
@@ -14,7 +15,6 @@ from seminare.users.views import (
 )
 
 urlpatterns = [
-    path("sw.js", ServiceWorkerView.as_view(), name="service_worker"),
     path(
         "autocomplete/user/", UserAutocompleteView.as_view(), name="user_autocomplete"
     ),
@@ -53,3 +53,10 @@ urlpatterns = [
         name="push_unsubscribe",
     ),
 ]
+
+if settings.DEBUG:
+    # Production serves /sw.js from the static root via Caddy.
+    urlpatterns = [
+        path("sw.js", ServiceWorkerView.as_view(), name="service_worker"),
+        *urlpatterns,
+    ]

@@ -80,20 +80,50 @@ def notify(
     content: str,
     link: str = "",
 ) -> None:
+    from seminare.users.tasks import deliver_notifications
+
+    if isinstance(users, QuerySet):
+        user_ids = list(users.values_list("id", flat=True))
+    else:
+        user_ids = [user.id for user in users]
+
+    if not user_ids:
+        return
+
+    deliver_notifications.delay(user_ids, contest.id, type.value, title, content, link)
+
+
+def send_notifications(
+    user_ids: list[int],
+    contest_id: int,
+    notification_type: int,
+    title: str,
+    content: str,
+    link: str = "",
+) -> None:
+    from seminare.contests.models import Contest
     from seminare.users.tasks import mail_notification, push_notification
 
-    users = list(users)
+    if not user_ids:
+        return
+
+    contest = Contest.objects.filter(id=contest_id).first()
+    if contest is None:
+        return
+
+    users = list(User.objects.filter(id__in=user_ids).order_by("id"))
     if not users:
         return
 
-    channels_map = get_channels_map(users, contest, type)
+    kind = NotificationType(notification_type)
+    channels_map = get_channels_map(users, contest, kind)
 
     Notification.objects.bulk_create(
         [
             Notification(
                 user_id=user.id,
                 contest=contest,
-                type=type.value,
+                type=kind.value,
                 title=title,
                 content=content,
                 link=link,
@@ -103,29 +133,32 @@ def notify(
         ]
     )
 
-    for user in users:
-        if NotificationChannel.EMAIL in channels_map[user.id] and user.email:
-            mail_notification.delay(
-                email=user.email,
-                contest_id=contest.id,
-                title=title,
-                content=content,
-                link=link,
-            )
-
     push_user_ids = [
         user.id for user in users if NotificationChannel.PUSH in channels_map[user.id]
     ]
-    if push_user_ids:
-        subscribed_ids = set(
+    subscribed_ids = (
+        set(
             PushSubscription.objects.filter(user_id__in=push_user_ids)
             .values_list("user_id", flat=True)
             .distinct()
         )
-        for user_id in subscribed_ids:
-            push_notification.delay(
-                user_id=user_id,
-                contest_id=contest.id,
+        if push_user_ids
+        else set()
+    )
+
+    for user in users:
+        if NotificationChannel.EMAIL in channels_map[user.id] and user.email:
+            mail_notification(
+                email=user.email,
+                contest_id=contest_id,
+                title=title,
+                content=content,
+                link=link,
+            )
+        if user.id in subscribed_ids:
+            push_notification(
+                user_id=user.id,
+                contest_id=contest_id,
                 title=title,
                 content=content,
                 link=link,
