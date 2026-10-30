@@ -301,7 +301,10 @@ class PostForm(forms.ModelForm):
         self.contest = contest
 
         self.fields["contests"].queryset = Contest.objects.exclude(id=contest.id)
-        self.fields["contests"].initial = self.instance.contests.exclude(id=contest.id)
+        if self.instance.pk:
+            self.fields["contests"].initial = self.instance.contests.exclude(
+                id=contest.id
+            )
         self.fields["contests"].disabled = True
 
     def save(self, commit=True) -> Post:
