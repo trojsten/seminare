@@ -1,4 +1,4 @@
-import {Controller} from "@hotwired/stimulus"
+import { Controller } from "@hotwired/stimulus"
 
 function urlBase64ToUint8Array(base64String) {
     const padding = "=".repeat((4 - (base64String.length % 4)) % 4)
@@ -106,6 +106,7 @@ export default class extends Controller {
                 detail: this.subscription,
             }))
         } catch (_error) {
+            console.error(_error)
             this.failed = true
         } finally {
             this.busy = false
@@ -122,9 +123,9 @@ export default class extends Controller {
         }
         await navigator.serviceWorker.ready
 
-        const response = await fetch(this.vapidUrlValue, {credentials: "same-origin"})
+        const response = await fetch(this.vapidUrlValue, { credentials: "same-origin" })
         if (!response.ok) throw new Error("missing vapid key")
-        const {publicKey} = await response.json()
+        const { publicKey } = await response.json()
 
         this.subscription = await this.registration.pushManager.subscribe({
             userVisibleOnly: true,
@@ -144,7 +145,7 @@ export default class extends Controller {
                 "Content-Type": "application/json",
                 "X-CSRFToken": this.csrf(),
             },
-            body: JSON.stringify({endpoint}),
+            body: JSON.stringify({ endpoint }),
         })
     }
 
