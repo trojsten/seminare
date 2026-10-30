@@ -3,7 +3,7 @@ from django.views.generic import CreateView, UpdateView
 
 from seminare.content.models import Post
 from seminare.content.notifications import notify_post_published
-from seminare.organizer.forms import PostForm
+from seminare.organizer.forms import PostForm, PostFormWithSites
 from seminare.organizer.tables import PostTable
 from seminare.organizer.views import MixinProtocol, WithContest
 from seminare.organizer.views.generic import (
@@ -15,6 +15,7 @@ from seminare.users.logic.permissions import is_contest_administrator
 from seminare.users.mixins.permissions import (
     ContestOrganizerRequired,
 )
+from seminare.users.models import User
 
 
 class WithPostQuerySet(WithContest, MixinProtocol):
@@ -32,23 +33,22 @@ class PostListView(ContestOrganizerRequired, WithPostQuerySet, GenericTableView)
     table_title = "Zoznam príspevkov"
 
     def get_table_links(self):
-        links = []
-        if is_contest_administrator(self.request.user, self.contest):
-            links.append(
-                (
-                    "green",
-                    "mdi:plus",
-                    "Pridať",
-                    reverse("org:post_create"),
-                ),
-            )
-
-        return links + [
+        return [
+            (
+                "green",
+                "mdi:plus",
+                "Pridať",
+                reverse("org:post_create"),
+            ),
             ("default", "mdi:eye", "Pozrieť na stránke", reverse("post_list")),
         ]
 
     def get_table_context(self):
-        return {"contest": self.contest}
+        return {
+            "contest": self.contest,
+            "user": self.request.user,
+            "is_admin": is_contest_administrator(self.request.user, self.contest),
+        }
 
     def get_breadcrumbs(self) -> list[tuple[str, str]]:
         return [("Príspevky", "")]
@@ -58,7 +58,6 @@ class PostCreateView(
     ContestOrganizerRequired, WithContest, GenericFormView, CreateView
 ):
     form_title = "Nový príspevok"
-    form_class = PostForm
 
     def get_success_url(self) -> str:
         return reverse("org:post_list")
@@ -68,6 +67,14 @@ class PostCreateView(
         kw["user"] = self.request.user
         kw["contest"] = self.contest
         return kw
+
+    def get_form_class(self):
+        assert isinstance(self.request.user, User)
+
+        if is_contest_administrator(self.request.user, self.contest):
+            return PostFormWithSites
+
+        return PostForm
 
     def form_valid(self, form):
         response = super().form_valid(form)
@@ -87,7 +94,6 @@ class PostUpdateView(
     ContestOrganizerRequired, WithPostQuerySet, GenericFormView, UpdateView
 ):
     form_title = "Upraviť príspevok"
-    form_class = PostForm
 
     def get_success_url(self) -> str:
         return reverse("org:post_list")
@@ -98,12 +104,28 @@ class PostUpdateView(
         kw["contest"] = self.contest
         return kw
 
+    def get_form_class(self):
+        assert isinstance(self.request.user, User)
+
+        if is_contest_administrator(self.request.user, self.contest):
+            return PostFormWithSites
+
+        return PostForm
+
     def get_breadcrumbs(self) -> list[tuple[str, str]]:
         return [
             ("Príspevky", reverse("org:post_list")),
             (self.object, ""),
             ("Upraviť", ""),
         ]
+
+    def get_queryset(self):
+        assert isinstance(self.request.user, User)
+
+        if is_contest_administrator(self.request.user, self.contest):
+            return super().get_queryset()
+        else:
+            return super().get_queryset().filter(author=self.request.user)
 
 
 class PostDeleteView(ContestOrganizerRequired, WithPostQuerySet, GenericDeleteView):
@@ -116,3 +138,11 @@ class PostDeleteView(ContestOrganizerRequired, WithPostQuerySet, GenericDeleteVi
             (self.object, ""),
             ("Vymazať", ""),
         ]
+
+    def get_queryset(self):
+        assert isinstance(self.request.user, User)
+
+        if is_contest_administrator(self.request.user, self.contest):
+            return super().get_queryset()
+        else:
+            return super().get_queryset().filter(author=self.request.user)

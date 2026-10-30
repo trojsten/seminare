@@ -4,7 +4,7 @@ from django.utils.http import urlencode
 from django.utils.safestring import mark_safe
 
 from seminare.camps.models import Camp, CampAttendee
-from seminare.content.models import MenuGroup, MenuItem, Page
+from seminare.content.models import MenuGroup, MenuItem, Page, Post
 from seminare.problems.models import Problem, ProblemSet
 from seminare.style.tables import Table
 from seminare.submits.models import BaseSubmit
@@ -168,20 +168,23 @@ class PostTable(Table):
     }
 
     def get_links(
-        self, object: Page, context: dict
+        self, object: Post, context: dict
     ) -> list[tuple[str, str] | tuple[str, str, str]]:
-        return [
-            (
-                "mdi:pencil",
-                "Upraviť",
-                reverse("org:post_update", args=[object.id]),
-            ),
-            (
-                "mdi:delete",
-                "Vymazať",
-                reverse("org:post_delete", args=[object.id]),
-            ),
-        ]
+        if context["is_admin"] or context["user"].id == object.author_id:
+            return [
+                (
+                    "mdi:pencil",
+                    "Upraviť",
+                    reverse("org:post_update", args=[object.id]),
+                ),
+                (
+                    "mdi:delete",
+                    "Vymazať",
+                    reverse("org:post_delete", args=[object.id]),
+                ),
+            ]
+
+        return []
 
 
 class FileTable(Table):

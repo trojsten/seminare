@@ -10,6 +10,7 @@ from django.db import transaction
 
 from seminare.camps.models import Camp, CampAttendee
 from seminare.content.models import MenuGroup, MenuItem, Page, Post
+from seminare.contests.models import Contest
 from seminare.problems.models import Problem, ProblemSet, Text
 from seminare.rules import RuleEngine, get_rule_engine_class
 from seminare.style.forms import DateInput, DateTimeInput
@@ -278,6 +279,13 @@ class PageForm(forms.ModelForm):
 
 
 class PostForm(forms.ModelForm):
+    contests = forms.ModelMultipleChoiceField(
+        queryset=Contest.objects.none(),
+        required=False,
+        label="Viditeľné na ďalších stránkach",
+        help_text="Zmeniť ďalšie stránky môže iba administrátor.",
+    )
+
     class Meta:
         model = Post
         fields = ["title", "slug", "content"]
@@ -292,6 +300,10 @@ class PostForm(forms.ModelForm):
         self.user = user
         self.contest = contest
 
+        self.fields["contests"].queryset = Contest.objects.exclude(id=contest.id)
+        self.fields["contests"].initial = self.instance.contests.exclude(id=contest.id)
+        self.fields["contests"].disabled = True
+
     def save(self, commit=True) -> Post:
         post = super().save(commit=False)
         if not hasattr(post, "author"):
@@ -300,6 +312,24 @@ class PostForm(forms.ModelForm):
         if commit or not post.id:
             post.save()
         post.contests.add(self.contest)
+
+        return post
+
+
+class PostFormWithSites(PostForm):
+    class Meta(PostForm.Meta):
+        help_texts = {
+            "contests": "Tento príspevok bude viditeľný okrem tejto súťaže aj na stránkach vybraných súťaží.",
+        }
+
+    def __init__(self, *, user, contest, **kwargs):
+        super().__init__(user=user, contest=contest, **kwargs)
+        self.fields["contests"].disabled = False
+
+    def save(self, commit=True) -> Post:
+        post = super().save(commit=False)
+
+        post.contests.set(set(self.cleaned_data["contests"]) | {self.contest.id})
 
         return post
 
