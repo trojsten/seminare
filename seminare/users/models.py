@@ -191,6 +191,7 @@ class NotificationType(models.IntegerChoices):
 class NotificationChannel(models.IntegerChoices):
     SITE = 0, "Stránka"
     EMAIL = 1, "Email"
+    PUSH = 2, "Push"
 
 
 class Notification(models.Model):
@@ -247,3 +248,23 @@ class NotificationPreferences(models.Model):
     if TYPE_CHECKING:
 
         def get_type_display(self) -> str: ...
+
+
+class PushSubscription(models.Model):
+    id: int
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="push_subscriptions",
+    )
+    user_id: int
+
+    endpoint = models.TextField(unique=True)
+    p256dh = models.CharField(max_length=255)
+    auth = models.CharField(max_length=255)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self) -> str:
+        return f"{self.user_id}: {self.endpoint}"

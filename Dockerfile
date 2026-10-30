@@ -13,6 +13,8 @@ CMD ["pnpm", "run", "watch"]
 
 FROM ghcr.io/trojsten/django-docker:v8
 
+COPY ./docker/Caddyfile /base/Caddyfile
+
 COPY pyproject.toml uv.lock ./
 RUN uv sync --frozen --no-cache
 
