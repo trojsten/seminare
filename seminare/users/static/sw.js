@@ -1,8 +1,8 @@
 self.addEventListener("push", (event) => {
-    let payload = {title: "Upozornenie", body: "", url: "/"}
+    let payload = { title: "Upozornenie", body: "", url: "/" }
     if (event.data) {
         try {
-            payload = {...payload, ...event.data.json()}
+            payload = { ...payload, ...event.data.json() }
         } catch (_error) {
             payload.body = event.data.text()
         }
@@ -11,7 +11,8 @@ self.addEventListener("push", (event) => {
     event.waitUntil(
         self.registration.showNotification(payload.title, {
             body: payload.body,
-            data: {url: payload.url || "/"},
+            data: { url: payload.url || "/" },
+            icon: "/static/contests/trojsten/icon-color.svg",
         })
     )
 })
@@ -21,7 +22,7 @@ self.addEventListener("notificationclick", (event) => {
     const url = (event.notification.data && event.notification.data.url) || "/"
 
     event.waitUntil(
-        self.clients.matchAll({type: "window", includeUncontrolled: true}).then((windowClients) => {
+        self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((windowClients) => {
             for (const client of windowClients) {
                 if (client.url === url && "focus" in client) {
                     return client.focus()
