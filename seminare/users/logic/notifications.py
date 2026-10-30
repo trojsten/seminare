@@ -26,7 +26,11 @@ CONFIGURABLE_TYPES = [
 DEFAULT_CHANNELS = [NotificationChannel.SITE]
 
 FORCED_CHANNELS = {
-    NotificationType.ADMIN: [NotificationChannel.SITE, NotificationChannel.EMAIL],
+    NotificationType.ADMIN: [
+        NotificationChannel.SITE,
+        NotificationChannel.EMAIL,
+        NotificationChannel.PUSH,
+    ],
 }
 
 
