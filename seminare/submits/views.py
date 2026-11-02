@@ -1,8 +1,10 @@
 import json
+import logging
 import os.path
 from decimal import Decimal
 
 from django import forms
+from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404
@@ -11,6 +13,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import DetailView, View
 from django.views.generic.edit import FormView
+from judge_client.exceptions import UnknownLanguageError
 
 from seminare import settings
 from seminare.problems.models import Problem
@@ -27,6 +30,8 @@ from seminare.submits.tasks import mail_reviewer
 from seminare.submits.utils import combine_images_into_pdf, enqueue_judge_submit
 from seminare.users.mixins.permissions import ContestOrganizerRequired
 from seminare.users.models import User
+
+logger = logging.getLogger(__name__)
 
 
 class SubmitCreateView(FormView):
@@ -65,6 +70,25 @@ class SubmitCreateView(FormView):
     def get_success_url(self):
         return reverse("submit_detail", args=[self.submit.submit_id])
 
+    def get_problem_url(self):
+        return (
+            reverse(
+                "problem_detail",
+                args=[self.problem.problem_set.slug, self.problem.number],
+            )
+            + "#submit"
+        )
+
+    def form_invalid(self, form):
+        for errors in form.errors.values():
+            for error in errors:
+                messages.error(self.request, error)
+        return HttpResponseRedirect(self.get_problem_url())
+
+    def response_error(self, error: str):
+        messages.error(self.request, error)
+        return HttpResponseRedirect(self.get_problem_url())
+
 
 class FileSubmitCreateView(SubmitCreateView):
     form_class = FileFieldForm
@@ -75,7 +99,13 @@ class FileSubmitCreateView(SubmitCreateView):
         final_file = files[0]
         _, ext = os.path.splitext(files[0].name)
         if len(files) > 1 or ext.lower() in {".jpg", ".jpeg", ".png"}:
-            final_file = combine_images_into_pdf(files)
+            try:
+                final_file = combine_images_into_pdf(files)
+            except RuntimeError:
+                logger.exception("Failed to combine images into PDF")
+                return self.response_error(
+                    "Súbory sa nepodarilo spracovať. Skontroluj, či sú to platné obrázky.",
+                )
 
         self.submit = FileSubmit(
             file=final_file,
@@ -93,12 +123,22 @@ class JudgeSubmitCreateView(SubmitCreateView):
     def form_valid(self, form, *args, **kwargs):
         program = form.cleaned_data["program"]
 
-        submit = enqueue_judge_submit(
-            self.problem.judge_namespace,
-            self.problem.judge_task,
-            self.request.user,
-            program,
-        )
+        try:
+            submit = enqueue_judge_submit(
+                self.problem.judge_namespace,
+                self.problem.judge_task,
+                self.request.user,
+                program,
+            )
+        except UnknownLanguageError:
+            return self.response_error(
+                "Nepodarilo sa rozpoznať jazyk programu. Skontroluj príponu súboru.",
+            )
+        except Exception:
+            logger.exception("Failed to submit program to judge")
+            return self.response_error(
+                "Program sa nepodarilo odovzdať. Skús to neskôr, alebo nám napíš.",
+            )
 
         self.submit = JudgeSubmit(
             program=program,
