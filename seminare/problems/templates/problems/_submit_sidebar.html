@@ -17,7 +17,8 @@
   {% elif enrollment_warning %}
     {% message 'Tvoja aktuálna škola alebo ročník sa zmenil. Ak sú údaje vo výsledkovej listine neaktuálne, napíš na <a class="link" href="mailto:info@trojsten.sk?subject=Neaktuálne údaje vo výsledkovej listine">info@trojsten.sk</a>.' "warning" %}
   {% endif %}
-  <div data-submit--cta-target="submitForm" id="submit">
+  <div class="scroll-mt-[5.25em] lg:scroll-mt-[10em]" data-submit--cta-target="submitForm" id="submit">
+    {% flash_messages %}
     {% for id, data in submits.items %}
       <div data-controller="submit--{{ id }}-submit">
         <div class="font-bold text-2xl mb-1 flex justify-between">
