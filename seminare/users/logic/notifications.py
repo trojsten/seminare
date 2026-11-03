@@ -142,7 +142,9 @@ def send_notifications(
     ]
     subscribed_ids = (
         set(
-            PushSubscription.objects.filter(user_id__in=push_user_ids)
+            PushSubscription.objects.filter(
+                user_id__in=push_user_ids, contest_id=contest_id
+            )
             .values_list("user_id", flat=True)
             .distinct()
         )

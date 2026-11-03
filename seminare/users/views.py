@@ -201,7 +201,12 @@ class PushSubscribeView(LoginRequiredMixin, View):
         endpoint, p256dh, auth = parsed
         PushSubscription.objects.update_or_create(
             endpoint=endpoint,
-            defaults={"user": request.user, "p256dh": p256dh, "auth": auth},
+            defaults={
+                "user": request.user,
+                "contest": get_current_contest(request),
+                "p256dh": p256dh,
+                "auth": auth,
+            },
         )
         return JsonResponse({"ok": True})
 

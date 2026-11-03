@@ -69,5 +69,7 @@ def push_notification(
         "body": body,
         "url": link or contest.absolute_url("/"),
     }
-    for subscription in PushSubscription.objects.filter(user_id=user_id):
+    for subscription in PushSubscription.objects.filter(
+        user_id=user_id, contest_id=contest_id
+    ):
         send_web_push(subscription, payload)

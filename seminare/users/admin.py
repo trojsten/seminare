@@ -57,8 +57,9 @@ class ContestRoleAdmin(admin.ModelAdmin):
 
 @admin.register(PushSubscription)
 class PushSubscriptionAdmin(admin.ModelAdmin):
-    list_display = ["user", "created_at"]
+    list_display = ["user", "contest", "created_at"]
     search_fields = ["user__username", "endpoint"]
+    list_select_related = ["user", "contest"]
 
 
 @admin.register(Notification)
