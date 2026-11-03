@@ -260,6 +260,12 @@ class PushSubscription(models.Model):
     )
     user_id: int
 
+    contest = models.ForeignKey(
+        "contests.Contest",
+        on_delete=models.CASCADE,
+    )
+    contest_id: int
+
     endpoint = models.TextField(unique=True)
     p256dh = models.CharField(max_length=255)
     auth = models.CharField(max_length=255)
