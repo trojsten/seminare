@@ -183,4 +183,4 @@ class SeminareExtension(Extension):
             IOOutputBlockProcessor(md.parser), "IO_output", 100000
         )
         md.preprocessors.register(MathPreprocessor(md), "math_stash", 100005)
-        md.postprocessors.register(MathPostprocessor(md), "math_restore", 100005)
+        md.postprocessors.register(MathPostprocessor(md), "math_restore", -100005)
